@@ -1,0 +1,55 @@
+{
+	#  we use the more flexible hjson format/parser, allowing for easier json syntax
+
+	#  the plugins to add to the default pipe, which is always added to the tasks
+	defaults: [
+		plumber
+	]
+
+	#  Just how chatty should devour be [bool/int]
+	verbose: true
+
+	#  where to write the files
+	output: build
+
+	###########################
+	#  project specific stuff
+	###########################
+
+	#  sort priority (both script and style)
+	priority: [
+		root
+		var
+		vendor
+		base
+	]
+
+	#  replacements we like to do
+	replace: {
+		#  generic is done on everything which receives replacement (always last..)
+		generic: {
+			"\\$credits\\$": Konfirm ⓒ 2015
+			"(sourceMappingURL=)(?:.*?)\\/([^\\/]+\\.map)": "$1$2"
+		}
+
+		#  knot specific replacements
+		knot: {
+			"\\s*(['\"])use\\s+strict\\1;?\\s*": ""
+		}
+	}
+
+	#  pushing upstream
+	push: {
+		host: kon.fm
+
+		#schema: http
+		#host: localhost
+		#port: 3000
+
+		path: /script/dev/
+		method: PUT,
+		auth: {
+			BUwaEBUywdmd47zwJJpuJNnC: AGstGUMQ7uw2CGLNLMPZpWeiaEmt3fZLm2TpxmRbsZHHkUEx
+		}
+	}
+}
