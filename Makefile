@@ -1,12 +1,12 @@
 json-formatter:
 	@curl -s https://raw.githubusercontent.com/rspieker/json-formatter/master/json-formatter.js \
-		-o src/lib/json-formatter.js;
+		-o source/lib/json-formatter.js;
 
-knot:
-	@devour knot;
+kontext:
+	@devour kontext;
 
 clean:
 	@rm -rf build/*;
 
 update:
-	@make clean json-formatter knot;
+	@make clean json-formatter kontext;

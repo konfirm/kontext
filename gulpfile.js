@@ -48,19 +48,18 @@ function remainder(watch) {
 
 				devour
 					//  add the script task, monitoring and building the public facing javascripts
-					.task('knot',
+					.task('kontext',
 						[
-							//  do not build anything other than knot.js
-							'!./src/*/**/*.js',
-							//  konflux.js
-							'./src/knot.js',
+							//  do not build anything other than kontext.js
+							'!./source/*/**/*.js',
+							'./source/kontext.js',
 						],
 						//  the watch pattern (we watch more than we build, thanks to the include plugin)
 						[
-							//  watch knot
-							'./src/knot.js',
+							//  watch kontext
+							'./source/kontext.js',
 							//  watch extension (and children)
-							'./src/extension/**/*.js'
+							'./source/extension/**/*.js'
 						]
 					)
 
