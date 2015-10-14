@@ -23,6 +23,7 @@ function Emission() {
 			if (list.length && list.shift().apply(null, arg) !== false) {
 				return trigger(list, arg, done);
 			}
+
 			done();
 		}, 0);
 	}

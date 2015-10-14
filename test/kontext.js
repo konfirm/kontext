@@ -1,14 +1,27 @@
-/*global Emission, describe, beforeEach, it, expect*/
+/*global kontext, describe, beforeEach, it, expect*/
 describe('Kontext', function() {
+	'use strict';
+
 	var model = kontext.bind({
 			foo: 'bar',
 			pie: Math.PI,
 			boo: false
-		});
+		}, document.body);
 
 	it('notifies change', function(done) {
-		model.on('change', function(model, key, old) {
-			console.log(model, key, model[key], old);
+		var notes = 0;
+
+		kontext.on('update', function(model, key, old) {
+			++notes;
+
+			expect(old).toBe('bar');
+		});
+
+		model.on('update', function(model, key, old) {
+			++notes;
+
+			expect(old).toBe('bar');
+			expect(notes).toBe(2);
 
 			done();
 		});
