@@ -265,6 +265,6 @@
 	}
 
 	//  create a new Kontext instance in the global scope
-	global.kontext = global.kontext || new Kontext(); 
+	global.kontext = global.kontext || new Kontext();
 
 })(window);

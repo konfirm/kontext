@@ -2,11 +2,16 @@
 describe('Kontext', function() {
 	'use strict';
 
-	var model = kontext.bind({
+	var model;
+
+	beforeEach(function() {
+		document.body.insertBefore(document.createTextNode('a {foo:fool} walks into a {bar:trap}'), document.body.firstChild);
+
+		model = kontext.bind({
 			foo: 'bar',
-			pie: Math.PI,
-			boo: false
+			bar: 'baz'
 		}, document.body);
+	});
 
 	it('notifies change', function(done) {
 		var notes = 0;
