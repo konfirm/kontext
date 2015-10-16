@@ -215,12 +215,21 @@ describe('Emission', function() {
 		expect(removed[0]).toBe(foo2);
 	});
 
-	it('allows triggers with no arguments', function(done) {
+	it('allows triggers with no arguments, only a callback', function(done) {
 		emission.trigger('bar', function() {
 			expect(result.length).toBe(1);
 
 			done();
 		});
+	});
+
+	it('allows triggers with no arguments', function(done) {
+		setTimeout(function() {
+			expect(result.length).toBe(1);
+			done();
+		}, 100);
+
+		emission.trigger('bar');
 	});
 
 	it('stops if a handle returns false', function(done) {
