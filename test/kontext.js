@@ -1,20 +1,34 @@
-/*global kontext, describe, beforeEach, it, expect*/
+/*global kontext, describe, afterEach, beforeEach, it, expect*/
 describe('Kontext', function() {
 	'use strict';
 
-	var model;
+	beforeEach(function(done) {
+		var content = '<p>A {foo:fool} walks into a {bar:trap}',
+			wrapper = document.body.insertBefore(document.createElement('div'), document.body.firstChild);
 
-	beforeEach(function() {
-		document.body.insertBefore(document.createTextNode('a {foo:fool} walks into a {bar:trap}'), document.body.firstChild);
+		wrapper.setAttribute('id', 'fixture');
 
-		model = kontext.bind({
-			foo: 'bar',
-			bar: 'baz'
-		}, document.body);
+		document.body.insertBefore(wrapper, document.body.firstChild);
+
+		done();
+	});
+
+	afterEach(function(done) {
+		var wrapper = document.querySelector('#fixture');
+
+		if (wrapper) {
+			wrapper.parentNode.removeChild(wrapper);
+		}
+
+		done();
 	});
 
 	it('notifies change', function(done) {
-		var notes = 0;
+		var notes = 0,
+			model = kontext.bind({
+				foo: 'bar',
+				bar: 'baz'
+			}, document.body);
 
 		kontext.on('update', function(model, key, old) {
 			++notes;
