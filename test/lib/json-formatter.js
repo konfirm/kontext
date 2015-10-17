@@ -82,12 +82,6 @@ describe('JSONFormatter', function() {
 		expect(json.parse('    hello    :    world    ')).toEqual({hello:'world'});
 	});
 
-	it('optimize escape characters', function() {
-		var json = new JSONFormatter();
-
-		expect(json.prepare('hello\\"world')).toBe('hello\\"world');
-	});
-
 	it('allows keywords and numbers to be used as object keys', function() {
 		var json = new JSONFormatter();
 

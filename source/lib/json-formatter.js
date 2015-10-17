@@ -80,7 +80,7 @@ function JSONFormatter() {
 		//  as we need to process the stuff in list, right until we find a matching token
 		while (list.length) {
 			character = list.shift();
-console.log(character, character[character.length - 1]);
+
 			//  reduce provided escaping
 			if (character[character.length - 1] === '\\') {
 				if (!pattern.escape.test(list[0])) {
@@ -131,6 +131,8 @@ console.log(character, character[character.length - 1]);
 	 *  @param   string  result
 	 *  @param   array   tokens
 	 *  @return  string  result
+	 *  @TODO    There is an issue with quotation symbols inside strings
+	 *           e.g. 'hello"world' becomes '"hello""world"' while it should become '"hello\"world"'
 	 */
 	function nibble(result, list) {
 		var token = list.shift();
