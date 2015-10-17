@@ -1,4 +1,4 @@
-/*global Emission, Settings, Text*/
+/*global Attribute, Emission, Settings, Text*/
 ;(function(global) {
 	'use strict';
 
@@ -6,6 +6,7 @@
 	//@include lib/settings
 	//@include lib/emission
 	//@include lib/text
+	//@include lib/attribute
 
 	function Kontext() {
 		var kontext = this,
@@ -19,6 +20,7 @@
 		 *  @return  void
 		 */
 		function init() {
+			//  internal settings
 			settings._({
 				rAF: global.requestAnimationFrame || function(f) {
 					setTimeout(f, 1e3 / 60);
@@ -27,6 +29,7 @@
 				extension: {}
 			});
 
+			//  public settings (this is what is provided/changed when using the kontext.defaults method)
 			settings.public({
 				greedy: true,
 				attribute: 'data-kontext'
@@ -88,6 +91,31 @@
 			}
 
 			Object.defineProperty(target, key, definition);
+		}
+
+		/**
+		 *  Obtain and/or register an extension to be defined in the data attribute
+		 *  @name    extension
+		 *  @access  internal
+		 *  @param   string    name
+		 *  @param   function  handler  [optional, default undefined - obtain the extension]
+		 *  @return  function  handler
+		 */
+		function extension(name, handler) {
+			var ext = settings._('extension') || {};
+
+			if (handler) {
+				ext[name] = handler;
+				settings._('extension', ext);
+			}
+
+			if (!(name in ext)) {
+				return function() {
+					console.error('Kontext: Unknown extension "' + name + '"');
+				};
+			}
+
+			return ext[name];
 		}
 
 		/**
@@ -281,6 +309,14 @@
 				if (delegated) {
 					delegated.element(text);
 				}
+			});
+
+			new Attribute().find(settings.public('attribute'), element, function(target, settings) {
+				eachKey(settings, function(key, config) {
+					var ext = extension(key);
+
+					ext(target, model, config, kontext);
+					});
 			});
 
 			return model;
