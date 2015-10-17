@@ -1,14 +1,37 @@
-/*global Emission*/
+/*global Emission, Settings, Text*/
 ;(function(global) {
 	'use strict';
 
 	//  load dependencies
+	//@include lib/settings
 	//@include lib/emission
 	//@include lib/text
 
 	function Kontext() {
 		var kontext = this,
+			settings = new Settings(),
 			emission = new Emission();
+
+		/**
+		 *  Initializer, set up Kontext defaults
+		 *  @name    init
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function init() {
+			settings._({
+				rAF: global.requestAnimationFrame || function(f) {
+					setTimeout(f, 1e3 / 60);
+				},
+
+				extension: {}
+			});
+
+			settings.public({
+				greedy: true,
+				attribute: 'data-kontext'
+			});
+		}
 
 		/**
 		 *  Iterator over all properties and apply the callback function on each
@@ -254,7 +277,7 @@
 					define(model, key, true, delegated, delegated);
 				}
 
-				//  if Knot created the delegate, we should register the element to the delegation
+				//  if Kontext created the delegate, we should register the element to the delegation
 				if (delegated) {
 					delegated.element(text);
 				}
@@ -262,6 +285,24 @@
 
 			return model;
 		};
+
+		/**
+		 *  Get/set the default options
+		 *  @name    defaults
+		 *  @param   Object  options  [optional, default undefined - do not set anything]
+		 *  @return  Object  default options
+		 */
+		kontext.defaults = function(options) {
+			if (options && typeof options === 'object') {
+				eachKey(options, function(key, value) {
+					settings.public(key, value);
+				});
+			}
+
+			return settings.public();
+		};
+
+		init();
 	}
 
 	//  create a new Kontext instance in the global scope
