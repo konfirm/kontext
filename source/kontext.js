@@ -5,13 +5,15 @@
 	//  load dependencies
 	//@include lib/settings
 	//@include lib/emission
+	//@include lib/observer
 	//@include lib/text
 	//@include lib/attribute
 
 	function Kontext() {
 		var kontext = this,
 			settings = new Settings(),
-			emission = new Emission();
+			emission = new Emission(),
+			observer = new Observer();
 
 		/**
 		 *  Initializer, set up Kontext defaults
@@ -20,13 +22,18 @@
 		 *  @return  void
 		 */
 		function init() {
+			if (!compatible()) {
+				return setTimeout(function() {
+					emission.trigger('ready', ['Unsupported browser']);
+				}, 0);
+			}
+
 			//  internal settings
 			settings._({
+				extension: {},
 				rAF: global.requestAnimationFrame || function(f) {
 					setTimeout(f, 1e3 / 60);
-				},
-
-				extension: {}
+				}
 			});
 
 			//  public settings (this is what is provided/changed when using the kontext.defaults method)
@@ -34,6 +41,33 @@
 				greedy: true,
 				attribute: 'data-kontext'
 			});
+
+			//  register our own ready handler, ensuring to be the first in line
+			emission.add('ready', function(error) {
+				settings._('ready', error || true);
+			}, 1);
+
+			//  add the DOMContentLoaded event to the document, so we can trigger the 'ready' handlers early on
+			document.addEventListener('DOMContentLoaded', function() {
+				//  call any registered 'ready' handler
+				emission.trigger('ready', [undefined, kontext]);
+			}, false);
+		}
+
+		/**
+		 *  Basic compatibility check
+		 *  @name    compatible
+		 *  @access  internal
+		 *  @return  void  [throws Error is not compatible]
+		 */
+		function compatible() {
+			var result = true;
+
+			result = result && 'addEventListener' in document;
+			result = result && 'defineProperties' in Object;
+			result = result && 'getOwnPropertyDescriptor' in Object;
+
+			return result;
 		}
 
 		/**
@@ -209,8 +243,12 @@
 			result.element = function() {
 				var append = castToArray(arguments);
 
-				//  @add observers to monitor changes
-				//  @update the element value
+				append.forEach(function(node) {
+					//  add observers to monitor changes
+					observer.monitor(node, result);
+
+					//  @update the element value
+				});
 
 				config.element = config.element.concat(append);
 			};
@@ -253,6 +291,41 @@
 		}
 
 		/**
+		 *  Get/set the default options
+		 *  @name    defaults
+		 *  @param   Object  options  [optional, default undefined - do not set anything]
+		 *  @return  Object  default options
+		 */
+		kontext.defaults = function(options) {
+			if (options && typeof options === 'object') {
+				eachKey(options, function(key, value) {
+					settings.public(key, value);
+				});
+			}
+
+			return settings.public();
+		};
+
+		/**
+		 *  Register a handler to be invoked when Kontext is ready (DOM-ready)
+		 *  @name    ready
+		 *  @access  public
+		 *  @param   function  callback
+		 *  @return  object    kontext
+		 */
+		kontext.ready = function(callback) {
+			var state = settings._('ready');
+
+			emission.add('ready', callback, 1);
+
+			if (state !== undefined) {
+				emission.trigger('ready', state !== true ? state : undefined);
+			}
+
+			return kontext;
+		};
+
+		/**
 		 *  Register an event handler
 		 *  @name    on
 		 *  @access  public
@@ -277,6 +350,20 @@
 		};
 
 		/**
+		 *  Register extentions
+		 *  @name    extension
+		 *  @access  public
+		 *  @param   string    name
+		 *  @param   function  handle
+		 *  @return  void
+		 */
+		kontext.extension = function(name, handle) {
+			if (handle) {
+				return extension(name, handle);
+			}
+		};
+
+		/**
 		 *  Bind a model to an element, this also prepares the model so event emissions can be triggered
 		 *  @name    bind
 		 *  @access  public
@@ -298,9 +385,7 @@
 						delegated(initial);
 					}
 				}
-
-				// else if (options.greedy) {
-				else {
+				else if (settings._('greedy')) {
 					delegated = delegate(initial, model);
 					define(model, key, true, delegated, delegated);
 				}
@@ -320,22 +405,6 @@
 			});
 
 			return model;
-		};
-
-		/**
-		 *  Get/set the default options
-		 *  @name    defaults
-		 *  @param   Object  options  [optional, default undefined - do not set anything]
-		 *  @return  Object  default options
-		 */
-		kontext.defaults = function(options) {
-			if (options && typeof options === 'object') {
-				eachKey(options, function(key, value) {
-					settings.public(key, value);
-				});
-			}
-
-			return settings.public();
 		};
 
 		init();

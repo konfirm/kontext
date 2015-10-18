@@ -30,6 +30,7 @@ describe('Kontext', function() {
 				bar: 'baz'
 			}, document.body);
 
+		//  kontext itself emits before the model
 		kontext.on('update', function(model, key, old) {
 			++notes;
 
