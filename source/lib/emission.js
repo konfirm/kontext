@@ -95,17 +95,14 @@ function Emission() {
 	emission.trigger = function(type, arg, done) {
 		var list = emission.list(type)
 				.map(function(config) {
-					if (config.invoke < Infinity) {
-						return function() {
-							if (--config.invoke <= 0) {
-								emission.remove(type, config.handle);
-							}
-
-							return config.handle.apply(null, arguments);
-						};
+					if (--config.invoke <= 0) {
+						emission.remove(type, config.handle);
 					}
 
-					return config.handle;
+					return config.invoke >= 0 ? config.handle : false;
+				})
+				.filter(function(callback) {
+					return typeof callback === 'function';
 				});
 
 		if (arguments.length < 3 && typeof arguments[arguments.length - 1] === 'function') {
