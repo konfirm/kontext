@@ -3,7 +3,7 @@ describe('Kontext Greedy', function() {
 	'use strict';
 
 	beforeEach(function(done) {
-		var content = '<p>{foo:fool}</p>',
+		var content = '<p>{foo:fool}, {bar} and {baz}</p>',
 			wrapper = document.body.insertBefore(document.createElement('div'), document.body.firstChild);
 
 		wrapper.setAttribute('class', 'fixture');
@@ -26,10 +26,16 @@ describe('Kontext Greedy', function() {
 	});
 
 	it('adds properties not in model but in document by default', function(done) {
-		var model = kontext.bind({}, document.body);
+		var model = kontext.bind({baz:null}, document.body);
 
 		expect('foo' in model).toBe(true);
 		expect(model.foo).toBe('fool');
+
+		expect('bar' in model).toBe(true);
+		expect(model.bar).toBe('');
+
+		expect('baz' in model).toBe(true);
+		expect(model.baz).toBe('');
 
 		done();
 	});
@@ -39,9 +45,12 @@ describe('Kontext Greedy', function() {
 
 		kontext.defaults({greedy: false});
 
-		model = kontext.bind({}, document.body);
+		model = kontext.bind({baz:null}, document.body);
 
 		expect('foo' in model).toBe(false);
+		expect('bar' in model).toBe(false);
+		expect('baz' in model).toBe(true);
+		expect(model.baz).toBe('');
 
 		done();
 	});
