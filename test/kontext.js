@@ -3,10 +3,11 @@ describe('Kontext', function() {
 	'use strict';
 
 	beforeEach(function(done) {
-		var content = '<p>A {foo:fool} walks into a {bar:trap}',
+		var content = '<p>A {foo:fool} walks into a {bar:trap}</p>',
 			wrapper = document.body.insertBefore(document.createElement('div'), document.body.firstChild);
 
 		wrapper.setAttribute('id', 'fixture');
+		wrapper.innerHTML = content;
 
 		document.body.insertBefore(wrapper, document.body.firstChild);
 

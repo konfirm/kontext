@@ -1,4 +1,4 @@
-/*global Attribute, Emission, Settings, Text*/
+/*global Attribute, Emission, Observer, Settings, Text*/
 ;(function(global) {
 	'use strict';
 
@@ -30,7 +30,6 @@
 
 			//  internal settings
 			settings._({
-				extension: {},
 				rAF: global.requestAnimationFrame || function(f) {
 					setTimeout(f, 1e3 / 60);
 				}
@@ -188,20 +187,20 @@
 		function prepare(model) {
 			var emitter;
 
-			//  replace any key with a delegate
-			eachKey(model, function(key, value) {
-				var handle = delegate(value, model, key);
-
-				//  add the delegated handle as both getter and setter on the model/key
-				define(model, key, true, handle, handle);
-
-				//  a change emission on a property will trigger an update on the model
-				handle.on('change', function() {
-					emitter.trigger('update', [model, key, value]);
-				});
-			});
-
 			if (!('on' in model && 'off' in model)) {
+				//  replace any key with a delegate
+				eachKey(model, function(key, value) {
+					var handle = delegate(value, model, key);
+
+					//  add the delegated handle as both getter and setter on the model/key
+					define(model, key, true, handle, handle);
+
+					//  a change emission on a property will trigger an update on the model
+					handle.on('change', function() {
+						emitter.trigger('update', [model, key, value]);
+					});
+				});
+
 				emitter = emitable(model);
 			}
 
@@ -357,11 +356,7 @@
 		 *  @param   function  handle
 		 *  @return  void
 		 */
-		kontext.extension = function(name, handle) {
-			if (handle) {
-				return extension(name, handle);
-			}
-		};
+		kontext.extension = extension;
 
 		/**
 		 *  Bind a model to an element, this also prepares the model so event emissions can be triggered
@@ -385,8 +380,8 @@
 						delegated(initial);
 					}
 				}
-				else if (settings._('greedy')) {
-					delegated = delegate(initial, model);
+				else if (settings.public('greedy')) {
+					delegated = delegate(initial, model, key);
 					define(model, key, true, delegated, delegated);
 				}
 
