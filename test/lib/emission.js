@@ -250,4 +250,29 @@ describe('Emission', function() {
 			done();
 		});
 	});
+
+	it('respects the invocation limits', function(done) {
+		var once = 0,
+			twice = 0;
+
+		emission.add('once', function() {
+			++once;
+			emission.trigger('once');
+		}, 1);
+
+		emission.add('twice', function() {
+			++twice;
+			emission.trigger('twice');
+		}, 2);
+
+		setTimeout(function() {
+			expect(once).toBe(1);
+			expect(twice).toBe(2);
+
+			done();
+		}, 1000);
+
+		emission.trigger('once');
+		emission.trigger('twice');
+	});
 });

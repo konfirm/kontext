@@ -34,12 +34,14 @@ function Emission() {
 	 *  @access  public
 	 *  @param   string  type
 	 *  @param   function  handle
+	 *  @param   number    invocations  [optional, default undefined - Infinite invocations]
 	 *  @return  function  handle
 	 */
-	emission.add = function(type, handle) {
+	emission.add = function(type, handle, invocations) {
 		collection.push({
 			type: type,
-			handle: handle
+			handle: handle,
+			invoke: invocations || Infinity
 		});
 
 		return handle;
@@ -93,6 +95,16 @@ function Emission() {
 	emission.trigger = function(type, arg, done) {
 		var list = emission.list(type)
 				.map(function(config) {
+					if (config.invoke < Infinity) {
+						return function() {
+							if (--config.invoke <= 0) {
+								emission.remove(type, config.handle);
+							}
+
+							return config.handle.apply(null, arguments);
+						};
+					}
+
 					return config.handle;
 				});
 
