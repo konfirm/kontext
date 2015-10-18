@@ -316,7 +316,7 @@
 					var ext = extension(key);
 
 					ext(target, model, config, kontext);
-					});
+				});
 			});
 
 			return model;
