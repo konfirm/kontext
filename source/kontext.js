@@ -231,6 +231,23 @@
 		}
 
 		/**
+		 *  Prepare a list of (possible) models
+		 *  @name    listPrepare
+		 *  @access  internal
+		 *  @param   array   list
+		 *  @param   object  config
+		 *  @param   array   subscriber
+		 */
+		function listPrepare(list, config) {
+			list.forEach(function(item, index) {
+				list[index] = prepare(item, config.model, config.key);
+				list[index].on('update', function() {
+					config.emission.trigger('update', [config.model, config.key, config.value]);
+				});
+			});
+		}
+
+		/**
 		 *  Create a delegation function, responsible for keeping track of updates, associated elements and providing the data
 		 *  @name    delegate
 		 *  @access  internal
@@ -245,12 +262,11 @@
 
 					//  update the value if the value argument was provided
 					if (change) {
-console.log(key, config.value, value);
 						config.value = value;
 					}
 
 					//  emit the appropriate event
-					config.emission.trigger(change ? 'update' : 'access', [model, key, config.value, value]);
+					config.emission.trigger(change ? 'update' : 'access', [config.model, config.key, config.value, value]);
 
 					return config.value;
 				},
@@ -259,8 +275,32 @@ console.log(key, config.value, value);
 				config = {
 					emission: emitable(result),
 					element: [],
-					value: initial
+					value: initial,
+					model: model,
+					key: key
 				};
+
+			//  if we are dealing with arrays, we'd like to know about mutations
+			if (initial instanceof Array) {
+				['copyWithin', 'fill', 'pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].forEach(function(key) {
+					var original;
+
+					if (typeof initial[key] === 'function') {
+						original = initial[key];
+						initial[key] = function() {
+							var result = original.apply(initial, arguments);
+
+							//  map the changes
+							listPrepare(initial, config);
+							config.emission.trigger('update', [config.model, config.key, config.value]);
+
+							return result;
+						};
+					}
+				});
+
+				listPrepare(initial, config);
+			}
 
 			//  create the scope method, used to register the scope (model + key) for delegates created externally
 			result.scope = function() {
@@ -438,13 +478,11 @@ console.log(key, config.value, value);
 					delegated.scope(model, key);
 
 					if (!delegated()) {
-						console.log('setting initial value', key, initial);
 						delegated(initial);
 					}
 				}
 				else if (settings.public('greedy')) {
 					//  create the delegate function
-					console.log('create delegate', key, 'with initial value', initial);
 					delegated = delegate(initial, model, key);
 
 					//  add the delegate function as getter/setter on the model

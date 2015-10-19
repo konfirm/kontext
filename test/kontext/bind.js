@@ -41,4 +41,23 @@ describe('Kontext Bind', function() {
 
 		done();
 	});
+
+	it('binds arrays', function(done) {
+		var model = kontext.bind({
+				list: [
+					{hello: 'world'}
+				]
+			}, document.body);
+
+		model.on('update', function(model, key) {
+			if (key === 'list') {
+				expect(model[key].length).toBe(2);
+				expect(model[key][1].hello).toBe('universe');
+
+				done();
+			}
+		});
+
+		model.list.push({hello: 'universe'});
+	});
 });
