@@ -177,6 +177,28 @@
 		}
 
 		/**
+		 *  Update elements to reflect a new value
+		 *  @name    update
+		 *  @access  internal
+		 *  @param   Array  elements
+		 *  @param   mixed  value
+		 *  @return  void
+		 */
+		function update(list, value) {
+			var nodeValue = '' + value;
+
+			list
+				.filter(function(element) {
+					return nodeValue !== element.nodeValue;
+				})
+				.forEach(function(element) {
+					settings._('rAF')(function() {
+						element.nodeValue = nodeValue;
+					});
+				});
+		}
+
+		/**
 		 *  Prepare models so all properties become delegates (if not already) and it becomes an emitable
 		 *  @name    prepare
 		 *  @access  internal
@@ -248,12 +270,17 @@
 				append.forEach(function(node) {
 					//  add observers to monitor changes
 					observer.monitor(node, result);
-
-					//  @update the element value
 				});
+
+				update(append, result());
 
 				config.element = config.element.concat(append);
 			};
+
+			//  listen for changes so these can be updated in the associated elements
+			config.emission.add('change', function(model, key, old, newValue) {
+				update(config.element, newValue);
+			});
 
 			return result;
 		}
@@ -400,7 +427,9 @@
 					}
 				}
 				else if (settings.public('greedy')) {
+					//  create the delegate function
 					delegated = delegate(initial, model, key);
+					//  add the delegate function as getter/setter on the model
 					define(model, key, true, delegated, delegated);
 				}
 
