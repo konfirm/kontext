@@ -1,5 +1,5 @@
 /*global kontext, describe, afterEach, beforeEach, it, expect*/
-describe('Kontext', function() {
+describe('Kontext On-Off', function() {
 	'use strict';
 
 	beforeEach(function(done) {
@@ -34,9 +34,8 @@ describe('Kontext', function() {
 
 		//  kontext itself emits before the model
 		kontext.on('update', function(model, key, old) {
-			++notes;
-
 			if (key === 'onoffFoo') {
+				++notes;
 				expect(old).toBe('bar');
 
 				kontext.off('update');
@@ -44,21 +43,18 @@ describe('Kontext', function() {
 		});
 
 		model.on('update', function(model, key, old) {
-			++notes;
-
-			// expect(old).toBe('bar');
-			expect(notes).toBe(2);
-
 			if (key === 'onoffFoo') {
+				++notes;
+
+				expect(notes).toBe(2);
 				expect(old).toBe('bar');
 
 				model.off('update');
+				model.onoffFoo = 'nope';
 			}
-
-			model.onoffFoo = 'nope';
 		});
 
-		model.foo = 'baz';
+		model.onoffFoo = 'baz';
 
 		setTimeout(function() {
 			expect(notes).toBe(2);
