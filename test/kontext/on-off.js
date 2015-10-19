@@ -3,7 +3,7 @@ describe('Kontext', function() {
 	'use strict';
 
 	beforeEach(function(done) {
-		var content = '<p>A {foo:fool} walks into a {bar:trap}</p>',
+		var content = '<p>A {onoffFoo:fool} walks into a {onoffBar:trap}</p>',
 			wrapper = document.body.insertBefore(document.createElement('div'), document.body.firstChild);
 
 		wrapper.setAttribute('class', 'fixture');
@@ -28,15 +28,15 @@ describe('Kontext', function() {
 	it('notifies change', function(done) {
 		var notes = 0,
 			model = kontext.bind({
-				foo: 'bar',
-				bar: 'baz'
+				onoffFoo: 'bar',
+				onoffBar: 'baz'
 			}, document.body);
 
 		//  kontext itself emits before the model
 		kontext.on('update', function(model, key, old) {
 			++notes;
 
-			if (key === 'foo') {
+			if (key === 'onoffFoo') {
 				expect(old).toBe('bar');
 
 				kontext.off('update');
@@ -49,13 +49,13 @@ describe('Kontext', function() {
 			// expect(old).toBe('bar');
 			expect(notes).toBe(2);
 
-			if (key === 'foo') {
+			if (key === 'onoffFoo') {
 				expect(old).toBe('bar');
 
 				model.off('update');
 			}
 
-			model.foo = 'nope';
+			model.onoffFoo = 'nope';
 		});
 
 		model.foo = 'baz';
