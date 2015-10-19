@@ -192,9 +192,7 @@
 					return nodeValue !== element.nodeValue;
 				})
 				.forEach(function(element) {
-					settings._('rAF')(function() {
-						element.nodeValue = nodeValue;
-					});
+					element.nodeValue = nodeValue;
 				});
 		}
 
@@ -220,7 +218,7 @@
 						define(model, key, true, handle, handle);
 
 						//  a change emission on a property will trigger an update on the model
-						handle.on('change', function() {
+						handle.on('update', function() {
 							emitter.trigger('update', [model, key, value]);
 						});
 					}
@@ -246,7 +244,7 @@
 					var change = arguments.length > 0;
 
 					//  emit the appropriate event
-					config.emission.trigger(change ? 'change' : 'access', [model, key, config.value, value]);
+					config.emission.trigger(change ? 'update' : 'access', [model, key, config.value, value]);
 
 					//  update the value if the value argument was provided
 					if (change) {
@@ -279,7 +277,9 @@
 
 			//  listen for changes so these can be updated in the associated elements
 			config.emission.add('change', function(model, key, old, newValue) {
-				update(config.element, newValue);
+				settings._('rAF')(function() {
+					update(config.element, newValue);
+				});
 			});
 
 			return result;
