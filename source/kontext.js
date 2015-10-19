@@ -22,6 +22,7 @@
 		 *  @return  void
 		 */
 		function init() {
+			/* istanbul ignore next */
 			if (!compatible()) {
 				return setTimeout(function() {
 					emission.trigger('ready', ['Unsupported browser']);
@@ -278,7 +279,7 @@
 		 */
 		function getDelegate(model, key) {
 			var result = false,
-				desc, nest;
+				desc;
 
 			if (key in model) {
 				//  if a model key is an explicitly assigned delegate, we utilize it
@@ -290,12 +291,6 @@
 				else {
 					desc = Object.getOwnPropertyDescriptor(model, key);
 					result = desc.get;
-				}
-			}
-			else {
-				nest = key.indexOf('.');
-				if (nest > 0 && key.substr(0, nest) in model) {
-					return getDelegate(model[key.substr(0, nest)], key.substr(nest + 1));
 				}
 			}
 
