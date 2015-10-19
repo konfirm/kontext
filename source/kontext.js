@@ -118,9 +118,7 @@
 			}
 			else {
 				definition.get = getter;
-				if (setter) {
-					definition.set = setter;
-				}
+				definition.set = setter;
 			}
 
 			Object.defineProperty(target, key, definition);
@@ -190,15 +188,19 @@
 			if (!('on' in model && 'off' in model)) {
 				//  replace any key with a delegate
 				eachKey(model, function(key, value) {
-					var handle = delegate(value, model, key);
+					var handle;
 
-					//  add the delegated handle as both getter and setter on the model/key
-					define(model, key, true, handle, handle);
+					if (!getDelegate(model, key)) {
+						handle = delegate(value, model, key);
 
-					//  a change emission on a property will trigger an update on the model
-					handle.on('change', function() {
-						emitter.trigger('update', [model, key, value]);
-					});
+						//  add the delegated handle as both getter and setter on the model/key
+						define(model, key, true, handle, handle);
+
+						//  a change emission on a property will trigger an update on the model
+						handle.on('change', function() {
+							emitter.trigger('update', [model, key, value]);
+						});
+					}
 				});
 
 				emitter = emitable(model);
@@ -256,6 +258,17 @@
 		}
 
 		/**
+		 *  Determine wether or not the provided value is a delegate
+		 *  @name    isDelegate
+		 *  @access  internal
+		 *  @param   mixed  value
+		 *  @return  bool   is delegate
+		 */
+		function isDelegate(value) {
+			return typeof value === 'function' && typeof value.element === 'function';
+		}
+
+		/**
 		 *  Obtain the delegate function applied to a model property by Kontext
 		 *  @name    getDelegate
 		 *  @access  internal
@@ -269,7 +282,7 @@
 
 			if (key in model) {
 				//  if a model key is an explicitly assigned delegate, we utilize it
-				if (typeof model[key] === 'function' && 'element' in model[key]) {
+				if (isDelegate(model[key])) {
 					result = model[key];
 				}
 
@@ -357,6 +370,17 @@
 		 *  @return  void
 		 */
 		kontext.extension = extension;
+
+		/**
+		 *  Create a delegation value with an initial value
+		 *  @name    delegate
+		 *  @access  public
+		 *  @param   mixed     initial value
+		 *  @return  function  delegate
+		 */
+		kontext.delegate = function(initial) {
+			return delegate(initial);
+		};
 
 		/**
 		 *  Bind a model to an element, this also prepares the model so event emissions can be triggered
