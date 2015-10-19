@@ -180,12 +180,12 @@
 		 *  Update elements to reflect a new value
 		 *  @name    update
 		 *  @access  internal
-		 *  @param   Array  elements
-		 *  @param   mixed  value
+		 *  @param   Array     elements
+		 *  @param   function  delegation
 		 *  @return  void
 		 */
-		function update(list, value) {
-			var nodeValue = '' + value;
+		function update(list, delegation) {
+			var nodeValue = '' + delegation();
 
 			list
 				.filter(function(element) {
@@ -241,15 +241,16 @@
 		 */
 		function delegate(initial, model, key) {
 			var result = function(value) {
-					var change = arguments.length > 0;
-
-					//  emit the appropriate event
-					config.emission.trigger(change ? 'update' : 'access', [model, key, config.value, value]);
+					var change = arguments.length > 0,
+						prev = config.value;
 
 					//  update the value if the value argument was provided
 					if (change) {
 						config.value = value;
 					}
+
+					//  emit the appropriate event
+					config.emission.trigger(change ? 'update' : 'access', [model, key, prev, value]);
 
 					return config.value;
 				},
@@ -270,15 +271,17 @@
 					observer.monitor(node, result);
 				});
 
-				update(append, result());
+				//  update the newly added elements
+				update(append, result);
 
 				config.element = config.element.concat(append);
 			};
 
 			//  listen for changes so these can be updated in the associated elements
-			config.emission.add('change', function(model, key, old, newValue) {
+			config.emission.add('update', function() {
+				console.log('update', key, result());
 				settings._('rAF')(function() {
-					update(config.element, newValue);
+					update(config.element, result);
 				});
 			});
 
@@ -429,6 +432,7 @@
 				else if (settings.public('greedy')) {
 					//  create the delegate function
 					delegated = delegate(initial, model, key);
+
 					//  add the delegate function as getter/setter on the model
 					define(model, key, true, delegated, delegated);
 				}
