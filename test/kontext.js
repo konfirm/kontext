@@ -6,7 +6,7 @@ describe('Kontext', function() {
 		var content = '<p>A {foo:fool} walks into a {bar:trap}</p>',
 			wrapper = document.body.insertBefore(document.createElement('div'), document.body.firstChild);
 
-		wrapper.setAttribute('id', 'fixture');
+		wrapper.setAttribute('class', 'fixture');
 		wrapper.innerHTML = content;
 
 		document.body.insertBefore(wrapper, document.body.firstChild);
@@ -15,10 +15,11 @@ describe('Kontext', function() {
 	});
 
 	afterEach(function(done) {
-		var wrapper = document.querySelector('#fixture');
+		var list = document.querySelectorAll('.fixture'),
+			i;
 
-		if (wrapper) {
-			wrapper.parentNode.removeChild(wrapper);
+		for (i = 0; i < list.length; ++i) {
+			list[i].parentNode.removeChild(list[i]);
 		}
 
 		done();
@@ -35,7 +36,11 @@ describe('Kontext', function() {
 		kontext.on('update', function(model, key, old) {
 			++notes;
 
-			// expect(old).toBe('bar');
+			if (key === 'foo') {
+				expect(old).toBe('bar');
+
+				kontext.off('update');
+			}
 		});
 
 		model.on('update', function(model, key, old) {
@@ -44,9 +49,20 @@ describe('Kontext', function() {
 			// expect(old).toBe('bar');
 			expect(notes).toBe(2);
 
-			done();
+			if (key === 'foo') {
+				expect(old).toBe('bar');
+
+				model.off('update');
+			}
+
+			model.foo = 'nope';
 		});
 
 		model.foo = 'baz';
+
+		setTimeout(function() {
+			expect(notes).toBe(2);
+			done();
+		}, 100);
 	});
 });
