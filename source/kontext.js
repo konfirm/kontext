@@ -241,16 +241,16 @@
 		 */
 		function delegate(initial, model, key) {
 			var result = function(value) {
-					var change = arguments.length > 0,
-						prev = config.value;
+					var change = arguments.length > 0;
 
 					//  update the value if the value argument was provided
 					if (change) {
+console.log(key, config.value, value);
 						config.value = value;
 					}
 
 					//  emit the appropriate event
-					config.emission.trigger(change ? 'update' : 'access', [model, key, prev, value]);
+					config.emission.trigger(change ? 'update' : 'access', [model, key, config.value, value]);
 
 					return config.value;
 				},
@@ -261,6 +261,17 @@
 					element: [],
 					value: initial
 				};
+
+			//  create the scope method, used to register the scope (model + key) for delegates created externally
+			result.scope = function() {
+				if (!model && arguments.length > 0) {
+					model = arguments[0];
+				}
+
+				if (!key && arguments.length > 1) {
+					key = arguments[1];
+				}
+			};
 
 			//  create the element method, used to register elements to the delegate
 			result.element = function() {
@@ -279,7 +290,6 @@
 
 			//  listen for changes so these can be updated in the associated elements
 			config.emission.add('update', function() {
-				console.log('update', key, result());
 				settings._('rAF')(function() {
 					update(config.element, result);
 				});
@@ -425,12 +435,16 @@
 					delegated = getDelegate(model, key);
 
 				if (delegated) {
+					delegated.scope(model, key);
+
 					if (!delegated()) {
+						console.log('setting initial value', key, initial);
 						delegated(initial);
 					}
 				}
 				else if (settings.public('greedy')) {
 					//  create the delegate function
+					console.log('create delegate', key, 'with initial value', initial);
 					delegated = delegate(initial, model, key);
 
 					//  add the delegate function as getter/setter on the model
