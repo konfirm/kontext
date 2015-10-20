@@ -16,5 +16,5 @@ kontext.extension('text', function(element, model, key) {
 	}
 
 	//  add the element to the elements which push/receive updates by Kontext
-	console.log(delegate.element(text));
+	delegate.element(text);
 });
