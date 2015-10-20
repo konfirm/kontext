@@ -206,7 +206,7 @@
 		function prepare(model) {
 			var emitter;
 
-			if (!('on' in model && 'off' in model)) {
+			if (!('on' in model && 'off' in model && 'delegation' )) {
 				//  replace any key with a delegate
 				eachKey(model, function(key, value) {
 					var handle;
@@ -224,7 +224,13 @@
 					}
 				});
 
+				//  add the emission methods
 				emitter = emitable(model);
+
+				//  add the delegation method
+				define(model, 'delegation', true, function(key) {
+					return getDelegate(model, key);
+				}, false);
 			}
 
 			return model;
@@ -325,7 +331,11 @@
 				//  update the newly added elements
 				update(append, result);
 
+				//  append the new elements to the existing ones (if any)
 				config.element = config.element.concat(append);
+
+				//  return all configured elements
+				return config.element;
 			};
 
 			//  listen for changes so these can be updated in the associated elements
