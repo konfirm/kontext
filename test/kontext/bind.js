@@ -47,14 +47,22 @@ describe('Kontext Bind', function() {
 				list: [
 					{hello: 'world'}
 				]
-			}, document.body);
+			}, document.body),
+			count = 0;
 
 		model.on('update', function(model, key) {
 			if (key === 'list') {
-				expect(model[key].length).toBe(2);
-				expect(model[key][1].hello).toBe('universe');
+				++count;
 
-				done();
+				expect(model[key].length).toBe(2);
+				expect(model[key][1].hello).toBe(count === 2 ? 'planet' : 'universe');
+
+				if (count === 1) {
+					model[key][1].hello = 'planet';
+				}
+				else {
+					done();
+				}
 			}
 		});
 
