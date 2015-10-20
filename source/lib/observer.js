@@ -15,6 +15,7 @@ function Observer() {
 	function init() {
 		var mutationObserver = global.MutationObserver || global.webkitMutationObserver || false;
 
+		//if-included istanbul ignore next
 		if (mutationObserver) {
 			mutation = {
 				observer: mutationObserver,
@@ -74,6 +75,7 @@ function Observer() {
 	 *  @return  void
 	 */
 	observer.monitor = function(text, delegation) {
+		//if-included istanbul ignore next
 		if (mutation) {
 			new mutation.observer(function(mutations) {
 				mutations.forEach(function(mutated) {

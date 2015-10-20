@@ -2,6 +2,8 @@
 ;(function(global) {
 	'use strict';
 
+	//@buildinfo
+
 	//  load dependencies
 	//@include lib/settings
 	//@include lib/emission

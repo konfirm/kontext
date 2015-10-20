@@ -17,6 +17,12 @@ function Embed(devour, build) {
 			footer: /\n+\s*\}\)\([^\)]*\);?\n+$/,
 			indentation: /^(?:\n+?)?([\s]+)/,
 
+			//  cleanup
+			clean: {
+				'//  strict mode (already enabled)': /(['"])use strict\1;?/g,
+				'/* $1 */': /\/\/if-included (.*)/g
+			},
+
 			// convenience
 			separator: /[,\s]+/,
 			js: /\.js$/
@@ -171,6 +177,12 @@ function Embed(devour, build) {
 						);
 
 						data = unwrap(data, (indent || '') + indentation);
+
+						if ('clean' in pattern) {
+							Object.keys(pattern.clean).forEach(function(replacement) {
+								data = data.replace(pattern.clean[replacement], replacement);
+							});
+						}
 
 						module.content = [
 							indentation + '//BEGIN INCLUDE: ' + file,

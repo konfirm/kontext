@@ -7,6 +7,7 @@
  */
 function JSONFormatter() {
 	//  Implement a Singleton pattern and allow JSONFormatter to be invoked without the `new` keyword
+	//if-included istanbul ignore next
 	if (typeof JSONFormatter.prototype.__instance !== 'undefined' || !(this instanceof JSONFormatter)) {
 		return JSONFormatter.prototype.__instance || new JSONFormatter();
 	}
@@ -72,6 +73,7 @@ function JSONFormatter() {
 	 *  @array   Array   list
 	 *  @return  Array   result
 	 */
+	//if-included istanbul ignore next
 	function escapeQuotedInput(token, list) {
 		var result = [],
 			character;
@@ -198,6 +200,7 @@ function JSONFormatter() {
 	 *  @param   string  matching symbol
 	 *  @return  string  wrapped
 	 */
+	 //if-included istanbul ignore next
 	function notation(match, symbol) {
 		var character = symbol === ':' ? '{}' : '[]',
 			position = match.indexOf(symbol),
@@ -215,6 +218,7 @@ function JSONFormatter() {
 	 *  @return  string  JSON-formatted
 	 */
 	formatter.prepare = function(input) {
+		//if-included istanbul ignore next
 		if (typeof input !== 'string') {
 			return '';
 		}

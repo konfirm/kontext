@@ -105,12 +105,14 @@ function Emission() {
 					return typeof callback === 'function';
 				});
 
+		//if-included istanbul ignore next
 		if (arguments.length < 3 && typeof arguments[arguments.length - 1] === 'function') {
 			done = arg;
 			arg = [];
 		}
 
 		//  pass on the list of handles to be triggered
+		//if-included istanbul ignore next
 		trigger(list, arg instanceof Array ? arg : [arg], function() {
 			if (done) {
 				done();
