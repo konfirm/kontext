@@ -35,6 +35,20 @@ describe('Kontext Delegate', function() {
 		done();
 	});
 
+	it('provides `delegation` method on models', function(done) {
+		var model = kontext.bind({foo: 'bar'}, document.createElement('div')),
+			delegate;
+
+		expect(model.foo).toBe('bar');
+		expect(typeof model.delegation).toBe('function');
+		delegate = model.delegation('foo');
+		expect(typeof delegate).toBe('function');
+		expect(delegate('baz')).toBe('baz');
+		expect(model.foo).toBe('baz');
+
+		done();
+	});
+
 	it('does not meddle with implicitly created delegates', function(done) {
 		var model = {
 				foo: 'bar'
