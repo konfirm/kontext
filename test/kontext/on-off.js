@@ -25,12 +25,21 @@ describe('Kontext On-Off', function() {
 		done();
 	});
 
+	function noop() {
+	};
+
 	it('notifies change', function(done) {
 		var notes = 0,
 			model = kontext.bind({
 				onoffFoo: 'bar',
 				onoffBar: 'baz'
 			}, document.body);
+
+		kontext.on('update', noop);
+		expect(kontext.off('update', noop)).toEqual([noop]);
+
+		model.on('update', noop);
+		expect(model.off('update', noop)).toEqual([noop]);
 
 		//  kontext itself emits before the model
 		kontext.on('update', function(model, key, old) {
