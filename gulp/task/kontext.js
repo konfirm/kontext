@@ -5,9 +5,6 @@ module.exports = function(stream, devour, name) {
 
 	return stream
 
-		//  pass all the javascripts through Babel
-		// .pipe(devour.plugin('if', konflux, devour.pipe('noop'), devour.plugin('babel')))
-
 		//  'compile' the full files and check for changes
 		.pipe(devour.pipe('compile', list))
 
