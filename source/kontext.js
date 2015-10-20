@@ -208,7 +208,7 @@
 		function prepare(model) {
 			var emitter;
 
-			if (!('on' in model && 'off' in model && 'delegation' )) {
+			if (!('on' in model && 'off' in model && 'delegation')) {
 				//  replace any key with a delegate
 				eachKey(model, function(key, value) {
 					var handle;
@@ -248,10 +248,12 @@
 		 */
 		function listPrepare(list, config) {
 			list.forEach(function(item, index) {
-				list[index] = prepare(item, config.model, config.key);
-				list[index].on('update', function() {
-					config.emission.trigger('update', [config.model, config.key, config.value]);
-				});
+				if (typeof list[index] === 'object') {
+					list[index] = prepare(item, config.model, config.key);
+					list[index].on('update', function() {
+						config.emission.trigger('update', [config.model, config.key, config.value]);
+					});
+				}
 			});
 		}
 
