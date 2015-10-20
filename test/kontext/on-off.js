@@ -26,7 +26,7 @@ describe('Kontext On-Off', function() {
 	});
 
 	function noop() {
-	};
+	}
 
 	it('notifies change', function(done) {
 		var notes = 0,
