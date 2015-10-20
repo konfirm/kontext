@@ -390,14 +390,13 @@
 		/**
 		 *  Get/set the default options
 		 *  @name    defaults
-		 *  @param   Object  options  [optional, default undefined - do not set anything]
+		 *  @param   mixed  key    [one of: string key, object options]
+		 *  @param   mixed  value  [optional (ignored if key is an object), default undefined - no value]
 		 *  @return  Object  default options
 		 */
-		kontext.defaults = function(options) {
-			if (options && typeof options === 'object') {
-				eachKey(options, function(key, value) {
-					settings.public(key, value);
-				});
+		kontext.defaults = function(key, value) {
+			if (key) {
+				settings.public(key, value);
 			}
 
 			return settings.public();

@@ -28,6 +28,13 @@ describe('Kontext Defaults', function() {
 		done();
 	});
 
+	it('prefers object types', function(done) {
+		kontext.defaults({a: {b: {c: 1}}});
+		expect(kontext.defaults().a.b).toEqual({c: 1});
+
+		done();
+	});
+
 	it('ignores non-object default settings', function(done) {
 		var a = kontext.defaults(),
 			b = kontext.defaults('nope');
