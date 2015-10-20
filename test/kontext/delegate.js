@@ -16,6 +16,25 @@ describe('Kontext Delegate', function() {
 		done();
 	});
 
+	it('accepts explicit delegates and sets the scope to the model/key if not done already', function(done) {
+		var element = document.createElement('div'),
+			model;
+
+		element.appendChild(document.createTextNode('Hello {delegateFoo}!'));
+		model = kontext.bind({
+			delegateFoo: kontext.delegate('bar')
+		}, element);
+
+		model.on('update', function() {
+			console.log('update', arguments);
+		});
+
+		model.delegateFoo('baz');
+
+		expect(model.delegateFoo()).toBe('baz');
+		done();
+	});
+
 	it('does not meddle with implicitly created delegates', function(done) {
 		var model = {
 				foo: 'bar'
