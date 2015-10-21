@@ -18,6 +18,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'build/kontext.js',
+      'build/extension/**/!(*min|*map).js',
       'source/lib/**/*.js',
       'test/**/*.js'
     ],
@@ -32,6 +33,7 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
         'build/kontext.js': ['coverage'],
+        'build/extension/**/!(*min|*map).js': ['coverage'],
         'source/lib/**/*.js': ['coverage']
     },
 

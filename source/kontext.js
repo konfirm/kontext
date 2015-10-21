@@ -481,6 +481,14 @@
 		kontext.bind = function(model, element) {
 			model = prepare(model);
 
+			new Attribute().find(settings.public('attribute'), element, function(target, settings) {
+				eachKey(settings, function(key, config) {
+					var ext = extension(key);
+
+					ext(target, model, config, kontext);
+				});
+			});
+
 			new Text().placeholders(element, function(text) {
 				var placeholder = text.nodeValue.substr(1, text.nodeValue.length - 2).split(/:/),
 					key = placeholder.shift(),
@@ -506,14 +514,6 @@
 				if (delegated) {
 					delegated.element(text);
 				}
-			});
-
-			new Attribute().find(settings.public('attribute'), element, function(target, settings) {
-				eachKey(settings, function(key, config) {
-					var ext = extension(key);
-
-					ext(target, model, config, kontext);
-				});
 			});
 
 			return model;
