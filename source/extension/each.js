@@ -76,23 +76,22 @@ kontext.extension('each', function(element, model, key) {
 		if (changed || refined) {
 			collection.forEach(function(value, index) {
 				var item = typeof value === 'object' ? value : {},
-					arg = [item],
-					i;
+					arg = [item];
 
 				item.$index = index;
 
 				if ('element' in item) {
 					item.element().forEach(function(elm) {
-						arg.push(output.appendChild(elm));
+						output.appendChild(elm);
 					});
 				}
 				else {
 					item.$item   = value;
 					item.$parent = model[key];
-
-					for (i = 0; i < template.length; ++i) {
-						arg.push(output.appendChild(template[i].cloneNode(true)));
-					}
+					template
+						.forEach(function(node) {
+							arg.push(output.appendChild(node.cloneNode(true)));
+						});
 
 					//  we need to postpone the `bind` to the point where the documentFragment is actually
 					//  appended to the DOM
