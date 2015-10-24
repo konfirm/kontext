@@ -58,7 +58,7 @@ kontext.extension('each', function(element, model, key) {
 	function update() {
 		var output = document.createDocumentFragment(),
 			collection = model[target],
-			ties = [],
+			bonds = [],
 			changed = false,
 			refined;
 
@@ -94,9 +94,9 @@ kontext.extension('each', function(element, model, key) {
 						arg.push(output.appendChild(template[i].cloneNode(true)));
 					}
 
-					//  keep track of the `tie`, so these can be applied once the document fragment
-					//  is appended to the DOM
-					ties.push(function() {
+					//  we need to postpone the `bind` to the point where the documentFragment is actually
+					//  appended to the DOM
+					bonds.push(function() {
 						kontext.bind.apply(kontext, arg);
 					});
 				}
@@ -106,11 +106,13 @@ kontext.extension('each', function(element, model, key) {
 			while (element.lastChild) {
 				element.removeChild(element.lastChild);
 			}
+
+			//  attach the documentFragment to the DOM
 			element.appendChild(output);
 
-			//  call all of the stored `ties`
-			ties.forEach(function(tie) {
-				tie();
+			//  call all of the stored `bonds`
+			bonds.forEach(function(bind) {
+				bind();
 			});
 		}
 	}

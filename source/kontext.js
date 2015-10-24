@@ -518,48 +518,63 @@
 		 *  @name    bind
 		 *  @access  public
 		 *  @param   object   model
-		 *  @param   DOMNode  element
+		 *  @param   DOMNode  element...  [optional, default undefined - the document.body]
 		 *  @return  object   model
 		 */
-		kontext.bind = function(model, element) {
-			model = prepare(model);
+		kontext.bind = function() {
+			var arg = castToArray(arguments),
+				model = prepare(arg.shift());
 
-			//  register the bond, so we can retrieve it later on
-			bindings(element, model);
+			//  if only a model was provided, the binding element will be document.body
+			if (arg.length <= 0) {
+				arg.push(document.body);
+			}
 
-			new Attribute().find(settings.public('attribute'), element, function(target, settings) {
-				eachKey(settings, function(key, config) {
-					var ext = extension(key);
+			//  bind the model to each element provided
+			arg.forEach(function(element) {
+				//  register the bond, so we can retrieve it later on
+				bindings(element, model);
 
-					ext(target, model, config, kontext);
+				//  work through all data-kontext (or configured override thereof) attributes within (inclusive)
+				//  given element
+				new Attribute().find(settings.public('attribute'), element, function(target, settings) {
+					eachKey(settings, function(key, config) {
+						var ext = extension(key);
+
+						ext(target, model, config, kontext);
+					});
 				});
-			});
 
-			new Text().placeholders(element, function(text) {
-				var placeholder = text.nodeValue.substr(1, text.nodeValue.length - 2).split(/:/),
-					key = placeholder.shift(),
-					initial = placeholder.length ? placeholder.join(':') : '',
-					delegated = getDelegate(model, key);
+				//  work through all placeholders in DOMText nodes within (inclusive) within the element
+				new Text().placeholders(element, function(text) {
+					var placeholder = text.nodeValue.substr(1, text.nodeValue.length - 2).split(/:/),
+						key = placeholder.shift(),
+						initial = placeholder.length ? placeholder.join(':') : '',
+						delegated = getDelegate(model, key);
 
-				if (delegated) {
-					delegated.scope(model, key);
+					//  if there is a delegation, we provide the scope (only effective if no scope has been set)
+					if (delegated) {
+						delegated.scope(model, key);
 
-					if (!delegated()) {
-						delegated(initial);
+						//  if there is no (false-ish) value, we set the initial value from the textNode
+						//  (which may still be an empty string)
+						if (!delegated()) {
+							delegated(initial);
+						}
 					}
-				}
-				else if (settings.public('greedy')) {
-					//  create the delegate function
-					delegated = delegate(initial, model, key);
+					else if (settings.public('greedy')) {
+						//  create the delegate function
+						delegated = delegate(initial, model, key);
 
-					//  add the delegate function as getter/setter on the model
-					define(model, key, true, delegated, delegated);
-				}
+						//  add the delegate function as getter/setter on the model
+						define(model, key, true, delegated, delegated);
+					}
 
-				//  if Kontext created the delegate, we should register the element to the delegation
-				if (delegated) {
-					delegated.element(text);
-				}
+					//  if Kontext created the delegate, we should register the element to the delegation
+					if (delegated) {
+						delegated.element(text);
+					}
+				});
 			});
 
 			return model;

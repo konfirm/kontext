@@ -17,11 +17,16 @@ function Text() {
 	 */
 	function textNodes(element) {
 		var result = [],
-			walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false),
-			node;
+			walker, node;
 
-		while ((node = walker.nextNode())) {
-			result.push(node);
+		if (element.nodeType === 3) {
+			result.push(element);
+		}
+		else {
+			walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+			while ((node = walker.nextNode())) {
+				result.push(node);
+			}
 		}
 
 		return result;
