@@ -47,27 +47,27 @@ function remainder(watch) {
 					devour = new Devour(config);
 
 				devour
+
 					//  add the kontext task, monitoring and building the public facing javascripts
 					.task('kontext',
 						[
-							//  do not build anything other than kontext.js
-							'!./source/*/**/*.js',
-							'./source/kontext.js',
+							'!source/*/**/*.js',
+							'source/kontext.js',
+							'source/@(extension)/**/*.js'
 						],
-						//  the watch pattern (we watch more than we build, thanks to the include plugin)
 						[
-							//  watch kontext
-							'./source/kontext.js',
-							//  watch extension (and children)
-							'./source/extension/**/*.js'
+							'!source/extension/**/*.js',
+							'source/**/*.js'
 						]
 					)
 
 					//  compile extensions whenever they change
 					.task('kontext:extensions',
 						[
-							//  build everything in the extensions folder
 							'./source/@(extension)/**/*.js'
+						],
+						[
+							'source/**/*.js'
 						]
 					)
 
