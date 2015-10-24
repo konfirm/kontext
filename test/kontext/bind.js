@@ -39,6 +39,12 @@ describe('Kontext Bind', function() {
 		expect(c).toBe(d);
 		expect(d).toBe(a);
 
+		expect(kontext.bindings(document.body).length).toBe(1);
+		expect(kontext.bindings(document.body)[0]).toBe(a);
+		expect(kontext.bindings(document.body)[0]).toBe(b);
+		expect(kontext.bindings()[0]).toBe(c);
+		expect(kontext.bindings()[0]).toBe(d);
+
 		done();
 	});
 
