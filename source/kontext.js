@@ -392,6 +392,49 @@
 		}
 
 		/**
+		 *  Register or obtain bindings
+		 *  @name    bindings
+		 *  @access  internal
+		 *  @param   DOMNode  element
+		 *  @param   Object   model
+		 *  @return  mixed    result  [if a model was provided - void, the list of models for given element]
+		 */
+		function bindings(element, model) {
+			var list = settings._('bindings') || [],
+				ancestry;
+
+			if (model) {
+				list.push({model: model, target: element});
+				settings._('bindings', list);
+			}
+			else {
+				ancestry = [element];
+
+				//  obtain a the ancestry (parent relations) for the given element
+				while (ancestry[ancestry.length - 1].parentNode) {
+					ancestry.push(ancestry[ancestry.length - 1].parentNode);
+				}
+
+				return list
+
+					//  narrow the list down to all bindings having an element in the ancestry-list
+					.filter(function(binding) {
+						return ancestry.indexOf(binding.target) >= 0;
+					})
+
+					//  map the left over bindings to models only
+					.map(function(binding) {
+						return binding.model;
+					})
+
+					//  narrow down the list models returned are unique
+					.filter(function(model, index, all) {
+						return index === all.indexOf(model);
+					});
+			}
+		}
+
+		/**
 		 *  Get/set the default options
 		 *  @name    defaults
 		 *  @param   mixed  key    [one of: string key, object options]
@@ -481,6 +524,9 @@
 		kontext.bind = function(model, element) {
 			model = prepare(model);
 
+			//  register the bond, so we can retrieve it later on
+			bindings(element, model);
+
 			new Attribute().find(settings.public('attribute'), element, function(target, settings) {
 				eachKey(settings, function(key, config) {
 					var ext = extension(key);
@@ -517,6 +563,17 @@
 			});
 
 			return model;
+		};
+
+		/**
+		 *  Obtain the model(s) influencing the provided element
+		 *  @name    ties
+		 *  @access  public
+		 *  @param   DOMNode  element  [optional, default undefined - the document.body element]
+		 *  @return  Array    models
+		 */
+		kontext.bindings = function(element) {
+			return bindings(element || document.body);
 		};
 
 		init();
