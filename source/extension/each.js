@@ -79,8 +79,10 @@ kontext.extension('each', function(element, model, key) {
 					arg = [item],
 					nodeList;
 
+				//  always update the index, as we do not know where items end up
 				item.$index = index;
 
+				//  if the item was painted before, it has the `_append` method, utilize it
 				if ('_append' in item) {
 					item._append(output);
 				}
@@ -88,18 +90,24 @@ kontext.extension('each', function(element, model, key) {
 					nodeList = [];
 					item.$item   = value;
 					item.$parent = model[key];
+
+					//  create the _append method
 					item._append = function(append) {
 						nodeList.forEach(function(node) {
 							append.appendChild(node);
 						});
 					};
 
+					//  add a fresh clone of every element in the template to the nodeList
 					template
 						.forEach(function(node) {
 							nodeList.push(node.cloneNode(true));
 						});
 
+					//  add the nodeList to the arguments we will be feeding to kontext.bind
 					arg = arg.concat(nodeList);
+
+					//  append the elements to the output
 					item._append(output);
 
 					//  we need to postpone the `bind` to the point where the documentFragment is actually

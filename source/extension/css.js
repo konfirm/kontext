@@ -14,9 +14,12 @@ kontext.extension('css', function(element, model, config) {
 	function update(attr, key) {
 		var state = !!model[key];
 
+		//  use the classList interface to greatly improve performance and ease of use
 		if ('classList' in element) {
 			element.classList[state ? 'add' : 'remove'](attr);
 		}
+
+		//  provide a fallback for older browsers which are supported by Kontext but do not implement the classList
 		else {
 			element.className = element.className.replace(new RegExp('(?:^|\\s+)' + key + '(\\s+|$)'), function(match, after) {
 				return after || '';

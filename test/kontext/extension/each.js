@@ -167,7 +167,6 @@ describe('Kontext Extension Each', function() {
 		model.list.splice(1, 1);
 
 		setTimeout(function() {
-			console.log(element);
 			expect(element.childNodes.length).toBe(model.list.length);
 			expect(element.childNodes[0].firstChild.data).toBe('a');
 			expect(element.childNodes[1].firstChild.data).toBe('c');
