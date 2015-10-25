@@ -221,7 +221,7 @@
 
 						//  a change emission on a property will trigger an update on the model
 						handle.on('update', function() {
-							emitter.trigger('update', [model, key, value]);
+							emitter.trigger('update', [model, key, value, model[key]]);
 						});
 					}
 
@@ -232,8 +232,8 @@
 						prepare(value);
 
 						//  register a handler to pass on the update events to the parent model with the key prefixed
-						value.on('update', function(m, k, v) {
-							emitter.trigger('update', [model, key + '.' + k, v]);
+						value.on('update', function(parent, property, old, val) {
+							emitter.trigger('update', [model, key + '.' + property, old, val]);
 						});
 					}
 				});
