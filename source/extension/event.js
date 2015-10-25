@@ -7,37 +7,32 @@
 kontext.extension('event', function(element, model, config) {
 	'use strict';
 
-	Object.keys(config)
-		.forEach(function(key) {
-			var part = typeof config[key] === 'string' ? config[key].split('.') : [],
-				scope = model;
+	function registerEvent(type, config) {
+		Object.keys(config)
+			.forEach(function(key) {
+				element.addEventListener(type, function(event) {
+					var delegate;
 
-			//  look up the proper scope
-			while (scope && part.length) {
-				scope = part[0] in scope ? scope[part.shift()] : false;
-			}
-
-			//  if a scope was found
-			if (scope) {
-				//  attach the event listener
-				element.addEventListener(key, function(event) {
-					//  if the found scope is a function, invoke it with the event, key and configured value (the function name)
-					if (typeof scope === 'function') {
-						scope.apply(model, [event, key, config[key]]);
+					//  if the found scope is a function, invoke it with the event, key and configured value
+					//  (the function name)
+					if (typeof model[key] === 'function') {
+						model[key].apply(model, [event, model, key, config[key]]);
 					}
 
 					//  is the scope is an object, traverse it and if the key is a delegate, apply the configured value
-					else if (typeof scope === 'object') {
-						Object.keys(config[key])
-							.forEach(function(k) {
-								var delegate = model.delegation(k);
+					else {
+						delegate = model.delegation(key);
 
-								if (delegate) {
-									delegate(config[key][k]);
-								}
-							});
+						if (delegate) {
+							delegate(config[key]);
+						}
 					}
 				});
-			}
+			});
+	}
+
+	Object.keys(config)
+		.forEach(function(key) {
+			registerEvent(key, config[key]);
 		});
 });
