@@ -41,7 +41,7 @@ function Text() {
 	 *  @return array   DOMText nodes
 	 */
 	function splitter(node) {
-		var match = node.nodeValue.match(/(\{[a-z0-9_-]+(?::[^\}]+)?\})/i),
+		var match = node.nodeValue.match(/(\{\$?[a-z0-9_-]+(?::[^\}]+)?\})/i),
 			content = match ? (match.index === 0 ? node : node.splitText(match.index)) : null,
 			remainder = match ? content.splitText(match[1].length) : null,
 			result = [];
