@@ -70,4 +70,40 @@ describe('Kontext On-Off', function() {
 			done();
 		}, 100);
 	});
+
+	it('recursively triggers for submodels', function(done) {
+		var model = kontext.bind({
+				foo: {
+					bar: {
+						baz: 'ok'
+					}
+				}
+			}, document.createElement('div')),
+			result = [];
+
+		model.on('update', function(m, k) {
+			result.push(k);
+
+			expect(k).toBe('foo.bar.baz');
+			expect(result[0]).toBe('baz');
+			expect(result[1]).toBe('bar.baz');
+			expect(result[2]).toBe(k);
+
+			done();
+		});
+
+		model.foo.on('update', function(m, k) {
+			result.push(k);
+
+			expect(k).toBe('bar.baz');
+		});
+
+		model.foo.bar.on('update', function(m, k) {
+			result.push(k);
+
+			expect(k).toBe('baz');
+		});
+
+		model.foo.bar.baz = 'changed';
+	});
 });

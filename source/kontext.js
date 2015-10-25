@@ -228,9 +228,12 @@
 					//  if the value is an object, we prepare it aswel so we can actually work with
 					//  scoped properties
 					if (value && typeof value === 'object' && !(value instanceof Array)) {
+						//  prepare the submodel
 						prepare(value);
+
+						//  register a handler to pass on the update events to the parent model with the key prefixed
 						value.on('update', function(m, k, v) {
-							emitter.trigger('update', model, key + '.' + k, v);
+							emitter.trigger('update', [model, key + '.' + k, v]);
 						});
 					}
 				});
