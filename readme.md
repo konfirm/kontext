@@ -19,8 +19,8 @@ So, here's are couple of competitors:
 - [Ractive](http://www.ractivejs.org)
 
 ## Usage
-Now that you know the why, lets get on with the _how_.
-In its most basic use you load the kontext script into you page, add a couple of placeholders in you html and bind a few models. That sounded simple, right?
+Now that you have gained some insight in the _why_, lets get on with the _how_.
+In its most basic use you load the Kontext script into you page, add a couple of placeholders in the html and bind one or more models. That sounded simple, right?
 
 ### Placeholders
 Kontext searches for placeholders in the textual parts of your markup, this means you can add something like the following to your page:
@@ -35,7 +35,7 @@ Kontext searches for placeholders in the textual parts of your markup, this mean
 That should be either a familiar syntax, or at least comprehensible.
 
 ### Models
-With Kontext, you are not required to create an explicit model, simply provide an object and it will become the model. As we are in to a very basic example, the html above would work with the following binding:
+With Kontext you cannot create an explicit model, it does suffice to simply provide an object and it will become the model. As we are in to a very basic example, the html above would work with the following binding:
 
 ```js
 kontext.bind({title: 'Hello', body: 'My first article'});
@@ -50,7 +50,8 @@ Which produces:
 </acticle>
 ```
 
-By default Kontext will bind to the `document.body` (`<body>`) element and will search for placeholders inside this (or provided) element. In the example above we would not have any reference to the model itself, which makes little sense in most cases.
+The `bind` method will return the model provided, this enabled you to define the model while binding it.
+By default Kontext will bind models to the `document.body` (`<body>`) element and will search for placeholders inside this (or the provided) element. In the example above we would not have any reference to the model itself, which makes little sense in most cases.
 Therefor a more common example would be:
 
 ```js
@@ -69,7 +70,7 @@ Either way, the model will remain more or less the same. Given the example above
 This behavior is achieved by re-defining the basic-type properties of the model and add getter/setter functions for them. This ensures the model to be working as you created it, while still being able to perform the binding.
 
 ### Extensions
-As sometimes a placeholder does not suffice, you can also register extension which are configured using the `data-kontext` attribute. For your convenience, there are a couple of useful extension available.
+As sometimes a placeholder does not suffice, you can also register extensions which are configured using the `data-kontext` attribute. For your convenience, there are a couple of useful extension available.
 
 #### text
 Works similar to the placeholders, but now from an attribute, the html aboven re-written to make use of the `text` extension would look like this:
@@ -100,11 +101,56 @@ After applying the model from the example, the html will look like:
 ```
 
 #### css
+Control element classes from your models, using the simple syntax: `data-kontext="css: {<classname>: <key>, ...}"`.
+Where `<classname>` represents the class name to apply when the `<key>` property becomes `true`-ish.
+
+```html
+<span data-kontext="css: {awesome: cool}">cool</span>
+```
+
+with some controlling code:
+
+```js
+var model = kontext.bind({cool: false});
+
+setInterval(function() {
+	model.cool = !model.cool;
+}, 1000);
+```
+
+This would toggle the 'awesome'-class every second.
+**NOTE** you can provide pretty much any variable type to control the classes, most will result in a `true`-ish value (therefor applying the class), the following will result in a `false`-ish value: `false`, `null`, `undefined`, `''` (empty string), `0` (number zero).
+
 
 #### attribute
+Control attributes and their values from your models, using the syntax: `data-kontext="attribute: {data-foo: foo, ...}"`.
+Given this example, a `data-foo` attribute will be made available on the element with the value of `foo`. If the attribute has no value, the attribute will be removed entirely.
 
 #### each
+Iterate over each value in an array and apply the template for every item in the array.
+There are two notations for the `each`-extension:
+
+```html
+<ul data-kontext="each: list">
+	<li>...</li>
+</ul>
+
+<ul data-kontext="each: {target: list}">
+	<li>...</li>
+</ul>
+```
+
+In this setup, both will do the same thing. The latter is more flexible, as it also accepts a `filter` and `map` property, both of which can contain the name of a model method or global function, or an array of these.
+**NOTE** the execution order is: `filter` then `map`, so it is not possible to filter on mapped results.
+
+```html
+<ul data-kontext="each: {target: list, filter: [filterA, filterB]}">
+	<li>...</li>
+</ul>
+```
 
 #### event
+To be described
 
 #### input
+To be described
