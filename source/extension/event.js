@@ -7,21 +7,22 @@
 kontext.extension('event', function(element, model, config) {
 	'use strict';
 
-	function registerEvent(type, config) {
-		Object.keys(config)
+	function registerEvent(type, settings) {
+		Object.keys(settings)
 			.forEach(function(key) {
 				element.addEventListener(type, function(event) {
-					var delegate = model.delegation(key);
+					var delegate = model.delegation(key),
+						value = delegate ? delegate() : false;
 
 					if (delegate) {
 						//  if the delegate is a function, apply it
-						if (typeof delegate() === 'function') {
-							delegate().call(event, model, key, config[key]);
+						if (typeof value === 'function') {
+							value.apply(null, [event, model, key, settings[key]]);
 						}
 
-						//  otherwise set the configured value
+						//  otherwise set the settingsured value
 						else {
-							delegate(config[key]);
+							delegate(settings[key]);
 						}
 					}
 				});

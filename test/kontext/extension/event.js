@@ -56,9 +56,10 @@ describe('Kontext Extension Event', function() {
 
 		model = kontext.bind({
 			check: function(e, m, k, v) {
-				// expect(m).toBe(model);
-				// expect(k).toBe('check');
-				// expect(v).toBe('yes');
+				expect(e.type).toBe('click');
+				expect(m).toBe(model);
+				expect(k).toBe('check');
+				expect(v).toBe('yes');
 
 				done();
 			}
@@ -84,12 +85,17 @@ describe('Kontext Extension Event', function() {
 		var element = document.createElement('div'),
 			model;
 
-		element.setAttribute('data-kontext', 'event: {click: {check.it.out: yes}}');
+		element.setAttribute('data-kontext', 'event: {click: {check.it.out: awesome}}');
 
 		model = kontext.bind({
 			check: {
 				it: {
 					out: function(e, m, k, v) {
+						expect(e.type).toBe('click');
+						expect(m).toBe(model);
+						expect(k).toBe('check.it.out');
+						expect(v).toBe('awesome');
+
 						done();
 					}
 				}
