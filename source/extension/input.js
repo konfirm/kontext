@@ -16,7 +16,11 @@ kontext.extension('input', function(element, model, config) {
 		property, delegate;
 
 	function type(node) {
-		return 'type' in node ? node.type : (select.test(node.nodeName) ? 'select-' + (node.multiple ? 'multiple' : 'one') : 'text');
+		if (!node.hasAttribute('type')) {
+			return select.test(node.nodeName) ? 'select-' + (node.multiple ? 'multiple' : 'one') : 'text';
+		}
+
+		return node.getAttribute('type');
 	}
 
 	function handle(property) {
@@ -53,7 +57,10 @@ kontext.extension('input', function(element, model, config) {
 							model[config.options]
 								.forEach(function(value, index) {
 									if (typeof value === 'object') {
-										element.options[index + offset] = new Option(value.label || value.value || '', value.value || '');
+										element.options[index + offset] = new Option(
+											value.label || value.value || '',
+											value.value || ''
+										);
 									}
 									else {
 										element.options[index + offset] = new Option(value);
@@ -61,7 +68,7 @@ kontext.extension('input', function(element, model, config) {
 								});
 						}
 						else {
-							Object.configs(model[config.options])
+							Object.keys(model[config.options])
 								.forEach(function(value, index) {
 									element.options[index + offset] = new Option(model[config.options][value], value);
 								});
