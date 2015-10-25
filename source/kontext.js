@@ -224,6 +224,15 @@
 							emitter.trigger('update', [model, key, value]);
 						});
 					}
+
+					//  if the value is an object, we prepare it aswel so we can actually work with
+					//  scoped properties
+					if (value && typeof value === 'object' && !(value instanceof Array)) {
+						prepare(value);
+						value.on('update', function(m, k, v) {
+							emitter.trigger('update', model, key + '.' + k, v);
+						});
+					}
 				});
 
 				//  add the emission methods
@@ -373,7 +382,18 @@
 		 */
 		function getDelegate(model, key) {
 			var result = false,
+				property = key.split('.'),
 				desc;
+
+			//  deal with scoped keys such as 'foo.bar', which needs to address the 'bar' property in the submodel
+			//  residing in model.foo
+			property.forEach(function(name, index, all) {
+				key = name;
+
+				if (index < all.length - 1) {
+					model = model[key];
+				}
+			});
 
 			if (key in model) {
 				//  if a model key is an explicitly assigned delegate, we utilize it

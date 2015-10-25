@@ -11,19 +11,16 @@ kontext.extension('event', function(element, model, config) {
 		Object.keys(config)
 			.forEach(function(key) {
 				element.addEventListener(type, function(event) {
-					var delegate;
+					var delegate = model.delegation(key);
 
-					//  if the found scope is a function, invoke it with the event, key and configured value
-					//  (the function name)
-					if (typeof model[key] === 'function') {
-						model[key].apply(model, [event, model, key, config[key]]);
-					}
+					if (delegate) {
+						//  if the delegate is a function, apply it
+						if (typeof delegate() === 'function') {
+							delegate().call(event, model, key, config[key]);
+						}
 
-					//  is the scope is an object, traverse it and if the key is a delegate, apply the configured value
-					else {
-						delegate = model.delegation(key);
-
-						if (delegate) {
+						//  otherwise set the configured value
+						else {
 							delegate(config[key]);
 						}
 					}
