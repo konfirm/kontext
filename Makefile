@@ -3,10 +3,15 @@ json-formatter:
 		-o source/lib/json-formatter.js;
 
 kontext:
-	@devour kontext;
+	@devour kontext kontext:extensions;
 
 clean:
 	@rm -rf build/*;
+
+dist:
+	@make clean kontext && \
+		cat build/kontext.min.js build/extension/*.min.js > \
+		build/kontext-`node -pe "require('./package.json').version;"`.min.js;
 
 update:
 	@make clean json-formatter kontext;
