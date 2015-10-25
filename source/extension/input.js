@@ -6,7 +6,7 @@
  *  @example  <input data-kontext="input: {value: key}">
  *            <input type=checkbox data-kontext="input: {checked: key}">
  *            <select data-kontext="input: {value: key, options: optionsKey}"></select>
- *            <select data-kontext="input: {value: key, options: optionsKey}"</select>
+ *            <select data-kontext="input: {value: key, options: optionsKey, default: choose}"</select>
  */
 kontext.extension('input', function(element, model, config) {
 	'use strict';

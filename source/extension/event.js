@@ -3,6 +3,7 @@
  *  Manage events from data-kontext attributes
  *  @name     Event
  *  @package  Kontext
+ *  @syntax   <div data-kontext="event: {click: {key|method: value}}">...</div>
  */
 kontext.extension('event', function(element, model, config) {
 	'use strict';

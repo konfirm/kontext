@@ -3,6 +3,7 @@
  *  Manage attributes/values with Kontext
  *  @name     Attribute
  *  @package  Kontext
+ *  @syntax   <div data-kontext="attribute: {data-foo: foo, ...}">...</div>
  */
 kontext.extension('attribute', function(element, model, config) {
 	'use strict';

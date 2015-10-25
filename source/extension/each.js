@@ -3,6 +3,7 @@
  *  Work with array from data-kontext attributes
  *  @name     Each
  *  @package  Kontext
+ *  @syntax   <ul data-kontext="each: list"><li>...</li></ul>
  */
 kontext.extension('each', function(element, model, key) {
 	'use strict';

@@ -3,6 +3,8 @@
  *  Manage text from data-kontext attributes
  *  @name     Text
  *  @package  Kontext
+ *  @syntax   <span data-kontext="text: foo">replaced</span>
+ *            <span data-kontext="text: foo">replaced<strong> stuff</strong></span>
  */
 kontext.extension('text', function(element, model, key) {
 	'use strict';

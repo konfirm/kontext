@@ -3,6 +3,7 @@
  *  Manage css classes from data-kontext attributes
  *  @name     CSS
  *  @package  Kontext
+ *  @syntax   <div data-kontext="css: {awesome: cool, ...}">...</div>
  */
 kontext.extension('css', function(element, model, config) {
 	'use strict';
