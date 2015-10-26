@@ -68,5 +68,16 @@ function Settings() {
 		};
 	}
 
+	/**
+	 *  Combine the given object with the public settings without changing the default settings
+	 *  @name    combine
+	 *  @access  public
+	 *  @param   object  override
+	 *  @return  object  combined
+	 */
+	settings.combine = function(override) {
+		return merge(merge({}, settings.public()), override || {});
+	};
+
 	init();
 }

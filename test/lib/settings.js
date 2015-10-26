@@ -33,4 +33,24 @@ describe('Settings', function() {
 			});
 		});
 	});
+
+	it('combines overrides with public settings without changing', function() {
+		var override;
+
+		settings.public('foo', 'fool');
+		settings.public('bar', 'drink');
+ 		override = settings.combine({foo: 'diff'});
+
+		expect(settings.public('foo')).toBe('fool');
+		expect(override.foo).toBe('diff');
+		expect(override.bar).toBe(settings.public('bar'));
+	});
+
+	it('combines defaults', function() {
+		var override = settings.combine();;
+
+		expect(settings.public('foo')).toBe('fool');
+		expect(override.foo).toBe('fool');
+		expect(override.bar).toBe(settings.public('bar'));
+	});
 });

@@ -542,11 +542,21 @@
 		 *  @access  public
 		 *  @param   object   model
 		 *  @param   DOMNode  element...  [optional, default undefined - the document.body]
+		 *  @param   Object   options     [optional, default undefined - use the default settings]
 		 *  @return  object   model
 		 */
 		kontext.bind = function() {
 			var arg = castToArray(arguments),
-				model = prepare(arg.shift());
+				model = prepare(arg.shift()),
+				options = arg.length ? arg.pop() : {};
+
+			//  verify whether the last argument was indeed an options object, or an element
+			if ('nodeType' in options) {
+				arg.push(options);
+				options = {};
+			}
+
+			options = settings.combine(options);
 
 			//  if only a model was provided, the binding element will be document.body
 			if (arg.length <= 0) {
@@ -560,7 +570,7 @@
 
 				//  work through all data-kontext (or configured override thereof) attributes within (inclusive)
 				//  given element
-				new Attribute().find(settings.public('attribute'), element, function(target, settings) {
+				new Attribute().find(options.attribute, element, function(target, settings) {
 					eachKey(settings, function(key, config) {
 						var ext = extension(key);
 
@@ -585,7 +595,7 @@
 							delegated(initial);
 						}
 					}
-					else if (settings.public('greedy')) {
+					else if (options.greedy) {
 						//  create the delegate function
 						delegated = delegate(initial, model, key);
 
