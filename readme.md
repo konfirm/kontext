@@ -140,8 +140,8 @@ There are two notations for the `each`-extension:
 </ul>
 ```
 
-In this setup, both will do the same thing. The latter is more flexible, as it also accepts a `filter` and `map` property, both of which can contain the name of a model method or global function, or an array of these.
-**NOTE** the execution order is: `filter` then `map`, so it is not possible to filter on mapped results.
+In this setup, both will do the same thing. The latter is more flexible, as it also accepts a `map` and `filter` property, both of which can contain the name of a model method or global function, or an array of these.
+**NOTE** the execution order is: `map` and then `filter`, so it is not possible to map filtered results.
 
 ```html
 <ul data-kontext="each: {target: list, filter: [filterA, filterB]}">

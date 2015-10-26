@@ -3,12 +3,16 @@
  *  Work with array from data-kontext attributes
  *  @name     Each
  *  @package  Kontext
- *  @syntax   <ul data-kontext="each: list"><li>...</li></ul>
+ *  @syntax   <ul data-kontext="each: <key>"><li>...</li></ul>
+ *            <ul data-kontext="each: {target: <key>}"><li>...</li></ul>
+ *            <ul data-kontext="each: {target: <key>, filter|map: <function>}"><li>...</li></ul>
+ *            <ul data-kontext="each: {target: <key>, filter|map: [<function>, ...]}"><li>...</li></ul>
  */
 kontext.extension('each', function(element, model, key) {
 	'use strict';
 
 	var template = [],
+		cache = [],
 		target, state;
 
 	if (typeof key === 'object') {
@@ -27,6 +31,7 @@ kontext.extension('each', function(element, model, key) {
 		template.push(element.removeChild(element.firstChild).cloneNode(true));
 	}
 
+	//  apply the map and filter methods, if configured
 	function refine(result) {
 		var apply;
 
@@ -50,16 +55,51 @@ kontext.extension('each', function(element, model, key) {
 		return result;
 	}
 
+	//  fetch a configuration from the internal cache
+	function fetch(item) {
+		var result = cache.filter(function(o) {
+				return o.item === item;
+			});
+
+		return result.length ? result[0] : null;
+	}
+
+	//  prepare a value to be bound as model, and preserving the template
+	function prepare(item) {
+		var result = fetch(item),
+			nodeList;
+
+		if (!result) {
+			nodeList = template.map(function(node) {
+				return node.cloneNode(true);
+			});
+
+			result = {
+				item: item,
+				model: kontext.bind.apply(kontext, [typeof item === 'object' ? item : {}].concat(nodeList)),
+				nodes: nodeList
+			};
+
+			result.model.$item = item;
+			result.model.$parent = model[key];
+
+			cache.push(result);
+		}
+
+		return result;
+	}
+
+	//  determine the changes between two arrays
 	function differ(a, b) {
 		return a.length !== b.length || a.filter(function(value, index) {
 			return b[index] !== value;
 		}).length !== 0;
 	}
 
+	//  update the contents if there are changes
 	function update() {
-		var output = document.createDocumentFragment(),
+		var output = [],
 			collection = model[target],
-			bonds = [],
 			changed = false,
 			refined;
 
@@ -76,47 +116,11 @@ kontext.extension('each', function(element, model, key) {
 		//  if changed or we are looking at a refined list, redraw everything
 		if (changed || refined) {
 			collection.forEach(function(value, index) {
-				var item = typeof value === 'object' ? value : {},
-					arg = [item],
-					nodeList;
+				var config = prepare(value);
 
-				//  always update the index, as we do not know where items end up
-				item.$index = index;
+				config.model.$index = index;
 
-				//  if the item was painted before, it has the `_append` method, utilize it
-				if ('_append' in item) {
-					item._append(output);
-				}
-				else {
-					nodeList = [];
-					item.$item   = value;
-					item.$parent = model[key];
-
-					//  create the _append method
-					item._append = function(append) {
-						nodeList.forEach(function(node) {
-							append.appendChild(node);
-						});
-					};
-
-					//  add a fresh clone of every element in the template to the nodeList
-					template
-						.forEach(function(node) {
-							nodeList.push(node.cloneNode(true));
-						});
-
-					//  add the nodeList to the arguments we will be feeding to kontext.bind
-					arg = arg.concat(nodeList);
-
-					//  append the elements to the output
-					item._append(output);
-
-					//  we need to postpone the `bind` to the point where the documentFragment is actually
-					//  appended to the DOM
-					bonds.push(function() {
-						kontext.bind.apply(kontext, arg);
-					});
-				}
+				output = output.concat(config.nodes);
 			});
 
 			//  clear the element and redraw the new output
@@ -124,12 +128,8 @@ kontext.extension('each', function(element, model, key) {
 				element.removeChild(element.lastChild);
 			}
 
-			//  attach the documentFragment to the DOM
-			element.appendChild(output);
-
-			//  call all of the stored `bonds`
-			bonds.forEach(function(bind) {
-				bind();
+			output.forEach(function(node) {
+				element.appendChild(node);
 			});
 		}
 	}
