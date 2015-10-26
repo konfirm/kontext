@@ -150,7 +150,62 @@ In this setup, both will do the same thing. The latter is more flexible, as it a
 ```
 
 #### event
-To be described
+Trigger events directly on your models, any event can be bound (as long as the browser supports it) and the syntax allows for a huge variety in options.
+
+```html
+<div data-kontext="event: {mouseover: hover}">...</div>
+```
+
+Will invoke the models hover method on mouseover.
+
+```html
+<div data-kontext="event: {mouseover: [hover, focus]}">...</div>
+```
+
+Will invoke the models hover method followed by the models focus method on mouseover.
+
+Besides function invocation, it may be useful to have properties change automatically, for example when a state flag is needed. This is can be done using predefined values.
+
+```html
+<div data-kontext="event: {mouseover: {state: over},
+							mouseout: {state: none},
+							mousedown: {state: press},
+							mouseup: {state: release}}">
+	...
+</div>
+```
+
+The values (`'over'`, `'none'`, `'press'` and `'release'`) will be applied to the `state` property when the corresponding events take place.
 
 #### input
-To be described
+Bind any type of form element, these come in three major flavors:
+
+##### Textual inputs
+The most common of inputs, bind them using the syntax `data-kontext="input: {value: <key>}"`. This works on any form element which works with a value property, such as `<input>` with type: `'text'`, `'password'`, etc. Also works great with `<textarea>` elements.
+
+##### `Checked` inputs
+Checkboxes and radio inputs, Kontext handles these by setting a boolean state per option.
+
+```html
+<input type=checkbox data-bind="input: {checked: mystate}">
+```
+
+This will reflect the state (boolean value) of the model `mystate` property and keep the value in sync with the checked state.
+
+##### Select boxes
+Keeping selections (both single and multiple) in sync with your models was never easier, simply provide both the destination key of the selection and optionally a key from where to obtain the options and you're set.
+
+```html
+<select data-kontext="input: {value: selection}">
+	<option>A</option>
+	<option>B</option>
+</select>
+```
+
+If there is no `options` set in the configuration, you can (and must) provide these in the html source or add some other means to populate it.
+
+```html
+<select data-kontext="input: {value: selection, options: optionList, default: choose}"></select>
+```
+
+Note that the `multiple` attribute is set/removed automatically by Kontext depending on whether the property reference in `value` (here `selection`) in the model allows for multiple values (an array).
