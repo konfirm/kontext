@@ -80,6 +80,7 @@ kontext.extension('each', function(element, model, key) {
 				nodes: nodeList
 			};
 
+			result.model.$index = null;
 			result.model.$item = item;
 			result.model.$parent = model[key];
 
