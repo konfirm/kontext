@@ -48,24 +48,67 @@ describe('Kontext Extension Event', function() {
 		triggerEvent(element, 'mouseover');
 	});
 
-	it('applies function calls if the referenced value is a model method', function(done) {
-		var element = document.createElement('div'),
-			model;
+	describe('applies function calls if the referenced value is a model method', function() {
+		it('configured as string', function(done) {
+			var element = document.createElement('div'),
+				model;
 
-		element.setAttribute('data-kontext', 'event: {click: {check: yes}}');
+			element.setAttribute('data-kontext', 'event: {click: check}');
 
-		model = kontext.bind({
-			check: function(e, m, k, v) {
-				expect(e.type).toBe('click');
-				expect(m).toBe(model);
-				expect(k).toBe('check');
-				expect(v).toBe('yes');
+			model = kontext.bind({
+				check: function(e, m, k, v) {
+					expect(e.type).toBe('click');
+					expect(m).toBe(model);
+					expect(k).toBe('check');
+					expect(v).toBe(undefined);
 
-				done();
-			}
-		}, element);
+					done();
+				}
+			}, element);
 
-		triggerEvent(element, 'click');
+			triggerEvent(element, 'click');
+		});
+
+		it('configured as object', function(done) {
+			var element = document.createElement('div'),
+				model;
+
+			element.setAttribute('data-kontext', 'event: {click: {check: yes}}');
+
+			model = kontext.bind({
+				check: function(e, m, k, v) {
+					expect(e.type).toBe('click');
+					expect(m).toBe(model);
+					expect(k).toBe('check');
+					expect(v).toBe('yes');
+
+					done();
+				}
+			}, element);
+
+			triggerEvent(element, 'click');
+		});
+
+		it('configured as array', function(done) {
+			var element = document.createElement('div'),
+				model;
+
+			element.setAttribute('data-kontext', 'event: {click: [check]}');
+
+			model = kontext.bind({
+				check: function(e, m, k, v) {
+					expect(e.type).toBe('click');
+					expect(m).toBe(model);
+					expect(k).toBe('check');
+					expect(v).toBe(undefined);
+
+					done();
+				}
+			}, element);
+
+			triggerEvent(element, 'click');
+		});
+
 	});
 
 	it('does not trigger Errors when accessing non-existent keys', function(done) {
