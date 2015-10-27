@@ -5,7 +5,7 @@
  *  @name     Text
  *  @package  Kontext
  */
-function Text() {
+function Text(pattern) {
 	var text = this;
 
 	/**
@@ -41,13 +41,17 @@ function Text() {
 	 *  @return array   DOMText nodes
 	 */
 	function splitter(node) {
-		var match = node.nodeValue.match(/(\{\$?[a-z0-9_-]+(?::[^\}]+)?\})/i),
+		var match = node.nodeValue.match(pattern),
 			content = match ? (match.index === 0 ? node : node.splitText(match.index)) : null,
-			remainder = match ? content.splitText(match[1].length) : null,
+			remainder = match ? content.splitText(match[0].length) : null,
 			result = [];
 
 		if (content) {
-			result.push(content);
+			result.push({
+				node: content,
+				key: match[2],
+				initial: match[3] || ''
+			});
 			content.original = content.nodeValue;
 		}
 
@@ -85,6 +89,8 @@ function Text() {
 	 *  @return  void
 	 */
 	text.placeholders = function(element, callback) {
-		placeholders(element).forEach(callback);
+		placeholders(element).forEach(function(text) {
+			callback.apply(null, [text.node, text.key, text.initial]);
+		});
 	};
 }

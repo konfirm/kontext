@@ -31,7 +31,7 @@ function Settings() {
 		Object.keys(b)
 			.forEach(function(key) {
 				if (typeof b[key] === 'object' && b[key]) {
-					a[key] = merge(typeof a[key] === 'object' ? a[key] : {}, b[key]);
+					a[key] = merge(typeof a[key] === 'object' ? a[key] : b[key] instanceof RegExp ? b[key] : {}, b[key]);
 				}
 				else {
 					a[key] = b[key];

@@ -41,7 +41,8 @@
 			//  public settings (this is what is provided/changed when using the kontext.defaults method)
 			settings.public({
 				greedy: true,
-				attribute: 'data-kontext'
+				attribute: 'data-kontext',
+				pattern: /(\{(\$?[a-z0-9_-]+)(?::([^\}]+))?\})/i
 			});
 
 			//  register our own ready handler, ensuring to be the first in line
@@ -579,11 +580,10 @@
 				});
 
 				//  work through all placeholders in DOMText nodes within (inclusive) within the element
-				new Text().placeholders(element, function(text) {
-					var placeholder = text.nodeValue.substr(1, text.nodeValue.length - 2).split(/:/),
-						key = placeholder.shift(),
-						initial = placeholder.length ? placeholder.join(':') : '',
-						delegated = getDelegate(model, key);
+				new Text(options.pattern).placeholders(element, function(text, key, initial) {
+					// console.log(options.pattern, text, key, initial);
+
+					var delegated = getDelegate(model, key);
 
 					//  if there is a delegation, we provide the scope (only effective if no scope has been set)
 					if (delegated) {

@@ -1,4 +1,4 @@
-/*global Text, describe, afterEach, beforeEach, it, expect*/
+/*global kontext, Text, describe, afterEach, beforeEach, it, expect*/
 describe('Text', function() {
 	'use strict';
 
@@ -38,7 +38,7 @@ describe('Text', function() {
 		expect(typeof fixture).toBe('object');
 		expect(fixture.nodeType).toBe(1);
 
-		new Text().placeholders(fixture, function(text) {
+		new Text(kontext.defaults().pattern).placeholders(fixture, function(text) {
 			nodeList.push(text);
 		});
 
@@ -51,5 +51,39 @@ describe('Text', function() {
 			expect(data[0]).toBe('{');
 			expect(data[data.length - 1]).toBe('}');
 		});
+	});
+
+	it('finds the provided element itself, if it is text', function() {
+		var node = document.createTextNode('A {foo} walks into a {bar}'),
+			result = [];
+
+		new Text(kontext.defaults().pattern).placeholders(node, function(text) {
+			result.push(text);
+		});
+
+		expect(result.length).toBe(2);
+
+		expect(result[0].nodeType).toBe(3);
+		expect(result[0].data).toBe('{foo}');
+
+		expect(result[1].nodeType).toBe(3);
+		expect(result[1].data).toBe('{bar}');
+	});
+
+	it('allows custom matching patterns', function() {
+		var node = document.createTextNode('A <%foo%> walks into a <%bar%>'),
+			result = [];
+
+		new Text(/(<%(.*?)%>)/).placeholders(node, function(text) {
+			result.push(text);
+		});
+
+		expect(result.length).toBe(2);
+
+		expect(result[0].nodeType).toBe(3);
+		expect(result[0].data).toBe('<%foo%>');
+
+		expect(result[1].nodeType).toBe(3);
+		expect(result[1].data).toBe('<%bar%>');
 	});
 });
