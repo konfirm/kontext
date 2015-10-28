@@ -260,6 +260,22 @@
 		 *  @param   array   subscriber
 		 */
 		function listPrepare(list, config) {
+			var proto = Array.prototype,
+				numeric = /^[0-9]+$/;
+
+			//  determine if the list has been given additional properties and delegate those
+			eachKey(list, function(key, value) {
+				var handle;
+
+				if (!(numeric.test(key) || key in proto || isDelegate(value))) {
+					handle = delegate(value, list, key);
+
+					//  add the delegated handle as both getter and setter on the list key
+					define(list, key, true, handle, handle);
+				}
+			});
+
+			//  iterator over every item in the list and ensure it is a model on its own
 			list.forEach(function(item, index) {
 				if (typeof list[index] === 'object') {
 					list[index] = prepare(item, config.model, config.key);

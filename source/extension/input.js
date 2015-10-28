@@ -42,9 +42,12 @@ kontext.extension('input', function(element, model, config) {
 	function selection() {
 		var defaultOption = 'default' in config ? {value: null, label: config.default} : false,
 			update = function() {
-				var offset = 0;
+				var offset = 0,
+					list;
 
-				if ('options' in config && config.options in model) {
+				if ('options' in config && (list = model.delegation(config.options))) {
+					list = list();
+
 					if (defaultOption) {
 						element.options[offset] = new Option(defaultOption.label, defaultOption.value);
 						++offset;
@@ -52,9 +55,9 @@ kontext.extension('input', function(element, model, config) {
 
 					element.options.length = offset;
 
-					if (typeof model[config.options] === 'object') {
-						if (model[config.options] instanceof Array) {
-							model[config.options]
+					if (typeof list === 'object') {
+						if (list instanceof Array) {
+							list
 								.forEach(function(value, index) {
 									if (typeof value === 'object') {
 										element.options[index + offset] = new Option(
@@ -68,9 +71,9 @@ kontext.extension('input', function(element, model, config) {
 								});
 						}
 						else {
-							Object.keys(model[config.options])
+							Object.keys(list)
 								.forEach(function(value, index) {
-									element.options[index + offset] = new Option(model[config.options][value], value);
+									element.options[index + offset] = new Option(list[value], value);
 								});
 						}
 					}
