@@ -15,7 +15,7 @@
     "binding"
   ],
   "author": "Rogier Spieker <kontext@konfirm.eu>",
-  "license": "UNLICENSED",
+  "license": "GPL-2.0",
   "devDependencies": {
     "devour": "^1.6.0",
     "git-revision": "0.0.1",
