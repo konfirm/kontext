@@ -30,6 +30,5 @@ module.exports = function(stream) {
 
 			this.push(chunk);
 			done();
-		}))
-	;
+		}));
 };

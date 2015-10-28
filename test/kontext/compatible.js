@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect, spyOn*/
+/*global describe, it*/
 describe('Kontext Compatible', function() {
 	'use strict';
 

@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect, spyOn*/
+/*global kontext, describe, afterEach, beforeEach, it, expect*/
 describe('Kontext Updates', function() {
 	'use strict';
 
@@ -82,7 +82,7 @@ describe('Kontext Updates', function() {
 					variable: true
 				}, element);
 
-			model.on('update', function(model, key, old) {
+			model.on('update', function(model, key) {
 				expect(typeof model[key]).toBe('boolean');
 				expect(model[key]).toBe(true);
 

@@ -6,29 +6,7 @@ var Wanted = require('wanted'),
 	fs = require('fs'),
 	hjson = require('hjson');
 
-function remainder(watch) {
-	var list = [];
-
-	Object.keys(watch).forEach(function(key) {
-		list = list.concat(watch[key]);
-	});
-
-	return list
-		//  invert the ! (! is removed and added if not present)
-		.map(function(pattern) {
-			return pattern[0] === '!' ? pattern.substr(1) : '!' + pattern;
-		})
-		//  put the ! below anything else
-		.sort(function(a, b) {
-			var mA = +(a[0] === '!'),
-				mB = +(b[0] === '!');
-
-			return mA < mB ? -1 : +(mA > mB);
-		})
-	;
-}
-
-(function(wanted){
+(function(wanted) {
 	wanted
 		.on('install', function(module) {
 			//  accept all module installs/updates

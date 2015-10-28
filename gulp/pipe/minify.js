@@ -6,6 +6,7 @@ function minified(file) {
 
 module.exports = function(stream, devour, minifier) {
 	return stream
+
 		//  initialize the sourcemap
 		.pipe(devour.plugin('sourcemaps').init())
 

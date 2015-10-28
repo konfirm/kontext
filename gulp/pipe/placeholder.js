@@ -23,8 +23,7 @@ function contributors(match, prefix) {
 		.split('\n')
 		.filter(function(line) {
 			return !!line && !/@konfirm/.test(line);
-		})
-	;
+		});
 
 	if (credits.length) {
 		credits.unshift('Contributors:');
@@ -44,6 +43,7 @@ function year(match, preserve) {
 
 module.exports = function(stream, devour) {
 	return stream
+
 		//  replace '$DATE$' with the current date
 		.pipe(devour.plugin('replace', /\$DATE\$/g, date()))
 

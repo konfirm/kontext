@@ -6,7 +6,7 @@
  *  @name     Attribute
  *  @package  Kontext
  */
-function Attribute() {
+function /*jshint unused: false*/Attribute()/*jshint unused: true*/ {
 	var attribute = this,
 		json;
 

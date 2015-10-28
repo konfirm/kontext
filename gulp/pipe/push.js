@@ -49,7 +49,9 @@ function name(file, done) {
 
 function publish(file, config) {
 	name(file, function(error, filename) {
-		if (error) throw new Error(error);
+		if (error) {
+			throw new Error(error);
+		}
 
 		var request = require('request'),
 			fs = require('fs'),
@@ -66,14 +68,13 @@ function publish(file, config) {
 				headers: {
 					'content-type': 'text/javascript'
 				}
-			},
-			method = (config.method || 'put').toLowerCase();
+			};
 
 		if ('auth' in config) {
 			Object.keys(config.auth)
 				.forEach(function(key) {
-					options.headers['client'] = key;
-					options.headers['secret'] = config.auth[key];
+					options.headers.client = key;
+					options.headers.secret = config.auth[key];
 				});
 		}
 
@@ -102,12 +103,11 @@ function publish(file, config) {
 					'=> ' + color(url),
 					' (' + gutil.colors.yellow(unit(file.size, 1024, ['bytes', 'KB', 'MB', 'GB'], 1)) + ')'
 				);
-			})
-		;
+			});
 	});
 }
 
-module.exports = function(stream, devour, list) {
+module.exports = function(stream, devour) {
 	var through = require('through2'),
 		config = devour.config('push');
 
@@ -125,6 +125,5 @@ module.exports = function(stream, devour, list) {
 
 			this.push(file);
 			done();
-		}))
-	;
+		}));
 };

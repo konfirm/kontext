@@ -89,7 +89,7 @@ function Embed(devour, build) {
 			result.push(' */');
 
 			return result.map(function(line, index, all) {
-				return indentation + (index > 0 && index < all.length - 1? ' *  ' : '') + line;
+				return indentation + (index > 0 && index < all.length - 1 ? ' *  ' : '') + line;
 			}).join('\n');
 		});
 	}
@@ -111,8 +111,7 @@ function Embed(devour, build) {
 			})
 			.map(function(dep) {
 				return dep.replace(/(?:src|core)\/?/g, '');
-			})
-		;
+			});
 	}
 
 	function getDependencies(requires) {
@@ -120,6 +119,7 @@ function Embed(devour, build) {
 			deps = keys.filter(function(key) {
 				return !list[key].included && (requires.length <= 0 || requires.indexOf(key) >= 0);
 			}),
+
 			changes = true,
 			result;
 

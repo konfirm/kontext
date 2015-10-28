@@ -1,4 +1,4 @@
-/*global Settings, describe, beforeEach, it, expect*/
+/*global Settings, describe, it, expect*/
 describe('Settings', function() {
 	'use strict';
 
@@ -39,7 +39,7 @@ describe('Settings', function() {
 
 		settings.public('foo', 'fool');
 		settings.public('bar', 'drink');
- 		override = settings.combine({foo: 'diff'});
+		override = settings.combine({foo: 'diff'});
 
 		expect(settings.public('foo')).toBe('fool');
 		expect(override.foo).toBe('diff');
@@ -47,7 +47,7 @@ describe('Settings', function() {
 	});
 
 	it('combines defaults', function() {
-		var override = settings.combine();;
+		var override = settings.combine();
 
 		expect(settings.public('foo')).toBe('fool');
 		expect(override.foo).toBe('fool');

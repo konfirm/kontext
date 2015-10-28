@@ -56,7 +56,7 @@ describe('Kontext Extension', function() {
 			foo: 'bar'
 		}, document.body);
 
-		model.on('update', function(model, key, old) {
+		model.on('update', function() {
 			expect(list[0].getAttribute('data-basic')).toBe('baz');
 
 			done();

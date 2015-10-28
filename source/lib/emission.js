@@ -5,7 +5,7 @@
  *  @name     Emission
  *  @package  Kontext
  */
-function Emission() {
+function /*jshint unused: false*/Emission()/*jshint unused: true*/ {
 	var emission = this,
 		collection = [];
 

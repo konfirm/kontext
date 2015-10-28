@@ -2,7 +2,7 @@
 describe('JSONFormatter TODO', function() {
 	'use strict';
 
-	//  This tests contains pitfalls that we know off
+	//  This tests contains pitfalls that we know of
 
 	it('trips over nested quotation symbols', function() {
 		var json = new JSONFormatter();

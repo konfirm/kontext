@@ -5,7 +5,7 @@
  *  @name     Settings
  *  @package  Kontext
  */
-function Settings() {
+function /*jshint unused: false*/Settings()/*jshint unused: true*/ {
 	var settings = this;
 
 	/**

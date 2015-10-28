@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect, spyOn*/
+/*global kontext, describe, afterEach, beforeEach, it, expect*/
 describe('Kontext Greedy', function() {
 	'use strict';
 

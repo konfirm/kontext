@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect, spyOn*/
+/*global kontext, describe, it, expect*/
 describe('Kontext Extension Attribute', function() {
 	'use strict';
 

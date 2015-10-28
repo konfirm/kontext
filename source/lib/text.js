@@ -5,7 +5,7 @@
  *  @name     Text
  *  @package  Kontext
  */
-function Text(pattern) {
+function /*jshint unused: false*/Text(pattern)/*jshint unused: false*/ {
 	var text = this;
 
 	/**

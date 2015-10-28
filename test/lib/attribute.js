@@ -1,4 +1,4 @@
-/*global Attribute, describe, beforeEach, it, expect*/
+/*global Attribute, describe, it, expect*/
 describe('Attribute', function() {
 	'use strict';
 

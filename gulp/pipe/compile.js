@@ -3,6 +3,7 @@
 
 module.exports = function(stream, devour, list) {
 	return stream
+
 		//  resolve inclusion
 		.pipe(devour.pipe('embed', list))
 

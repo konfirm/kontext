@@ -30,6 +30,5 @@ module.exports = function(stream, devour, type) {
 			this.push(file);
 
 			done();
-		}))
-	;
+		}));
 };

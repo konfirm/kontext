@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(stream, devour, type) {
+module.exports = function(stream, devour) {
 	return stream
 
 		//  put the files in the proper order before concatenation

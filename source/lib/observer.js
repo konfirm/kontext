@@ -6,7 +6,7 @@
  *  @name     Observer
  *  @package  Kontext
  */
-function Observer() {
+function /*jshint unused: false*/Observer()/*jshint unused: true*/ {
 	var observer = this,
 		mutation;
 

@@ -25,6 +25,7 @@ module.exports = function(stream, devour) {
 	priority = devour.config('priority', ['var', 'base']);
 
 	return stream
+
 		//  put the files in the proper order
 		.pipe(devour.plugin('sort', order))
 	;

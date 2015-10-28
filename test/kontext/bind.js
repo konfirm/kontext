@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect, spyOn*/
+/*global kontext, describe, afterEach, beforeEach, it, expect*/
 describe('Kontext Bind', function() {
 	'use strict';
 

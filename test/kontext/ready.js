@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect*/
+/*global kontext, describe, it, expect*/
 
 describe('Kontext Ready', function() {
 	'use strict';
@@ -6,11 +6,11 @@ describe('Kontext Ready', function() {
 	it('triggers each ready handler once', function(done) {
 		var result = [];
 
-		kontext.ready(function(error) {
+		kontext.ready(function() {
 			result.push('first');
 		});
 
-		kontext.ready(function(error) {
+		kontext.ready(function() {
 			result.push('second');
 
 			expect(result.length).toBe(2);

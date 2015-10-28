@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect, spyOn*/
+/*global kontext, describe, it, expect*/
 describe('Kontext Extension Input', function() {
 	'use strict';
 
@@ -384,6 +384,33 @@ describe('Kontext Extension Input', function() {
 			element.options[0].selected = false;
 			triggerEvent(element, 'change');
 		});
+	});
 
+	it('allows working with array properties for options', function(done) {
+		var element = document.createElement('select'),
+			selection = ['a', 'd'],
+			model = {
+				selection: selection
+			};
+
+		selection.opt = [
+			'a', 'b', 'c', 'd', 'e'
+		];
+
+		element.setAttribute('data-kontext', 'input: {value: selection, options: selection.opt}');
+
+		model = kontext.bind(model, element);
+
+		expect(model.selection.opt.length).toBe(5);
+		expect(element.options.length).toBe(model.selection.opt.length);
+
+		selection.opt.forEach(function(opt, index) {
+			var selected = selection.indexOf(opt) >= 0;
+
+			expect(element.options[index].value).toBe(selection.opt[index]);
+			expect(element.options[index].selected).toBe(selected);
+		});
+
+		done();
 	});
 });
