@@ -5,7 +5,7 @@ Simple and extensible two-way binding library.
 ## Why yet-another-two-way-binding-library?
 I could humorously say something like "because I can", which actually is among the true reasons on why I started this project. The primary reason to look into two-way binding - or to be more precise, the configuration of it - was to figure out if it is absolutely required to be using `eval` and/or `new Function` contraptions.
 These are very powerful features of the javascript language, too powerful. In fact these features are actively abused by malicious people to circumvent security precautions in the browser. Luckily there are now countermeasures in modern webbrowsers to disable (or at least discourage) these features, for example CSP ([Content-Security-Policy](https://developer.mozilla.org/en-US/docs/Web/Security/CSP/Introducing_Content_Security_Policy)) headers.
-Without going into much detail on CSP headers, most two-way binding libraries require you to send the `script-src: 'unsafe-eval'`. That does not make you feel very safe now does it?
+Without going into much detail on CSP-headers on itself, most two-way binding libraries require you to send `script-src: 'unsafe-eval'`, which kind of defies the purpose of the CSP-headers.
 
 ### Why does the competition use `eval`/`new Function`?
 As said, these features are very, very powerful. They are what makes it possible to have bindings like: `text: 'hello ' + myWorld`. In short, using these features helps implement powerful features that allow the users to write complex statements in HTML attributes.
@@ -17,6 +17,11 @@ I know this does not seem to plead in favor of Kontext, I try to manage expectat
 So, here's are couple of competitors:
 - [Knockout](http://knockoutjs.com)
 - [Ractive](http://www.ractivejs.org)
+
+
+## Building instructions
+Building Kontext and its extensions is [quite simple](documentation/building.md).
+
 
 ## Usage
 Now that you have gained some insight in the _why_, lets get on with the _how_.
@@ -209,3 +214,8 @@ If there is no `options` set in the configuration, you can (and must) provide th
 ```
 
 Note that the `multiple` attribute is set/removed automatically by Kontext depending on whether the property reference in `value` (here `selection`) in the model allows for multiple values (an array).
+
+
+
+## License
+GPLv2 © [Konfirm ![Open](https://kon.fm/open.svg)](//kon.fm/site)
