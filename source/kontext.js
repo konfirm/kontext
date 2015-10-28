@@ -486,7 +486,7 @@
 			emission.add('ready', callback, 1);
 
 			if (state !== undefined) {
-				emission.trigger('ready', state !== true ? state : undefined);
+				emission.trigger('ready', [state !== true ? state : undefined, state === true ? kontext : undefined]);
 			}
 
 			return kontext;
