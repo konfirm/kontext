@@ -37,19 +37,4 @@
 			"\\s*(['\"])use\\s+strict\\1;?\\s*": ""
 		}
 	}
-
-	#  pushing upstream
-	push: {
-		host: kon.fm
-
-		#schema: http
-		#host: localhost
-		#port: 3000
-
-		path: /script/dev/
-		method: PUT,
-		auth: {
-			BUwaEBUywdmd47zwJJpuJNnC: AGstGUMQ7uw2CGLNLMPZpWeiaEmt3fZLm2TpxmRbsZHHkUEx
-		}
-	}
 }
