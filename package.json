@@ -4,7 +4,8 @@
   "description": "two-way binding",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "./node_modules/.bin/devour kontext kontext:extensions",
+    "test": "./node_modules/.bin/karma start --single-run --browsers PhantomJS"
   },
   "repository": {
     "type": "git",
