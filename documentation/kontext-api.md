@@ -55,18 +55,18 @@ Placeholder patterns consist of a single regular expression and are used for bot
 ## `on`
 Register a handler for `update` and `access` emissions. The `update` is triggered whenever a value changes, and `access` is triggered whenever a key is read (accessed).
 
-Syntax: `function handle = <model|delegate>.on(string type, function handle)`
+Syntax: `function handle = <kontext|model|delegate>.on(string type, function handle)`
 
 The handle function is called with the following arguments:
 - `object model` - the model whose key was accessed/updated
 - `string key` - the accessed/updated key
-- `string value` - the value (prior to update, in case of an update)
-- `string newValue` - the new value (in case of an update)
+- `mixed value` - the value (prior to update, in case of an update)
+- `mixed newValue` - the new value (in case of an update)
 
 ## `off`
 Remove handlers by type and/or handler function. All removed handlers are returned in an array.
 
-Syntax: `Array removed = <model|delegate>.off([string type] [, function handle])`
+Syntax: `Array removed = <kontext|model|delegate>.off([string type] [, function handle])`
 
 ## `ready`
 Convenience method to ensure Kontext to be ready for binding models to the HTML, it is triggered right after Kontext itself is initialized _and_ the DOM is available for interaction (DOM-ready).
