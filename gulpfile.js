@@ -22,9 +22,13 @@ var Wanted = require('wanted'),
 		.on('ready', function() {
 			fs.readFile(__dirname + '/gulp/config/project.json', function(error, data) {
 				var config = hjson.parse(String(data)),
-					devour = new Devour(config);
+					push = process.cwd() + '/.push.json';
 
-				devour
+				if (fs.existsSync(push)) {
+					config.push = require(push);
+				}
+
+				new Devour(config)
 
 					//  add the kontext task, monitoring and building the public facing javascripts
 					.task('kontext',
