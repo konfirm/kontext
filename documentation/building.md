@@ -36,12 +36,12 @@ This will use the [PhantomJS](http://phantomjs.org) browser to run all the tests
 
 
 ## Pull requests
-Help is always appreciated, just make sure to please both JSHint and JSCS as much as possible. Configuration for both is provided, so an editor (such as [Atom](https://atom.io) can help you out with writing code).
+Help is always appreciated, just make sure to please both JSHint and JSCS as much as possible. Configuration for both is provided, so an editor (such as [Atom](https://atom.io)) can help you out with writing code.
 
-We do expect changes in code to be reflected in unit tests, while currently not at 100% (97.95% for statements in PhantomJS, mostly due to browser specific flows), we sure don't want to see the coverage numbers decline when the pull request is merged.
+We do expect changes in code to be reflected in unit tests. While currently not at 100% (97.95% for statements in PhantomJS, mostly due to browser specific flows), we sure don't want to see the coverage numbers decline when the pull request is merged.
 For inspiration, you can always look at the existing tests for [kontext](../test/kontext) and [extensions](../test/kontext/extension).
 
 
 ## Feature requests
-Besides creating pull requests, requests for new features are also want.
+Besides creating pull requests, requests for new features are also welcome.
 So if you know of a feature that must be added, [create an issue describing your feature](https://kon.fm/kontext/request-extension).
