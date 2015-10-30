@@ -1,6 +1,6 @@
 {
   "name": "kontext",
-  "version": "1.0.0-pre2",
+  "version": "1.0.0",
   "description": "two-way binding",
   "main": "index.js",
   "scripts": {
