@@ -1,5 +1,6 @@
 # Kontext
 Simple and extensible two-way binding library.
+[![Build Status](https://travis-ci.org/konfirm/kontext.svg?branch=v1.0.0)](https://travis-ci.org/konfirm/kontext)[![Coverage Status](https://coveralls.io/repos/konfirm/kontext/badge.svg?branch=master&service=github)](https://coveralls.io/github/konfirm/kontext?branch=master)
 
 
 ## Why yet-another-two-way-binding-library?
