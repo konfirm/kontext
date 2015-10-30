@@ -22,6 +22,12 @@ This will take a while, as several packages (among which two headless browsers) 
 devour
 ```
 
+or, alternatively
+
+```
+./node_modules/.bin/devour
+```
+
 Yes, the [**devour**](https://github.com/konfirm/devour-gulp) build tool is used. This is a wrapper around the popular [**Gulp**](http://gulpjs.com) build tool, so it should feel familiar if you already use Gulp.
 
 
@@ -32,7 +38,29 @@ For unit testing [Karma](http://karma-runner.github.io) takes care of running th
 karma start
 ```
 
+or, alternatively
+
+```
+./node_modules/.bin/karma start
+```
+
 This will use the [PhantomJS](http://phantomjs.org) browser to run all the tests every time a file changes.
+
+
+## Building a distribution
+A distribution are the files you find in the `dist` folder, there are two files there:
+- kontext-`<version>`.js - kontext and all extensions, full source
+- kontext-`<version>`.min.js - kontext and all extensions, minified
+
+There should be no need to build these files other than running your own distribution, we always have the current builds in the `dist` folder.
+
+The command to build a distribution is:
+
+```
+make distribution
+```
+
+It will take the version in the `package.json` file for the file name, create a fresh build so all sources are 'compiled' and contributors are added.
 
 
 ## Pull requests

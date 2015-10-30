@@ -1,4 +1,13 @@
 /*global Attribute, Emission, Observer, Settings, Text*/
+/*
+ *       __    Kontext (version $DEV$ - $DATE$)
+ *      /\_\
+ *   /\/ / /   Copyright 2015, Konfirm (Rogier Spieker)
+ *   \  / /    Released under the GPL-2.0 license
+ *    \/_/     More information: http://konfirm.net/kontext
+ *
+ *  $CONTRIBUTORS$
+ */
 ;(function(global) {
 	'use strict';
 
