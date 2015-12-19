@@ -219,4 +219,4 @@ Note that the `multiple` attribute is set/removed automatically by Kontext depen
 
 
 ## License
-GPLv2 © [Konfirm ![Open](https://kon.fm/open.svg)](//kon.fm/site)
+GPLv2 © [Konfirm ![Open](https://kon.fm/open.svg?kontext)](//kon.fm/site)
