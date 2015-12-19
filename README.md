@@ -21,7 +21,7 @@ So, here's are couple of competitors:
 
 
 ## Dowload
-You can download the latest version directly from the [dist folder](/konfirm/kontext/tree/master/dist) or from the [releases](/konfirm/kontext/releases), which also contains previous releases.
+You can download the latest version directly from the [dist folder](/dist) or from the [releases](/releases), which also contains previous releases.
 
 
 ## Building instructions
