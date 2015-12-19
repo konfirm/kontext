@@ -18,7 +18,7 @@ function date() {
 }
 
 function contributors(match, prefix) {
-	var credits = fs.readFileSync(process.cwd() + '/AUTHORS')
+	var credits = fs.readFileSync(process.cwd() + '/AUTHORS.md')
 		.toString()
 		.split('\n')
 		.filter(function(line) {
