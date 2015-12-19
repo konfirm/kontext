@@ -84,7 +84,7 @@ describe('Kontext Extension Each', function() {
 		expect(list[2].firstChild.nodeValue).toBe('b.1');
 		expect(list[3].firstChild.nodeValue).toBe('b.2');
 
-		model.on('update', function(mod, key) {
+		model.on('update', function(mod) {
 			var child;
 
 			child = element.querySelectorAll('h3');
