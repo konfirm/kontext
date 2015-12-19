@@ -148,11 +148,17 @@
 		function extension(name, handler) {
 			var ext = settings._('extension') || {};
 
+			//  if a handler is provided, update the registered extension to add/overwrite the handler
+			//  to be used for given name
 			if (handler) {
 				ext[name] = handler;
 				settings._('extension', ext);
 			}
 
+			//  if the name does not represent a registered extension, we will not be showing an error
+			//  immediately but instead return a function which triggers an error upon use
+			//  this should ensure Kontext to fully function and deliver more helpful error messages to
+			//  the developer
 			if (!(name in ext)) {
 				return function() {
 					console.error('Kontext: Unknown extension "' + name + '"');
@@ -452,6 +458,8 @@
 			var list = settings._('bindings') || [],
 				ancestry;
 
+			//  if a model is provided, we associate it with the element, otherwise a list of models
+			//  already associated with the element will be returned
 			if (model) {
 				list.push({model: model, target: element});
 				settings._('bindings', list);
@@ -471,12 +479,12 @@
 						return ancestry.indexOf(binding.target) >= 0;
 					})
 
-					//  map the left over bindings to models only
+					//  map the left over bindings to represent only models
 					.map(function(binding) {
 						return binding.model;
 					})
 
-					//  narrow down the list models returned are unique
+					//  narrow down the list so the returned models are unique
 					.filter(function(model, index, all) {
 						return index === all.indexOf(model);
 					});
@@ -486,9 +494,9 @@
 		/**
 		 *  Get/set the default options
 		 *  @name    defaults
-		 *  @param   mixed  key    [one of: string key, object options]
+		 *  @param   mixed  key    [one of: string key, undefined]
 		 *  @param   mixed  value  [optional (ignored if key is an object), default undefined - no value]
-		 *  @return  Object  default options
+		 *  @return  mixed  value  [if a string key is provided, the value for the key, all options otherwise]
 		 */
 		kontext.defaults = function(key, value) {
 			if (key) {
@@ -508,8 +516,11 @@
 		kontext.ready = function(callback) {
 			var state = settings._('ready');
 
+			//  register the callback for the 'ready' emission, to be executed only once
 			emission.add('ready', callback, 1);
 
+			//  the internal state is undefined for as long as the 'ready' emission has not been
+			//  triggered, it will be true/false afterwards
 			if (state !== undefined) {
 				emission.trigger('ready', [state !== true ? state : undefined, state === true ? kontext : undefined]);
 			}
@@ -594,9 +605,16 @@
 				//  register the bond, so we can retrieve it later on
 				bindings(element, model);
 
-				//  work through all data-kontext (or configured override thereof) attributes within (inclusive)
-				//  given element
+				//  work through all data-kontext (or configured override thereof) attributes
+				//  within (inclusive) given element
 				new Attribute().find(options.attribute, element, function(target, settings) {
+					//  Verify the model exists in the bindings for the current element
+					if (bindings(target).indexOf(model) < 0) {
+						return;
+					}
+
+					//  traverse all the keys present in the attribute value, for these represent
+					//  individual extensions
 					eachKey(settings, function(key, config) {
 						var ext = extension(key);
 
