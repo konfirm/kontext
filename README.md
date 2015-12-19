@@ -20,8 +20,12 @@ So, here's are couple of competitors:
 - [Ractive](http://www.ractivejs.org)
 
 
+## Dowload
+You can download the latest version directly from the [dist folder](/konfirm/kontext/tree/master/dist) or from the [releases](/konfirm/kontext/releases), which also contains previous releases.
+
+
 ## Building instructions
-Building Kontext and its extensions is [quite simple](documentation/building.md).
+Building Kontext and its extensions is [quite simple](documentation/building.md). You usually only need this when you plan on contributing to Kontext or if you are just curious what our build-flow does.
 
 
 ## Usage
