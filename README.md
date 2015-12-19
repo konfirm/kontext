@@ -21,7 +21,7 @@ So, here's are couple of competitors:
 
 
 ## Dowload
-You can download the latest version directly from the [dist folder](/dist) or from the [releases](/releases), which also contains previous releases.
+You can download the latest version directly from the [dist folder](/dist) or from the [releases](https://github.com/konfirm/kontext/releases), which also contains previous releases.
 
 
 ## Building instructions
@@ -223,4 +223,4 @@ Note that the `multiple` attribute is set/removed automatically by Kontext depen
 
 
 ## License
-GPLv2 © [Konfirm ![Open](https://kon.fm/open.svg?kontext)](//kon.fm/site)
+GPLv2 © [Konfirm](//kon.fm/site)
