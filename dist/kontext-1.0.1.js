@@ -1,6 +1,6 @@
 /*global Attribute, Emission, Observer, Settings, Text*/
 /*
- *       __    Kontext (version 1.0.0 - 2015-10-30)
+ *       __    Kontext (version 1.0.1 - 2015-12-19)
  *      /\_\
  *   /\/ / /   Copyright 2015, Konfirm (Rogier Spieker)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,9 +15,9 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Oct 30 2015 12:46:28 GMT+0100 (CET)
-	 *    time: 3.61ms
-	 *    size: 35.66KB
+	 *    date: Sat Dec 19 2015 11:17:02 GMT+0100 (CET)
+	 *    time: 7.52ms
+	 *    size: 36.76KB
 	 */
 
 	//  load dependencies
@@ -107,7 +107,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [603.36µs, 1.81KB]
+	//END INCLUDE: lib/settings [596.87µs, 1.81KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -232,7 +232,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [177.30µs, 2.87KB]
+	//END INCLUDE: lib/emission [206.27µs, 2.87KB]
 	//BEGIN INCLUDE: lib/observer
 	/*global global*/
 	//  strict mode (already enabled)
@@ -329,7 +329,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [126.06µs, 1.98KB]
+	//END INCLUDE: lib/observer [122.65µs, 1.98KB]
 	//BEGIN INCLUDE: lib/text
 	//  strict mode (already enabled)
 
@@ -428,7 +428,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/text [161.90µs, 2.23KB]
+	//END INCLUDE: lib/text [4.25ms, 2.23KB]
 	//BEGIN INCLUDE: lib/attribute
 	/*global JSONFormatter*/
 	//  strict mode (already enabled)
@@ -691,7 +691,7 @@
 			};
 		}
 
-		//END INCLUDE: json-formatter [226.65µs, 6.41KB]
+		//END INCLUDE: json-formatter [217.41µs, 6.41KB]
 		/**
 		 *  Initializer - setting up the defaults
 		 *  @name    init
@@ -753,7 +753,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/attribute [623.25µs, 8.32KB]
+	//END INCLUDE: lib/attribute [608.03µs, 8.32KB]
 	function Kontext() {
 		var kontext = this,
 			settings = new Settings(),
@@ -882,11 +882,17 @@
 		function extension(name, handler) {
 			var ext = settings._('extension') || {};
 
+			//  if a handler is provided, update the registered extension to add/overwrite the handler
+			//  to be used for given name
 			if (handler) {
 				ext[name] = handler;
 				settings._('extension', ext);
 			}
 
+			//  if the name does not represent a registered extension, we will not be showing an error
+			//  immediately but instead return a function which triggers an error upon use
+			//  this should ensure Kontext to fully function and deliver more helpful error messages to
+			//  the developer
 			if (!(name in ext)) {
 				return function() {
 					console.error('Kontext: Unknown extension "' + name + '"');
@@ -1186,6 +1192,8 @@
 			var list = settings._('bindings') || [],
 				ancestry;
 
+			//  if a model is provided, we associate it with the element, otherwise a list of models
+			//  already associated with the element will be returned
 			if (model) {
 				list.push({model: model, target: element});
 				settings._('bindings', list);
@@ -1205,12 +1213,12 @@
 						return ancestry.indexOf(binding.target) >= 0;
 					})
 
-					//  map the left over bindings to models only
+					//  map the left over bindings to represent only models
 					.map(function(binding) {
 						return binding.model;
 					})
 
-					//  narrow down the list models returned are unique
+					//  narrow down the list so the returned models are unique
 					.filter(function(model, index, all) {
 						return index === all.indexOf(model);
 					});
@@ -1220,9 +1228,9 @@
 		/**
 		 *  Get/set the default options
 		 *  @name    defaults
-		 *  @param   mixed  key    [one of: string key, object options]
+		 *  @param   mixed  key    [one of: string key, undefined]
 		 *  @param   mixed  value  [optional (ignored if key is an object), default undefined - no value]
-		 *  @return  Object  default options
+		 *  @return  mixed  value  [if a string key is provided, the value for the key, all options otherwise]
 		 */
 		kontext.defaults = function(key, value) {
 			if (key) {
@@ -1242,8 +1250,11 @@
 		kontext.ready = function(callback) {
 			var state = settings._('ready');
 
+			//  register the callback for the 'ready' emission, to be executed only once
 			emission.add('ready', callback, 1);
 
+			//  the internal state is undefined for as long as the 'ready' emission has not been
+			//  triggered, it will be true/false afterwards
 			if (state !== undefined) {
 				emission.trigger('ready', [state !== true ? state : undefined, state === true ? kontext : undefined]);
 			}
@@ -1328,9 +1339,16 @@
 				//  register the bond, so we can retrieve it later on
 				bindings(element, model);
 
-				//  work through all data-kontext (or configured override thereof) attributes within (inclusive)
-				//  given element
+				//  work through all data-kontext (or configured override thereof) attributes
+				//  within (inclusive) given element
 				new Attribute().find(options.attribute, element, function(target, settings) {
+					//  Verify the model exists in the bindings for the current element
+					if (bindings(target).indexOf(model) < 0) {
+						return;
+					}
+
+					//  traverse all the keys present in the attribute value, for these represent
+					//  individual extensions
 					eachKey(settings, function(key, config) {
 						var ext = extension(key);
 
