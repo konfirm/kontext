@@ -34,13 +34,4 @@ describe('Kontext Defaults', function() {
 
 		done();
 	});
-
-	it('ignores non-object default settings', function(done) {
-		var a = kontext.defaults(),
-			b = kontext.defaults('nope');
-
-		expect(a).toBe(b);
-
-		done();
-	});
 });

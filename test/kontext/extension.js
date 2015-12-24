@@ -46,6 +46,56 @@ describe('Kontext Extension', function() {
 		done();
 	});
 
+	it('default allows for abbreviated extension names', function(done) {
+		var a = kontext.extension('attribute'),
+			b = kontext.extension('attr'),
+			c = kontext.extension('at'),
+			d = kontext.extension('a');
+
+		expect(a).toBe(b);
+		expect(b).toBe(c);
+		expect(c).toBe(d);
+		expect(d).toBe(a);
+
+		done();
+	});
+
+	it('turn off abbreviated extension names', function(done) {
+		var attr;
+
+		kontext.defaults('abbreviateExtensions', false);
+
+		attr = kontext.extension('attr');
+
+		spyOn(console, 'error');
+
+		attr();
+
+		expect(console.error).toHaveBeenCalled();
+		expect(console.error).toHaveBeenCalledWith('Kontext: Unknown extension "attr"');
+
+		//  bring back the defaults
+		kontext.defaults('abbreviateExtensions', true);
+
+		done();
+	});
+
+	it('triggers an error if an abbreviated extension name leads to multiple options', function(done) {
+		var ambiguous = kontext.extension('e'),
+			event = kontext.extension('ev'),
+			each = kontext.extension('ea');
+
+		spyOn(console, 'error');
+
+		ambiguous();
+		expect(console.error).toHaveBeenCalled();
+		expect(console.error).toHaveBeenCalledWith('Kontext: Multiple extensions match "e": each,event');
+
+		expect(event).not.toBe(each);
+
+		done();
+	});
+
 	it('registers custom handlers', function(done) {
 		var list = document.querySelectorAll('[data-kontext*=basic]'),
 			model;

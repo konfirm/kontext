@@ -80,10 +80,15 @@ Either way, the model will remain more or less the same. Given the example above
 This behavior is achieved by re-defining the basic-type properties of the model and add getter/setter functions for them. This ensures the model to be working as you created it, while still being able to perform the binding.
 
 ### Extensions
-As sometimes a placeholder does not suffice, you can also register extensions which are configured using the `data-kontext` attribute. For your convenience, there are a couple of useful extension available.
+As sometimes a placeholder does not suffice, you can also register extensions which are configured using the `data-kontext` attribute.
+
+As of *version 1.1.0* of Kontext you can abbreviate the extension names in the `data-kontext` attribute. This allows for a more compact definition.
+NOTE: if the short hand extension name leads to multiple matching extension, an error will be logged to the console, for example `data-kontext="e: {..}"` will lead to an Error `Kontext: Multiple extensions match "e": each,event`.
+
+For your convenience, there are a couple of useful extensions available.
 
 #### text
-Works similar to the placeholders, but now from an attribute, the html aboven re-written to make use of the `text` extension would look like this:
+Works similar to the placeholders, but now from an attribute, the html above re-written to make use of the `text` extension would look like this:
 
 ```html
 <article id=example>
@@ -92,7 +97,7 @@ Works similar to the placeholders, but now from an attribute, the html aboven re
 </acticle>
 ```
 
-Note that - unlike other binding libraries - Kontext is rather tolerant with the `text`-extension, if the first node inside the element with the `data-kontext` attribute is text, that text will be used for changes. If that first node is not text, Kontext will insert a new text node as first element and use that.
+Note that Kontext is rather tolerant with the `text`-extension, if the first node inside the element with the `data-kontext` attribute is a text-node, that text-node will be used for changes. If that first node is not a text-node, Kontext will insert a new text-node as first element and use that, leaving the other nodes intact.
 
 ```html
 <article id=example>

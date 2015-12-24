@@ -50,6 +50,7 @@
 			//  public settings (this is what is provided/changed when using the kontext.defaults method)
 			settings.public({
 				greedy: true,
+				abbreviateExtensions: true,
 				attribute: 'data-kontext',
 				pattern: /(\{(\$?[a-z0-9_-]+)(?::([^\}]+))?\})/i
 			});
@@ -146,7 +147,8 @@
 		 *  @return  function  handler
 		 */
 		function extension(name, handler) {
-			var ext = settings._('extension') || {};
+			var ext = settings._('extension') || {},
+				abbreviated;
 
 			//  if a handler is provided, update the registered extension to add/overwrite the handler
 			//  to be used for given name
@@ -160,12 +162,56 @@
 			//  this should ensure Kontext to fully function and deliver more helpful error messages to
 			//  the developer
 			if (!(name in ext)) {
-				return function() {
-					console.error('Kontext: Unknown extension "' + name + '"');
-				};
+				abbreviated = settings.public('abbreviateExtensions') ? abbreviateExtension(name, ext) : null;
+
+				return abbreviated || extensionError(
+					'Unknown extension "%s"',
+					name
+				);
 			}
 
 			return ext[name];
+		}
+
+		/**
+		 *  Find all extensions of which the first characters match given name
+		 *  @name    abbreviateExtension
+		 *  @access  internal
+		 *  @param   string    name
+		 *  @param   object    extensions
+		 *  @return  function  handler
+		 */
+		function abbreviateExtension(name, ext) {
+			var list = Object.keys(ext).filter(function(key) {
+					return name === key.substr(0, name.length);
+				}).sort();
+
+			//  if multiple extensions match, we do not try to find the intended one, but log
+			//  an error instead
+			if (list.length > 1) {
+				return extensionError('Multiple extensions match "%s": %s', name, list);
+			}
+
+			return list.length ? ext[list[0]] : null;
+		}
+
+		/**
+		 *  Obtain an extension which is only capable of logging an error
+		 *  @name    extensionError
+		 *  @access  internal
+		 *  @param   string    message  ['%s' will be replaced with additional argument values]
+		 *  @param   string    replacement
+		 *  @return  function  handler
+		 */
+		function extensionError() {
+			var arg = castToArray(arguments),
+				error = arg.reduce(function(prev, current) {
+					return prev.replace('%s', current);
+				});
+
+			return function() {
+				console.error('Kontext: ' + error);
+			};
 		}
 
 		/**
@@ -494,13 +540,13 @@
 		/**
 		 *  Get/set the default options
 		 *  @name    defaults
-		 *  @param   mixed  key    [one of: string key, undefined]
+		 *  @param   mixed  key    [one of: string key, object, undefined]
 		 *  @param   mixed  value  [optional (ignored if key is an object), default undefined - no value]
 		 *  @return  mixed  value  [if a string key is provided, the value for the key, all options otherwise]
 		 */
 		kontext.defaults = function(key, value) {
 			if (key) {
-				settings.public(key, value);
+				return settings.public(key, value);
 			}
 
 			return settings.public();
