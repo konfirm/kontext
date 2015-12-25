@@ -548,7 +548,7 @@
 		function expandNodeList(list) {
 			return !list.length ? [document.body] : list
 				.reduce(function(all, current) {
-					return all.concat(castToArray(current) || [current]);
+					return all.concat(current.nodeName ? [current] : castToArray(current));
 				}, [])
 				.filter(function(node, index, all) {
 					return all.indexOf(node) === index;
