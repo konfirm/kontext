@@ -102,10 +102,10 @@
 		 *  @name    castToArray
 		 *  @access  internal
 		 *  @param   Array-like  value
-		 *  @return  Array  value
+		 *  @return  Array  value  [if given value cannot be cast to an array, null is returned]
 		 */
 		function castToArray(cast) {
-			return Array.prototype.slice.call(cast);
+			return cast && cast.length ? Array.prototype.slice.call(cast) : null;
 		}
 
 		/**
@@ -538,8 +538,27 @@
 		}
 
 		/**
+		 *  Expand all DOMNode(List) in the provided list to individual and unique DOMNodes
+		 *  @name    expandNodeList
+		 *  @access  internal
+		 *  @param   mixed  key    [one of: string key, object, undefined]
+		 *  @param   mixed  value  [optional (ignored if key is an object), default undefined - no value]
+		 *  @return  mixed  value  [if a string key is provided, the value for the key, all options otherwise]
+		 */
+		function expandNodeList(list) {
+			return !list.length ? [document.body] : list
+				.reduce(function(all, current) {
+					return all.concat(castToArray(current) || [current]);
+				}, [])
+				.filter(function(node, index, all) {
+					return all.indexOf(node) === index;
+				});
+		}
+
+		/**
 		 *  Get/set the default options
 		 *  @name    defaults
+		 *  @access  public
 		 *  @param   mixed  key    [one of: string key, object, undefined]
 		 *  @param   mixed  value  [optional (ignored if key is an object), default undefined - no value]
 		 *  @return  mixed  value  [if a string key is provided, the value for the key, all options otherwise]
@@ -631,23 +650,10 @@
 		kontext.bind = function() {
 			var arg = castToArray(arguments),
 				model = prepare(arg.shift()),
-				options = arg.length ? arg.pop() : {};
-
-			//  verify whether the last argument was indeed an options object, or an element
-			if ('nodeType' in options) {
-				arg.push(options);
-				options = {};
-			}
-
-			options = settings.combine(options);
-
-			//  if only a model was provided, the binding element will be document.body
-			if (arg.length <= 0) {
-				arg.push(document.body);
-			}
+				options = settings.combine(arg.length && !('nodeType' in arg[arg.length - 1]) ? arg.pop() : {});
 
 			//  bind the model to each element provided
-			arg.forEach(function(element) {
+			expandNodeList(arg).forEach(function(element) {
 				//  register the bond, so we can retrieve it later on
 				bindings(element, model);
 
