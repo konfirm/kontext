@@ -17,6 +17,14 @@
 		var template = this,
 			cache = {};
 
+		/**
+		 *  Load a template file from given path and execute the callback
+		 *  @name    load
+		 *  @access  internal
+		 *  @param   string    path
+		 *  @param   function  callback
+		 *  @return  void
+		 */
 		function load(path, done) {
 			var xhr = new XMLHttpRequest();
 
@@ -38,6 +46,14 @@
 			xhr.send();
 		}
 
+		/**
+		 *  Resolve the configured input from cache, creating it when needed
+		 *  @name    resolve
+		 *  @access  internal
+		 *  @param   Object    config  {path: <string>, selector: <string>}
+		 *  @param   function  callback
+		 *  @return  void
+		 */
 		function resolve(input, done) {
 			var buffer = entry(input.path);
 
@@ -61,14 +77,23 @@
 			}
 
 			if (!(input.selector in buffer.selector)) {
-				buffer.selector[input.selector] = buffer.data.content ?
-					clone(buffer.data.content, input.selector) :
-					[];
+				buffer.selector[input.selector] = buffer.data.content ? clone(buffer.data.content, input.selector) : [];
 			}
 
-			done(buffer.data.error, buffer.data.error ? null : fragment(buffer.selector[input.selector]));
+			if (buffer.data.error) {
+				return done(buffer.data.error);
+			}
+
+			done(null, buffer.selector[input.selector].cloneNode(true));
 		}
 
+		/**
+		 *  Obtain the entry for given source from the cache, creating a default entry if it does not yet exist
+		 *  @name    entry
+		 *  @access  internal
+		 *  @param   string  source
+		 *  @return  Object  entry  {data: <Object>, callback: <Array>, selector: <Object>}
+		 */
 		function entry(source) {
 			if (!(source in cache)) {
 				cache[source] = {
@@ -81,26 +106,24 @@
 			return cache[source];
 		}
 
-		function fragment(list) {
-			var result = document.createDocumentFragment();
-
-			list.forEach(function(node) {
-				result.appendChild(node.cloneNode(true));
-			});
-
-			return result;
-		}
-
+		/**
+		 *  Create a new DocumentFragment containing the nodes from list
+		 *  @name    fragment
+		 *  @access  internal
+		 *  @param   Array  nodes
+		 *  @return  DocumentFragment
+		 *  @note    The nodes from the list are cloned deep
+		 */
 		function clone(dom, selector) {
 			var node = selector ? dom.querySelector(selector) : dom,
-				result = [],
+				fragment = document.createDocumentFragment(),
 				i;
 
 			for (i = 0; i < node.childNodes.length; ++i) {
-				result.push(node.childNodes[i].cloneNode(true));
+				fragment.appendChild(node.childNodes[i].cloneNode(true))
 			}
 
-			return result;
+			return fragment;
 		}
 
 		function trigger(list) {
