@@ -225,6 +225,29 @@ If there is no `options` set in the configuration, you can (and must) provide th
 
 Note that the `multiple` attribute is set/removed automatically by Kontext depending on whether the property reference in `value` (here `selection`) in the model allows for multiple values (an array).
 
+#### template
+Set the contents of elements to the configured template. Templates can be loaded externally by providing a path (default is the current document) and a selection (optional for external templates).
+
+```html
+//  load foo.html into the element
+<div data-kontext="template: foo.html">replaced</div>
+
+//  load the contents of an element with the id 'bar' from the foo.html template
+<div data-kontext="template: foo.html#bar">replaced</div>
+
+//  load the contents of an element with id 'bar' from the current document
+<div data-kontext="template: #bar">replaced</div>
+
+//  load /path/to/template into the element
+<div data-kontext="template: {path: /path/to/template}">replaced</div>
+
+//  load the contents of an element with the id 'bar' from the /path/to/template template
+<div data-kontext="template: {path: /path/to/template, selector: #bar}">replaced</div>
+
+//  load the contents of an element with id 'bar' from the current document
+<div data-kontext="template: {selector: #bar}">replaced</div>
+```
+
 
 
 ## License

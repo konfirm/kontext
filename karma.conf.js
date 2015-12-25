@@ -20,7 +20,12 @@ module.exports = function(config) {
 		'build/kontext.js',
 		'build/extension/**/!(*min|*map).js',
 		'source/lib/**/*.js',
-		'test/**/*.js'
+		'test/**/*.js',
+		{
+			pattern: 'test/data/*.html',
+			included: false,
+			served: true
+		}
 	],
 
 
