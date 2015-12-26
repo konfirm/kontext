@@ -12,6 +12,7 @@
 		if (!(typeof Template.prototype.__instance === 'undefined' && this instanceof Template)) {
 			return Template.prototype.__instance || new Template();
 		}
+
 		Template.prototype.__instance = this;
 
 		var template = this,
@@ -120,7 +121,7 @@
 				i;
 
 			for (i = 0; i < node.childNodes.length; ++i) {
-				fragment.appendChild(node.childNodes[i].cloneNode(true))
+				fragment.appendChild(node.childNodes[i].cloneNode(true));
 			}
 
 			return fragment;
