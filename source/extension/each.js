@@ -76,7 +76,7 @@ kontext.extension('each', function(element, model, key) {
 
 			result = {
 				item: item,
-				model: kontext.bind.apply(kontext, [typeof item === 'object' ? item : {}].concat(nodeList)),
+				model: kontext.bind(typeof item === 'object' ? item : {}, nodeList),
 				nodes: nodeList
 			};
 

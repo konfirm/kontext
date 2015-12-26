@@ -215,8 +215,6 @@
 		element.style.display = 'none';
 
 		template.load(key, function(error, fragment) {
-			var i;
-
 			if (error) {
 				return element.setAttribute('data-kontext-error', error);
 			}
@@ -230,9 +228,7 @@
 			element.appendChild(fragment);
 
 			//  bind the model to the elements children
-			for (i = 0; i < element.childNodes.length; ++i) {
-				kontext.bind(model, element.childNodes[i]);
-			}
+			kontext.bind(model, element.childNodes);
 
 			element.style.display = '';
 		});

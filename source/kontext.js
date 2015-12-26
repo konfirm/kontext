@@ -68,19 +68,32 @@
 		}
 
 		/**
+		 *  Verify the target contains specific properties
+		 *  @name    contains
+		 *  @access  internal
+		 *  @param   Object  target
+		 *  @param   Array   list
+		 *  @param   number  minimum matches  [optional, default undefined - must contain all in list]
+		 *  @return  bool    contains
+		 */
+		function contains(target, list, min) {
+			var keys = list instanceof Array ? list : [list],
+				match = keys.filter(function(key) {
+					return key in target;
+				});
+
+			return match.length >= (min ? min : keys.length);
+		}
+
+		/**
 		 *  Basic compatibility check
 		 *  @name    compatible
 		 *  @access  internal
-		 *  @return  void  [throws Error is not compatible]
+		 *  @return  void
 		 */
 		function compatible() {
-			var result = true;
-
-			result = result && 'addEventListener' in document;
-			result = result && 'defineProperties' in Object;
-			result = result && 'getOwnPropertyDescriptor' in Object;
-
-			return result;
+			return contains(document, 'addEventListener') &&
+				contains(Object, ['defineProperties', 'getOwnPropertyDescriptor']);
 		}
 
 		/**
@@ -650,7 +663,8 @@
 		kontext.bind = function() {
 			var arg = castToArray(arguments),
 				model = prepare(arg.shift()),
-				options = settings.combine(arg.length && !('nodeType' in arg[arg.length - 1]) ? arg.pop() : {});
+				pop = arg.length && !contains(arg[arg.length - 1], ['nodeType', 'length'], 1),
+				options = settings.combine(pop ? arg.pop() : {});
 
 			//  bind the model to each element provided
 			expandNodeList(arg).forEach(function(element) {
