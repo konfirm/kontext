@@ -20,7 +20,7 @@ So, here's are couple of competitors:
 - [Ractive](http://www.ractivejs.org)
 
 
-## Dowload
+## Download
 You can download the latest version directly from the [dist folder](/dist) or from the [releases](https://github.com/konfirm/kontext/releases), which also contains previous releases.
 
 
@@ -60,7 +60,7 @@ Which produces:
 </acticle>
 ```
 
-The `bind` method will return the model provided, this enabled you to define the model while binding it.
+The `bind` method will return the model provided, this enables you to define the model while binding it.
 By default Kontext will bind models to the `document.body` (`<body>`) element and will search for placeholders inside this (or the provided) element. In the example above we would not have any reference to the model itself, which makes little sense in most cases.
 Therefor a more common example would be:
 
