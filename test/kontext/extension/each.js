@@ -1,4 +1,4 @@
-/*global kontext, describe, it, expect*/
+/*global kontext, describe, it, beforeEach, afterEach, expect*/
 describe('Kontext Extension Each', function() {
 	'use strict';
 
@@ -84,7 +84,7 @@ describe('Kontext Extension Each', function() {
 		expect(list[2].firstChild.nodeValue).toBe('b.1');
 		expect(list[3].firstChild.nodeValue).toBe('b.2');
 
-		model.on('update', function(mod) {
+		model.on('update', function() {
 			var child;
 
 			child = element.querySelectorAll('h3');
