@@ -26,6 +26,35 @@ describe('Kontext Extension Template', function() {
 		done();
 	});
 
+	it('postpones callbacks while loading the same template multiple times', function(done) {
+		var wrapper = element.appendChild(document.createElement('section')),
+			extensionA = wrapper.appendChild(document.createElement('div')),
+			extensionB = wrapper.appendChild(document.createElement('div'));
+
+		extensionA.setAttribute('data-kontext', 'template: {path: /base/test/data/template.html, selector: \'[data-template=inner-attr]\'}');
+		extensionA.appendChild(document.createElement('span')).appendChild(document.createTextNode('hi there'));
+
+		extensionB.setAttribute('data-kontext', 'template: /base/test/data/template.html#inner-id');
+		extensionB.appendChild(document.createElement('span')).appendChild(document.createTextNode('hi there'));
+
+		expect(extensionA.firstChild.nodeName).toBe('SPAN');
+		expect(extensionA.firstChild.innerHTML).toBe('hi there');
+
+		expect(extensionB.firstChild.nodeName).toBe('SPAN');
+		expect(extensionB.firstChild.innerHTML).toBe('hi there');
+
+		kontext.bind({name: 'replaced'}, wrapper);
+
+		setTimeout(function() {
+			expect(extensionA.firstChild.nodeName).toBe('STRONG');
+			expect(extensionA.firstChild.innerHTML).toBe('inner-attr replaced');
+			expect(extensionB.firstChild.nodeName).toBe('EM');
+			expect(extensionB.firstChild.innerHTML).toBe('inner-id replaced');
+
+			done();
+		}, 200);
+	});
+
 	it('loads templates by id internally', function(done) {
 		var template = element.appendChild(document.createElement('div')),
 			extension = element.appendChild(document.createElement('div'));
@@ -58,11 +87,11 @@ describe('Kontext Extension Template', function() {
 		expect(extension.firstChild.nodeName).toBe('SPAN');
 		expect(extension.firstChild.innerHTML).toBe('hi there');
 
-		kontext.bind({}, extension);
+		kontext.bind({name: 'replaced'}, extension);
 
 		setTimeout(function() {
 			expect(extension.firstChild.nodeName).toBe('EM');
-			expect(extension.firstChild.innerHTML).toBe('inner-id');
+			expect(extension.firstChild.innerHTML).toBe('inner-id replaced');
 
 			done();
 		}, 100);
@@ -77,32 +106,52 @@ describe('Kontext Extension Template', function() {
 		expect(extension.firstChild.nodeName).toBe('SPAN');
 		expect(extension.firstChild.innerHTML).toBe('hi there');
 
-		kontext.bind({}, extension);
+		kontext.bind({name: 'replaced'}, extension);
 
 		setTimeout(function() {
 			expect(extension.firstChild.nodeName).toBe('STRONG');
-			expect(extension.firstChild.innerHTML).toBe('inner-attr');
+			expect(extension.firstChild.innerHTML).toBe('inner-attr replaced');
 
 			done();
 		}, 100);
 	});
 
-	it('loads templates without selector', function(done) {
-		var extension = element.appendChild(document.createElement('div'));
+	describe('loads templates without selector', function() {
+		it('configures from string', function(done) {
+			var extension = element.appendChild(document.createElement('div'));
 
-		extension.setAttribute('data-kontext', 'template: {path: /base/test/data/template.html}');
-		extension.appendChild(document.createElement('span')).appendChild(document.createTextNode('hi there'));
+			extension.setAttribute('data-kontext', 'template: /base/test/data/template.html');
+			extension.appendChild(document.createElement('span')).appendChild(document.createTextNode('hi there'));
 
-		expect(extension.firstChild.nodeName).toBe('SPAN');
-		expect(extension.firstChild.innerHTML).toBe('hi there');
+			expect(extension.firstChild.nodeName).toBe('SPAN');
+			expect(extension.firstChild.innerHTML).toBe('hi there');
 
-		kontext.bind({}, extension);
+			kontext.bind({name: 'not checked'}, extension);
 
-		setTimeout(function() {
-			expect(extension.firstElementChild.nodeName).toBe('SECTION');
+			setTimeout(function() {
+				expect(extension.firstElementChild.nodeName).toBe('SECTION');
 
-			done();
-		}, 100);
+				done();
+			}, 100);
+		});
+
+		it('configures from object', function(done) {
+			var extension = element.appendChild(document.createElement('div'));
+
+			extension.setAttribute('data-kontext', 'template: {path: /base/test/data/template.html}');
+			extension.appendChild(document.createElement('span')).appendChild(document.createTextNode('hi there'));
+
+			expect(extension.firstChild.nodeName).toBe('SPAN');
+			expect(extension.firstChild.innerHTML).toBe('hi there');
+
+			kontext.bind({}, extension);
+
+			setTimeout(function() {
+				expect(extension.firstElementChild.nodeName).toBe('SECTION');
+
+				done();
+			}, 100);
+		});
 	});
 
 	it('sets an error attribute if the template is not found', function(done) {
@@ -128,7 +177,7 @@ describe('Kontext Extension Template', function() {
 	it('sets an error attribute if no path and selector can be matched', function(done) {
 		var extension = element.appendChild(document.createElement('div'));
 
-		extension.setAttribute('data-kontext', 'template: {}');
+		extension.setAttribute('data-kontext', 'template: {selector: null}');
 		kontext.bind({}, extension);
 
 		setTimeout(function() {
