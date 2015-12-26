@@ -676,8 +676,6 @@
 
 				//  work through all placeholders in DOMText nodes within (inclusive) within the element
 				new Text(options.pattern).placeholders(element, function(text, key, initial) {
-					// console.log(options.pattern, text, key, initial);
-
 					var delegated = getDelegate(model, key);
 
 					//  if there is a delegation, we provide the scope (only effective if no scope has been set)

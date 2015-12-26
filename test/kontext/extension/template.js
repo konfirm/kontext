@@ -132,7 +132,6 @@ describe('Kontext Extension Template', function() {
 		kontext.bind({}, extension);
 
 		setTimeout(function() {
-			console.log(extension.innerHTML);
 			expect(extension.hasAttribute('data-kontext-error')).toBe(true);
 			expect(extension.getAttribute('data-kontext-error')).toBe('No path and selector');
 

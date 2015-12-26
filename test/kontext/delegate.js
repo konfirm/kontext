@@ -25,10 +25,6 @@ describe('Kontext Delegate', function() {
 			delegateFoo: kontext.delegate('bar')
 		}, element);
 
-		model.on('update', function() {
-			console.log('update', arguments);
-		});
-
 		model.delegateFoo('baz');
 
 		expect(model.delegateFoo()).toBe('baz');
