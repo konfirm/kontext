@@ -208,30 +208,46 @@
 	 *            <span data-kontext="template: {path: /path/to/template}">replaced</span>
 	 *            <span data-kontext="template: {path: /path/to/template, selector: #bar}">replaced</span>
 	 *            <span data-kontext="template: {selector: #bar}">replaced</span>
+	 *            <span data-kontext="template: {value: myTemplate}">replaced</span>
 	 */
 	kontext.extension('template', function(element, model, key) {
-		var template = Template();
+		var template = Template(),
+			config = key;
 
 		element.style.display = 'none';
 
-		template.load(key, function(error, fragment) {
-			if (error) {
-				return element.setAttribute('data-kontext-error', error);
-			}
+		function update(value) {
+			template.load(value, function(error, fragment) {
+				if (error) {
+					return element.setAttribute('data-kontext-error', error);
+				}
 
-			//  truncate the element (only done if no errors occured)
-			while (element.lastChild) {
-				element.removeChild(element.lastChild);
-			}
+				//  truncate the element (only done if no errors occured)
+				while (element.lastChild) {
+					element.removeChild(element.lastChild);
+				}
 
-			//  append the document fragment to the element
-			element.appendChild(fragment);
+				//  append the document fragment to the element
+				element.appendChild(fragment);
 
-			//  bind the model to the elements children
-			kontext.bind(model, element.childNodes);
+				//  bind the model to the elements children
+				kontext.bind(model, element.childNodes);
 
-			element.style.display = '';
-		});
+				element.style.display = '';
+			});
+		}
+
+		if (typeof key === 'object' && 'value' in key) {
+			model.on('update', function(model, property) {
+				if (property === key.value) {
+					update(model[key.value]);
+				}
+			});
+
+			config = model[config.value];
+		}
+
+		update(config);
 	});
 
 })(kontext);

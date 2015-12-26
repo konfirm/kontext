@@ -228,6 +228,32 @@ Note that the `multiple` attribute is set/removed automatically by Kontext depen
 #### template
 Set the contents of elements to the configured template. Templates can be loaded externally by providing a path (default is the current document) and a selection (optional for external templates).
 
+There are two ways of configuring which template is to be used:
+
+##### string (simple)
+The string configuration is pretty straight forward, as the selector only allows for id's (e.g. `#someId`), this is done to keep the parsing as simple as possible.
+The format of the string is: `[path*][id-selector*]`. You _must_ have at least a path _or_ a selector, an error attribute (`data-kontext-error`) is set otherwise, as to prevent nesting the entire document into an element, which has the tendency to repeat itself indefinitly.
+
+```html
+//  load foo.html into the element
+<div data-kontext="template: foo.html">replaced</div>
+
+//  load the contents of an element with the id 'bar' from the foo.html template
+<div data-kontext="template: foo.html#bar">replaced</div>
+
+//  load the contents of an element with id 'bar' from the current document
+<div data-kontext="template: #bar">replaced</div>
+```
+
+##### object (slightly more complex, more flexible)
+If you need to specify another type of selector, you should use the object notation, which allows for any valid selector (internally `querySelector` is used, to ensure only one (the first) match is used).
+There are three possible keys which trigger some kind of behavior within templates:
+- `path`: the (optional) path to the template-file (defaults to the current document)
+- `selector`: the (optional) selector for the actual template within the template-file
+- `value`: a string refering to the model property which provides the `string` or `object` configuration
+
+*NOTE* if the `value` property is present, any `path` and/or `selector` property will be ignore. Only the actual value returned by the referenced property will be used.
+
 ```html
 //  load foo.html into the element
 <div data-kontext="template: foo.html">replaced</div>
@@ -241,8 +267,9 @@ Set the contents of elements to the configured template. Templates can be loaded
 //  load /path/to/template into the element
 <div data-kontext="template: {path: /path/to/template}">replaced</div>
 
-//  load the contents of an element with the id 'bar' from the /path/to/template template
-<div data-kontext="template: {path: /path/to/template, selector: #bar}">replaced</div>
+//  load the contents of an element with the attribute data-template matching 'bar'
+//  from the /path/to/template template
+<div data-kontext="template: {path: /path/to/template, selector: [data-template=bar]}">replaced</div>
 
 //  load the contents of an element with id 'bar' from the current document
 <div data-kontext="template: {selector: #bar}">replaced</div>
