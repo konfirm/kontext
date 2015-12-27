@@ -235,7 +235,7 @@ describe('Kontext Extension Each', function() {
 		done();
 	});
 
-	it('throws errors if there if a filter method/function does not exist', function(done) {
+	it('throws errors if a filter method/function does not exist', function(done) {
 		element.setAttribute('data-kontext', 'each: {target: list, filter: nope}');
 
 		expect(function() {
@@ -245,7 +245,7 @@ describe('Kontext Extension Each', function() {
 		done();
 	});
 
-	it('throws errors if there if a map method/function does not exist', function(done) {
+	it('throws errors if a map method/function does not exist', function(done) {
 		element.setAttribute('data-kontext', 'each: {target: list, map: nope}');
 
 		expect(function() {
