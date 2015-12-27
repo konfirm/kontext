@@ -184,6 +184,38 @@ describe('Kontext Extension Template', function() {
 		}, 100);
 	});
 
+	it('allows for scoped variables', function(done) {
+		var extension = element.appendChild(document.createElement('div')),
+			model;
+
+		extension.setAttribute('data-kontext', 'template: {value: sub.display}');
+		extension.appendChild(document.createElement('span')).appendChild(document.createTextNode('hi there'));
+
+		expect(extension.firstChild.nodeName).toBe('SPAN');
+		expect(extension.firstChild.innerHTML).toBe('hi there');
+
+		model = kontext.bind({
+			hello: 'new template',
+			sub: {
+				display: '/base/test/data/template.html'
+			}
+		}, extension);
+
+		setTimeout(function() {
+			expect(extension.firstElementChild.nodeName).toBe('SECTION');
+
+			model.sub.display = '#test';
+
+			setTimeout(function() {
+				expect(extension.firstChild.nodeName).toBe('STRONG');
+				expect(extension.firstChild.innerHTML).toBe('Hello new template');
+
+				done();
+			}, 100);
+
+		}, 100);
+	});
+
 	it('sets an error attribute if the template is not found', function(done) {
 		var extension = element.appendChild(document.createElement('div')),
 			before;

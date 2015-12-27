@@ -210,9 +210,9 @@
 	 *            <span data-kontext="template: {selector: #bar}">replaced</span>
 	 *            <span data-kontext="template: {value: myTemplate}">replaced</span>
 	 */
-	kontext.extension('template', function(element, model, key) {
+	kontext.extension('template', function(element, model, config) {
 		var template = Template(),
-			config = key;
+			delegate;
 
 		element.style.display = 'none';
 
@@ -237,14 +237,16 @@
 			});
 		}
 
-		if (typeof key === 'object' && 'value' in key) {
-			model.on('update', function(model, property) {
-				if (property === key.value) {
-					update(model[key.value]);
-				}
-			});
+		if (typeof config === 'object' && 'value' in config) {
+			delegate = model.delegation(config.value);
 
-			config = model[config.value];
+			if (delegate) {
+				delegate.on('update', function() {
+					update(delegate());
+				})();
+			}
+
+			return;
 		}
 
 		update(config);

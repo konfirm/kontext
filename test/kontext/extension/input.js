@@ -72,6 +72,42 @@ describe('Kontext Extension Input', function() {
 				//  change the bound model key, which should reflect the change in the element value
 				model.text = 'second';
 			});
+
+			it('handles scoped properties in ' + type, function(done) {
+				var element = document.createElement('input'),
+					model;
+
+				element.setAttribute('data-kontext', 'input: {value: sub.text}');
+
+				if (type) {
+					element.setAttribute('type', type);
+				}
+
+				model = kontext.bind({sub:{
+					text: 'first'
+				}}, element);
+
+				model.sub.on('update', function(m, k) {
+					expect(m[k]).toBe(element.value);
+
+					if (m[k] === 'second') {
+						expect(element.value).toBe('second');
+
+						//  change the element value, which should reflect the change in the model key
+						simulateTextInput(element, 'last');
+					}
+					else {
+						expect(m[k]).toBe('last');
+
+						done();
+					}
+				});
+
+				expect(element.value).toBe('first');
+
+				//  change the bound model key, which should reflect the change in the element value
+				model.sub.text = 'second';
+			});
 		});
 	});
 
