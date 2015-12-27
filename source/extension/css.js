@@ -1,47 +1,46 @@
 /*global kontext*/
-/**
- *  Manage css classes from data-kontext attributes
- *  @name     CSS
- *  @package  Kontext
- *  @syntax   <div data-kontext="css: {awesome: cool, ...}">...</div>
- */
-kontext.extension('css', function(element, model, config) {
+(function(kontext) {
 	'use strict';
 
-	//  we'll be using the keys multiple times, preserve the keys
-	var keys = Object.keys(config);
-
-	//  simple update method, keeping things DRY
-	function update(attr, key) {
-		var state = !!model[key];
-
-		//  use the classList interface to greatly improve performance and ease of use
+	/**
+	 *  Update the classList to remove or add the className to the element
+	 *  @name    classList
+	 *  @access  internal
+	 *  @param   DOMNode  element
+	 *  @param   string   className
+	 *  @param   bool     state
+	 *  @return  void
+	 */
+	function classList(element, className, state) {
+		//  update the class using the classList attribute if present,
+		//  falling back onto a more tradional approach otherwise
 		if ('classList' in element) {
-			element.classList[state ? 'add' : 'remove'](attr);
+			element.classList[state ? 'add' : 'remove'](className);
 		}
-
-		//  provide a fallback for older browsers which are supported by Kontext but do not implement the classList
 		else {
-			element.className = element.className.replace(new RegExp('(?:^|\\s+)' + key + '(\\s+|$)'), function(match, after) {
+			element.className = element.className.replace(new RegExp('(?:^|\\s+)' + className + '(\\s+|$)'), function(match, after) {
 				return after || '';
-			}) + (state ? ' ' + attr : '');
+			}) + (state ? ' ' + className : '');
 		}
 	}
 
-	//  register for updates on the model
-	model.on('update', function(model, key) {
-		//  traverse the keys looking for a matching attribute
-		keys.forEach(function(attr) {
-			if (config[attr] === key) {
-				//  update the attribute
-				update(attr, key);
-			}
-		});
+	/**
+	 *  Manage css classes from data-kontext attributes
+	 *  @name     CSS
+	 *  @package  Kontext
+	 *  @syntax   <div data-kontext="css: {awesome: cool, ...}">...</div>
+	 */
+	kontext.extension('css', function(element, model, config) {
+		Object.keys(config)
+			.forEach(function(className) {
+				var delegate = model.delegation(config[className]);
+
+				if (delegate) {
+					delegate.on('update', function() {
+						classList(element, className, delegate());
+					})();
+				}
+			});
 	});
 
-	//  traverse all keys so attributes are properly bootstrapped
-	keys.forEach(function(attr) {
-		//  update the attribute
-		update(attr, config[attr]);
-	});
-});
+})(kontext);

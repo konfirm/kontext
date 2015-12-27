@@ -44,4 +44,19 @@ describe('Kontext Extension Text', function() {
 
 		done();
 	});
+
+	it('supports scoped variables', function(done) {
+		var element = document.createElement('div'),
+			nest = element.appendChild(document.createElement('span')),
+			model;
+
+		element.setAttribute('data-kontext', 'text: sub.greet');
+
+		model = kontext.bind({sub:{greet: 'hello'}}, element);
+
+		expect(element.firstChild.data).toBe('hello');
+		expect(element.firstChild.nextSibling).toBe(nest);
+
+		done();
+	});
 });

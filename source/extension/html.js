@@ -1,17 +1,19 @@
 /*global kontext*/
 /**
  *  Manage html from data-kontext attributes
- *  @name     HTML
+ *  @name	 HTML
  *  @package  Kontext
  *  @syntax   <span data-kontext="html: foo">replaced</span>
  *            <span data-kontext="html: foo">replaced<strong> stuff</strong></span>
  */
- kontext.extension('html', function(element, model, key) {
+kontext.extension('html', function(element, model, key) {
 	'use strict';
 
-	model.delegation(key).on('update', function(model) {
-        element.innerHTML = model[key];
-	});
+	var delegate = model.delegation(key);
 
-	element.innerHTML = model[key];
+	if (delegate) {
+		delegate.on('update', function() {
+			element.innerHTML = delegate();
+		})();
+	}
 });
