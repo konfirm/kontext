@@ -252,7 +252,7 @@ There are three possible keys which trigger some kind of behavior within templat
 - `selector`: the (optional) selector for the actual template within the template-file
 - `value`: a string refering to the model property which provides the `string` or `object` configuration
 
-*NOTE* if the `value` property is present, any `path` and/or `selector` property will be ignore. Only the actual value returned by the referenced property will be used.
+*NOTE* if the `value` property is present, any `path` and/or `selector` property will be ignored. Only the actual value returned by the referenced property will be used.
 
 ```html
 //  load foo.html into the element
