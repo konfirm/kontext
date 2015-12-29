@@ -45,6 +45,22 @@ describe('Kontext Delegate', function() {
 		done();
 	});
 
+	it('can obtain a list of bound elements from a delegate', function(done) {
+		var element = document.createElement('div'),
+			model, length;
+
+		element.appendChild(document.createTextNode('a: {a}, b: {b}, b again: {b}'));
+		model = kontext.bind({a:'first', b:'second'}, element);
+
+		length = model.delegation('a').element().length;
+		expect(length).toBe(1);
+
+		length = model.delegation('b').element().length;
+		expect(length).toBe(2);
+
+		done();
+	});
+
 	it('does not meddle with implicitly created delegates', function(done) {
 		var model = {
 				foo: 'bar'

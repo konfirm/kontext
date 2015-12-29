@@ -430,16 +430,18 @@
 			result.element = function() {
 				var append = castToArray(arguments);
 
-				append.forEach(function(node) {
-					//  add observers to monitor changes
-					observer.monitor(node, result);
-				});
+				if (append) {
+					append.forEach(function(node) {
+						//  add observers to monitor changes
+						observer.monitor(node, result);
+					});
 
-				//  update the newly added elements
-				update(append, result);
+					//  update the newly added elements
+					update(append, result);
 
-				//  append the new elements to the existing ones (if any)
-				config.element = config.element.concat(append);
+					//  append the new elements to the existing ones (if any)
+					config.element = config.element.concat(append);
+				}
 
 				//  return all configured elements
 				return config.element;
@@ -694,7 +696,8 @@
 				new Text(options.pattern).placeholders(element, function(text, key, initial) {
 					var delegated = getDelegate(model, key);
 
-					//  if there is a delegation, we provide the scope (only effective if no scope has been set)
+					//  if there is a delegation, we provide the scope
+					//  (only effective if no scope has been set)
 					if (delegated) {
 						delegated.scope(model, key);
 
