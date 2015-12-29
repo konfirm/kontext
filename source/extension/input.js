@@ -23,12 +23,17 @@
 					delegate[key] = key in config ? (model.delegation(config[key]) || config[key]) : null;
 				});
 
-			//  subscribe a handler to options updates
+			//  subscribe a handler to `default` updates
+			subscribe(delegate.default, function() {
+				options(resolve(delegate.value));
+			});
+
+			//  subscribe a handler to `options` updates
 			subscribe(delegate.options, function() {
 				options(resolve(delegate.value));
 			});
 
-			//  subscribe a handler to value updates
+			//  subscribe a handler to `value` updates
 			subscribe(delegate.value, function() {
 				selection(resolve(delegate.value));
 			});

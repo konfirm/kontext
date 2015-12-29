@@ -482,14 +482,16 @@
 			//  deal with scoped keys such as 'foo.bar', which needs to address the 'bar' property in the submodel
 			//  residing in model.foo
 			property.forEach(function(name, index, all) {
-				key = name;
+				if (key) {
+					key = name in model ? name : null;
 
-				if (index < all.length - 1) {
-					model = model[key];
+					if (index < all.length - 1) {
+						model = model[key];
+					}
 				}
 			});
 
-			if (key in model) {
+			if (key && key in model) {
 				//  if a model key is an explicitly assigned delegate, we utilize it
 				if (isDelegate(model[key])) {
 					result = model[key];
