@@ -1,5 +1,12 @@
 # Release notes
 
+## 1.3.2
+Bugfix
+
+### Fixes
+- [`<delegation>.element` method throws error](//github.com/konfirm/kontext/issues/3)
+
+
 ## 1.3.1
 Bugfixes
 
