@@ -1,5 +1,17 @@
 # Release notes
 
+## 1.3.1
+Bugfixes
+
+### Fixes
+- fixed issue where the default value could no longer be a string value instead of a model property reference
+- added `default` to the update list so changing the value also updates the option label
+
+### Statistics
+- Full size: 61.6K (+0.2K)
+- Minified size: 14.5K (+0.1K)
+
+
 ## 1.3.0
 The main focus of this release was to provide a more consistent approach to allow for variable scoping for all extensions.
 

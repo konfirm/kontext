@@ -220,10 +220,18 @@ describe('Kontext Extension Input', function() {
 			}, element);
 
 			expect(model.selection).toBe(null);
+			expect(model.list.indexOf(model.selection)).toBe(-1);
 			expect(element.querySelectorAll('option').length).toBe(model.list.length + 1);
 			expect(element.querySelectorAll('option')[0].selected).toBe(true);
 
-			done();
+			model.on('update', function(m, k) {
+				expect(m[k]).toBe('c');
+				expect(model.list.indexOf(m[k])).toBe(2);
+
+				done();
+			});
+
+			model.selection = 'c';
 		});
 
 		it('accepts objects options', function(done) {
