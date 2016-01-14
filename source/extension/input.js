@@ -127,7 +127,7 @@
 		 *  @return  void
 		 */
 		function selection(selected) {
-			var values = selected instanceof Array ? selected : [selected],
+			var values = [].concat(selected),
 				i;
 
 			for (i = 0; i < element.options.length; ++i) {

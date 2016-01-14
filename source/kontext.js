@@ -77,7 +77,7 @@
 		 *  @return  bool    contains
 		 */
 		function contains(target, list, min) {
-			var keys = list instanceof Array ? list : [list],
+			var keys = [].concat(list),
 				match = keys.filter(function(key) {
 					return key in target;
 				});

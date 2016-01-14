@@ -81,23 +81,21 @@ kontext.extension('each', function(element, model, config) {
 	 *  @return  Array  refined
 	 */
 	function refine(result) {
-		var apply;
-
 		if (typeof config === 'object') {
 			['map', 'filter'].forEach(function(method) {
 				if (method in config) {
-					apply = config[method] instanceof Array ? config[method] : [config[method]];
-					apply.forEach(function(name) {
-						if (typeof model[name] === 'function') {
-							result = result[method](model[name]);
-						}
-						else if (typeof window[name] === 'function') {
-							result = result[method](window[name]);
-						}
-						else {
-							throw new Error(name + ' is not a ' + method + ' function');
-						}
-					});
+					[].concat(config[method])
+						.forEach(function(name) {
+							if (typeof model[name] === 'function') {
+								result = result[method](model[name]);
+							}
+							else if (typeof window[name] === 'function') {
+								result = result[method](window[name]);
+							}
+							else {
+								throw new Error(name + ' is not a ' + method + ' function');
+							}
+						});
 				}
 			});
 		}

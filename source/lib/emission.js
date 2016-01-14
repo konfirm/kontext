@@ -113,7 +113,7 @@ function /*jshint unused: false*/Emission()/*jshint unused: true*/ {
 
 		//  pass on the list of handles to be triggered
 		//if-included istanbul ignore next
-		trigger(list, arg instanceof Array ? arg : [arg], function() {
+		trigger(list, [].concat(arg), function() {
 			if (done) {
 				done();
 			}
