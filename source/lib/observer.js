@@ -67,7 +67,7 @@ function /*jshint unused: false*/Observer()/*jshint unused: true*/ {
 	}
 
 	/**
-	 *  Observe the DOMElement(s) bound to the model key and persist changes from outside Knot
+	 *  Observe the DOMElement(s) bound to the model key and persist changes from outside Kontext
 	 *  @name    monitor
 	 *  @access  public
 	 *  @param   DOMText   text

@@ -32,8 +32,8 @@
 			"(sourceMappingURL=)(?:.*?)\\/([^\\/]+\\.map)": "$1$2"
 		}
 
-		#  knot specific replacements
-		knot: {
+		#  kontext specific replacements
+		kontext: {
 			"\\s*(['\"])use\\s+strict\\1;?\\s*": ""
 		}
 	}
