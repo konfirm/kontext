@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" width="48px" height="40px" viewBox="0 0 192 160">
+	<g stroke="rgba(0,0,0,0.05)">
+		<path fill="#29ABE2" d="M48 0h42l6 10-21 35zM96 80l21-35 48 80h-42z" />
+		<path fill="#C6CCD4" d="M21 115h96l-21-35h-54zM171 115l21-35h-54l21 35z" />
+		<path fill="#F0F2F4" d="M27 125l21 35 27-45h-42zM102 0l-48 80h42l27-45z" />
+		<path fill="#A5ADB9" d="M0 80l21 35 48-80-21-35z" />
+		<path fill="#0071BC" d="M144 160l21-35h-96l-21 35z" />
+		<path fill="#E1E4E7" d="M144 0h-42l48 80h42z" />
+	</g>
+</svg>
