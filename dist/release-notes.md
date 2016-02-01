@@ -1,5 +1,14 @@
 # Release notes
 
+## 1.4.0
+Focused maintenance release, performance improvements.
+
+### Fixes
+- Changed the way Arrays are ensured, as `.concat` allows any type and takes care of casting faster than we can
+- Removed references to `Knot` (the previous name of `Kontext`)
+- Templates are now bound to a `documentFragment` instead of a `NodeList` and received more inline comments
+
+
 ## 1.3.2
 Bugfix
 
