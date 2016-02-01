@@ -190,12 +190,20 @@ kontext.extension('each', function(element, model, config) {
 			output = output.concat(item.nodes);
 		});
 
-		//  clear the element and redraw the new output
-		truncate(element);
-
-		output.forEach(function(node) {
-			element.appendChild(node);
+		output.forEach(function(node, index) {
+			if (element.childNodes.length > index) {
+				if (element.childNodes[index] !== node) {
+					element.insertBefore(node, element.childNodes[index]);
+				}
+			}
+			else {
+				element.appendChild(node);
+			}
 		});
+
+		while (element.childNodes.length > output.length) {
+			element.removeChild(element.childNodes[output.length]);
+		}
 	}
 
 	init();
