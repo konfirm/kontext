@@ -1,4 +1,4 @@
-# ![Kontext](kontext.svg) Kontext
+# ![Kontext](/dist/kontext.png) Kontext
 Simple and extensible two-way binding library.
 [![Build Status](https://travis-ci.org/konfirm/kontext.svg?branch=v1.0.0)](https://travis-ci.org/konfirm/kontext)[![Coverage Status](https://coveralls.io/repos/konfirm/kontext/badge.svg?branch=master&service=github)](https://coveralls.io/github/konfirm/kontext?branch=master)[![Codacy Badge](https://api.codacy.com/project/badge/grade/f3d42467d2ee4f1f895e26d63d0587ea)](https://www.codacy.com/app/rogier/kontext)
 
