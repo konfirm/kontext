@@ -28,7 +28,7 @@
 	replace: {
 		#  generic is done on everything which receives replacement (always last..)
 		generic: {
-			"\\$credits\\$": Konfirm ⓒ 2015
+			"\\$credits\\$": Konfirm ⓒ 2015-2016
 			"(sourceMappingURL=)(?:.*?)\\/([^\\/]+\\.map)": "$1$2"
 		}
 
