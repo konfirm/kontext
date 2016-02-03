@@ -40,7 +40,29 @@ describe('Kontext Greedy', function() {
 		done();
 	});
 
-	it('respecs greediness to be turned off using defaults', function(done) {
+	it('does not change default behavious when `null` is explicitly provided as option', function(done) {
+		var model = kontext.bind({baz:null}, document.body, null);
+
+		expect('foo' in model).toBe(true);
+		expect('bar' in model).toBe(true);
+		expect('baz' in model).toBe(true);
+		expect(model.baz).toBe('');
+
+		done();
+	});
+
+	it('respects greediness to be turned off using bind options', function(done) {
+		var model = kontext.bind({baz:null}, document.body, {greedy: false});
+
+		expect('foo' in model).toBe(false);
+		expect('bar' in model).toBe(false);
+		expect('baz' in model).toBe(true);
+		expect(model.baz).toBe('');
+
+		done();
+	});
+
+	it('respects greediness to be turned off using defaults', function(done) {
 		var model;
 
 		kontext.defaults({greedy: false});

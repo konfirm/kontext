@@ -6,7 +6,7 @@ describe('Kontext Extension Text', function() {
 		var element = document.createElement('div'),
 			model;
 
-		element.setAttribute('data-kontext', 'text: greet');
+		element.setAttribute('data-kontext', 'text: greet,');
 
 		model = kontext.bind({greet: 'hello'}, element);
 

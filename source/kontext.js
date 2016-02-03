@@ -79,7 +79,7 @@
 		function contains(target, list, min) {
 			var keys = [].concat(list),
 				match = keys.filter(function(key) {
-					return key in target;
+					return target && key in target;
 				});
 
 			return match.length >= (min ? min : keys.length);
@@ -484,12 +484,10 @@
 			//  deal with scoped keys such as 'foo.bar', which needs to address the 'bar' property in the submodel
 			//  residing in model.foo
 			property.forEach(function(name, index, all) {
-				if (key) {
-					key = name in model ? name : null;
+				key = name in model ? name : null;
 
-					if (index < all.length - 1) {
-						model = model[key];
-					}
+				if (index < all.length - 1) {
+					model = model[key];
 				}
 			});
 
@@ -603,6 +601,7 @@
 
 			//  the internal state is undefined for as long as the 'ready' emission has not been
 			//  triggered, it will be true/false afterwards
+			/* istanbul ignore next */
 			if (state !== undefined) {
 				emission.trigger('ready', [state !== true ? state : undefined, state === true ? kontext : undefined]);
 			}
@@ -679,7 +678,7 @@
 				//  within (inclusive) given element
 				new Attribute().find(options.attribute, element, function(target, settings) {
 					//  Verify the model exists in the bindings for the current element
-					if (bindings(target).indexOf(model) < 0) {
+					if (bindings(target).indexOf(model) < 0 || !settings) {
 						return;
 					}
 

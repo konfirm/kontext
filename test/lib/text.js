@@ -31,25 +31,46 @@ describe('Text', function() {
 		clean(done);
 	});
 
-	it('finds all placeholders', function() {
-		var fixture = document.querySelector('.fixture'),
-			nodeList = [];
+	describe('Finds all placeholder', function() {
+		it('in DOMElement nodes', function() {
+			var fixture = document.querySelector('.fixture'),
+				nodeList = [];
 
-		expect(typeof fixture).toBe('object');
-		expect(fixture.nodeType).toBe(1);
+			expect(typeof fixture).toBe('object');
+			expect(fixture.nodeType).toBe(1);
 
-		new Text(kontext.defaults().pattern).placeholders(fixture, function(text) {
-			nodeList.push(text);
+			new Text(kontext.defaults().pattern).placeholders(fixture, function(text) {
+				nodeList.push(text);
+			});
+
+			expect(nodeList.length).toBe(3);
+
+			nodeList.forEach(function(text) {
+				var data = text.data;
+
+				expect(text.nodeType).toBe(3);
+				expect(data[0]).toBe('{');
+				expect(data[data.length - 1]).toBe('}');
+			});
 		});
 
-		expect(nodeList.length).toBe(3);
+		it('in DOMText nodes', function() {
+			var nodeList = [],
+				textNode = document.createTextNode('A {foo} walks into a {bar}');
 
-		nodeList.forEach(function(text) {
-			var data = text.data;
+			new Text(kontext.defaults().pattern).placeholders(textNode, function(text) {
+				nodeList.push(text);
+			});
 
-			expect(text.nodeType).toBe(3);
-			expect(data[0]).toBe('{');
-			expect(data[data.length - 1]).toBe('}');
+			expect(nodeList.length).toBe(2);
+
+			nodeList.forEach(function(text) {
+				var data = text.data;
+
+				expect(text.nodeType).toBe(3);
+				expect(data[0]).toBe('{');
+				expect(data[data.length - 1]).toBe('}');
+			});
 		});
 	});
 

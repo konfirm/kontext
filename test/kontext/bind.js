@@ -31,8 +31,8 @@ describe('Kontext Bind', function() {
 
 		a = kontext.bind(model, document.body);
 		b = kontext.bind(model, document.body);
-		c = kontext.bind(a, document.body);
-		d = kontext.bind(b, document.body);
+		c = kontext.bind(a);
+		d = kontext.bind(b);
 
 		expect(a).toBe(b);
 		expect(b).toBe(c);
@@ -73,5 +73,38 @@ describe('Kontext Bind', function() {
 		});
 
 		model.list.push({hello: 'universe'});
+	});
+
+	// not sure why one would do this, but it is an option so we test it
+	it('binds to DOMText nodes', function(done) {
+		var container = document.createElement('div'),
+			textNode = container.appendChild(document.createTextNode('A {foo} walks into a {bar}')),
+			model = kontext.bind({foo: 'fool', bar: 'trap'}, textNode);
+
+		model.on('update', function() {
+			expect(container.innerText).toBe('A clown walks into a trap');
+
+			done();
+		});
+
+		model.foo = 'clown';
+	});
+
+	describe('does not trip over empty attributes', function() {
+		it('explicitly empty', function() {
+			var container = document.createElement('div');
+
+			container.setAttribute('data-kontext', '');
+
+			kontext.bind({}, container);
+		});
+
+		it('implicitly empty (comma)', function() {
+			var container = document.createElement('div');
+
+			container.setAttribute('data-kontext', ',');
+
+			kontext.bind({}, container);
+		});
 	});
 });

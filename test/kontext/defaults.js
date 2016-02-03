@@ -30,7 +30,9 @@ describe('Kontext Defaults', function() {
 
 	it('prefers object types', function(done) {
 		kontext.defaults({a: {b: {c: 1}}});
-		expect(kontext.defaults().a.b).toEqual({c: 1});
+		kontext.defaults({a: {b: {d: 2}}});
+
+		expect(kontext.defaults().a.b).toEqual({c: 1, d: 2});
 
 		done();
 	});

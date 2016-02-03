@@ -100,7 +100,7 @@ describe('Kontext Extension Template', function() {
 	it('loads templates by alternative selector', function(done) {
 		var extension = element.appendChild(document.createElement('div'));
 
-		extension.setAttribute('data-kontext', 'template: {path: /base/test/data/template.html, selector: \'[data-template=inner-attr]\'}');
+		extension.setAttribute('data-kontext', 'template: {path: /base/test/data/template.html, selector: "[data-template=inner-attr]"}');
 		extension.appendChild(document.createElement('span')).appendChild(document.createTextNode('hi there'));
 
 		expect(extension.firstChild.nodeName).toBe('SPAN');

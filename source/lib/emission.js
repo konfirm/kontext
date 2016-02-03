@@ -99,6 +99,7 @@ function /*jshint unused: false*/Emission()/*jshint unused: true*/ {
 						emission.remove(type, config.handle);
 					}
 
+					//if-included istanbul ignore next
 					return config.invoke >= 0 ? config.handle : false;
 				})
 				.filter(function(callback) {
