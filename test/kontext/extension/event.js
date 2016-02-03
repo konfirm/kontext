@@ -132,12 +132,11 @@ describe('Kontext Extension Event', function() {
 	});
 
 	it('does not trigger Errors when accessing non-existent keys', function(done) {
-		var element = document.createElement('div'),
-			model;
+		var element = document.createElement('div');
 
 		element.setAttribute('data-kontext', 'event: {click: {noop: yes}}');
 
-		model = kontext.bind({}, element);
+		kontext.bind({}, element);
 
 		triggerEvent(element, 'click');
 
