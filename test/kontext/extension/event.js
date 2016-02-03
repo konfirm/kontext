@@ -111,6 +111,26 @@ describe('Kontext Extension Event', function() {
 
 	});
 
+	it('triggers a global function if there is no match in the model', function(done) {
+		var element = document.createElement('div'),
+			model;
+
+		window.globalCheck = function(e, m, k, v) {
+			expect(e.type).toBe('click');
+			expect(m).toBe(model);
+			expect(k).toBe('globalCheck');
+			expect(v).toBe(undefined);
+
+			done();
+		};
+
+		element.setAttribute('data-kontext', 'event: {click: globalCheck}');
+
+		model = kontext.bind({}, element);
+
+		triggerEvent(element, 'click');
+	});
+
 	it('does not trigger Errors when accessing non-existent keys', function(done) {
 		var element = document.createElement('div'),
 			model;

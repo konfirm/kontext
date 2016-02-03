@@ -22,10 +22,13 @@ kontext.extension('event', function(element, model, config) {
 					value.apply(null, [event, model, key, defaults]);
 				}
 
-				//  otherwise set the settingsured value
+				//  otherwise set the configured value
 				else {
 					delegate(defaults);
 				}
+			}
+			else if (typeof window[key] === 'function') {
+				window[key].apply(null, [event, model, key, defaults]);
 			}
 		}, false);
 	}
