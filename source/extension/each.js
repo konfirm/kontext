@@ -24,12 +24,13 @@ kontext.extension('each', function(element, model, config) {
 	 */
 	function init() {
 		var delegate = target(config),
-			attribute = kontext.defaults().attribute;
+			attribute = kontext.defaults().attribute,
+			marker = document.createTextNode('');
 
 		if (typeof config === 'object' && self in config && config[self]) {
 			offset = {
-				start: before(document.createTextNode(''), element),
-				end: before(document.createTextNode(''), element)
+				start: before(marker, element),
+				end: before(marker.cloneNode(), element)
 			};
 
 			//  always remove the kontext initializer attribute from the element
