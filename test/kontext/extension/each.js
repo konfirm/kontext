@@ -51,6 +51,61 @@ describe('Kontext Extension Each', function() {
 		});
 	});
 
+	it('uses the defining element as template if `self:true` is provided', function(done) {
+		var parent = document.createElement('div'),
+			model, end;
+
+		element.setAttribute('data-kontext', 'each: {target:list, self:true}');
+		parent.appendChild(element);
+
+		model = kontext.bind({list: []}, parent);
+
+		model.on('update', function(mod, key) {
+			var length = parent.childNodes.length,
+				i, v;
+
+			expect(length).toBe(2 + mod[key].length);
+			for (i = 0; i < length; ++i) {
+				if (i === 0 || i === length - 1) {
+					expect(parent.childNodes[i].nodeType).toBe(3);
+				}
+				else {
+					v = mod[key][i - 1];
+
+					expect(parent.childNodes[i].nodeType).toBe(1);
+					expect(parent.childNodes[i].firstChild.nodeName).toBe('STRONG');
+					expect(parent.childNodes[i].innerHTML).toBe(
+						'<strong>' + v.a + ' and ' + v.b + '</strong>'
+					);
+				}
+			}
+
+			if (mod[key].length < 5) {
+				mod[key].splice(2, 0, {
+					a: 'a' + mod[key].length,
+					b: 'b' + mod[key].length
+				});
+			}
+			else if (end) {
+				done();
+			}
+			else {
+				end = true;
+				mod[key].splice(2, 2);
+			}
+		});
+
+		expect(parent.childNodes.length).toBe(2);
+		expect(parent.firstChild.nodeType).toBe(3);
+		expect(parent.firstChild.nextSibling.nodeType).toBe(3);
+		expect(element.parentNode).toBe(null);
+
+		model.list.push({
+			a: 'initial',
+			b: 'initial'
+		});
+	});
+
 	it('works with nested arrays', function(done) {
 		var nest, model, list;
 

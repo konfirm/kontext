@@ -13,7 +13,8 @@ kontext.extension('each', function(element, model, config) {
 
 	var template = [],
 		cache = [],
-		state;
+		self = 'self',
+		offset, state;
 
 	/**
 	 *  Initialize the extension
@@ -22,18 +23,43 @@ kontext.extension('each', function(element, model, config) {
 	 *  @return  void
 	 */
 	function init() {
-		var delegate = target(config);
+		var delegate = target(config),
+			attribute = kontext.defaults().attribute;
 
-		//  absorb all childNodes into the template
-		truncate(element, function(child) {
-			template.push(child.cloneNode(true));
-		});
+		if (typeof config === 'object' && self in config && config[self]) {
+			offset = {
+				start: before(document.createTextNode(''), element),
+				end: before(document.createTextNode(''), element)
+			};
+
+			//  always remove the kontext initializer attribute from the element
+			element.removeAttribute(attribute);
+			template.push(element.parentNode.removeChild(element));
+		}
+		else {
+			//  absorb all childNodes into the template
+			while (element.firstChild) {
+				template.push(element.removeChild(element.firstChild));
+			}
+		}
 
 		delegate.on('update', function() {
 			update(delegate);
 		});
 
 		update(delegate);
+	}
+
+	/**
+	 *  Shorthand function for insertBefore operations
+	 *  @name    before
+	 *  @access  internal
+	 *  @param   DOMNode  insert
+	 *  @param   DOMNode  before
+	 *  @return  DOMNode  inserted
+	 */
+	function before(target, relative) {
+		return relative.parentNode.insertBefore(target, relative);
 	}
 
 	/**
@@ -51,26 +77,6 @@ kontext.extension('each', function(element, model, config) {
 		}
 
 		return model.delegation(result);
-	}
-
-	/**
-	 *  Truncate all childNodes from given element, applying a callback if provided
-	 *  @name    truncate
-	 *  @access  internal
-	 *  @param   DOMNode   node
-	 *  @param   function  callback  [optional, default undefined]
-	 *  @return  void
-	 */
-	function truncate(node, fn) {
-		var which = (fn ? 'first' : 'last') + 'Child';
-
-		while (element[which]) {
-			if (fn) {
-				fn(element[which]);
-			}
-
-			element.removeChild(element[which]);
-		}
 	}
 
 	/**
@@ -190,10 +196,26 @@ kontext.extension('each', function(element, model, config) {
 			output = output.concat(item.nodes);
 		});
 
+		if (offset) {
+			redrawElementSiblings(output);
+		}
+		else {
+			redrawElementChildren(output);
+		}
+	}
+
+	/**
+	 *  Redraw the submodels within the initial element
+	 *  @name    redrawElementChildren
+	 *  @access  internal
+	 *  @param   Array  nodes
+	 *  @return  void
+	 */
+	function redrawElementChildren(output) {
 		output.forEach(function(node, index) {
 			if (element.childNodes.length > index) {
 				if (element.childNodes[index] !== node) {
-					element.insertBefore(node, element.childNodes[index]);
+					before(node, element.childNodes[index]);
 				}
 			}
 			else {
@@ -203,6 +225,33 @@ kontext.extension('each', function(element, model, config) {
 
 		while (element.childNodes.length > output.length) {
 			element.removeChild(element.childNodes[output.length]);
+		}
+	}
+
+	/**
+	 *  Redraw the submodels between the generated comment nodes (used if outer: true is provided)
+	 *  @name    redrawElementSiblings
+	 *  @access  internal
+	 *  @param   Array  nodes
+	 *  @return  void
+	 */
+	function redrawElementSiblings(output) {
+		var compare = offset.start.nextSibling,
+			rm;
+
+		output.forEach(function(node) {
+			if (compare !== node) {
+				compare = before(node, compare).nextSibling;
+			}
+			else {
+				compare = node.nextSibling;
+			}
+		});
+
+		while (compare && compare !== offset.end) {
+			rm = compare;
+			compare = compare.nextSibling;
+			rm.parentNode.removeChild(rm);
 		}
 	}
 
