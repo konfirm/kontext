@@ -23,31 +23,101 @@ describe('Kontext Extension Each', function() {
 		done();
 	});
 
-	it('reflects the items in bound array', function(done) {
-		var model;
+	describe('reflects the items in bound array', function() {
+		it('object items', function(done) {
+			var model;
 
-		element.setAttribute('data-kontext', 'each: list');
-		model = kontext.bind({list: []}, element);
+			element.setAttribute('data-kontext', 'each: list');
+			model = kontext.bind({list: []}, element);
 
-		model.on('update', function(mod, key) {
-			expect(element.childNodes.length).toBe(mod[key].length);
+			model.on('update', function(mod, key) {
+				expect(element.childNodes.length).toBe(mod[key].length);
 
-			if (mod[key].length < 5) {
-				mod[key].push({
-					a: 'a' + mod[key].length,
-					b: 'b' + mod[key].length
-				});
-			}
-			else {
-				done();
-			}
+				if (mod[key].length < 5) {
+					mod[key].push({
+						a: 'a' + mod[key].length,
+						b: 'b' + mod[key].length
+					});
+				}
+				else {
+					done();
+				}
+			});
+
+			expect(element.childNodes.length).toBe(0);
+
+			model.list.push({
+				a: 'initial',
+				b: 'initial'
+			});
 		});
 
-		expect(element.childNodes.length).toBe(0);
+		it('string items as {$item}', function(done) {
+			var node = document.createElement('div'),
+				model;
 
-		model.list.push({
-			a: 'initial',
-			b: 'initial'
+			node.appendChild(document.createElement('span'))
+				.appendChild(document.createTextNode('{$item} @ {$index}'));
+
+			node.setAttribute('data-kontext', 'each: list');
+			model = kontext.bind({list: []}, node);
+
+			model.on('update', function(mod, key) {
+				var i, v;
+
+				if (mod[key].length < 5) {
+					mod[key].push('a' + mod[key].length);
+				}
+				else {
+					setTimeout(function() {
+						expect(node.childNodes.length).toBe(mod[key].length);
+						for (i = 0; i < node.childNodes.length; ++i) {
+							v = (i > 0 ? 'a' + i + ' @ ' : 'initial @ ') + i;
+							expect(node.childNodes[i].innerHTML).toBe(v);
+						}
+
+						done();
+					}, 100);
+				}
+			});
+
+			expect(node.childNodes.length).toBe(0);
+
+			model.list.push('initial');
+		});
+
+		it('string items as {text: $item}', function(done) {
+			var node = document.createElement('div'),
+				model;
+
+			node.appendChild(document.createElement('span'))
+				.setAttribute('data-kontext', 'text: $item');
+
+			node.setAttribute('data-kontext', 'each: list');
+			model = kontext.bind({list: []}, node);
+
+			model.on('update', function(mod, key) {
+				var i, v;
+
+				if (mod[key].length < 5) {
+					mod[key].push('a' + mod[key].length);
+				}
+				else {
+					setTimeout(function() {
+						expect(node.childNodes.length).toBe(mod[key].length);
+						for (i = 0; i < node.childNodes.length; ++i) {
+							v = (i > 0 ? 'a' + i : 'initial');
+							expect(node.childNodes[i].innerHTML).toBe(v);
+						}
+
+						done();
+					}, 100);
+				}
+			});
+
+			expect(node.childNodes.length).toBe(0);
+
+			model.list.push('initial');
 		});
 	});
 

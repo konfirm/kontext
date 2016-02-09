@@ -5,12 +5,13 @@
 `event` can now fall back onto a global event handler if the provided handler is not in the model.
 
 ### Fixes
+- Fixed [issue #5: traversing over an Array with the `each` extension and `$item` for text is broken](https://github.com/konfirm/kontext/issues/5)
 - Prevent potential crash when the `options` argument for `kontext.bind` is `null`
 - Prevent potential crash when the kontext attribute is empty (e.g. `<span data-kontext="">`)
 - Improved code coverage in unit tests for the built kontext.js
 
 ### Statistics
-- Full size: 64.7K (+1.4K), gzipped: 16.8K
+- Full size: 65K (+1.4K), gzipped: 16.8K
 - Minified size: 15K (+0.42K), gzipped: 5.5K
 
 

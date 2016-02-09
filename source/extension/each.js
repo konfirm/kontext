@@ -122,20 +122,28 @@ kontext.extension('each', function(element, model, config) {
 				return o.item === value;
 			}),
 			result = filtered.length ? filtered[0] : null,
-			nodeList;
+			nodeList, bind;
 
 		if (!result) {
 			nodeList = template.map(function(node) {
 				return node.cloneNode(true);
 			});
 
+			//  ensure we will be binding an object
+			bind = typeof value === 'object' ? value : {};
+
+			//  prepare the custom properties provided by the each extension
+			//  by providing them during the binding, we make sure they are treated
+			//  as normal model members (which also means they become visible)
+			bind.$item   = value;
+			bind.$index  = 0;
+			bind.$parent = null;
+
 			result = {
 				item: value,
-				model: kontext.bind(typeof value === 'object' ? value : {}, nodeList),
+				model: kontext.bind(bind, nodeList),
 				nodes: nodeList
 			};
-
-			result.model.$item = value;
 
 			cache.push(result);
 		}
@@ -190,7 +198,7 @@ kontext.extension('each', function(element, model, config) {
 			var item = fetch(value);
 
 			item.model.$index = index;
-			if (!('$parent' in item.model)) {
+			if (!('$parent' in item.model) || !item.model.$parent) {
 				item.model.$parent = delegate;
 			}
 
