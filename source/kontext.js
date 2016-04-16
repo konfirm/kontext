@@ -52,7 +52,7 @@
 				greedy: true,
 				abbreviateExtensions: true,
 				attribute: 'data-kontext',
-				pattern: /(\{(\$?[a-z0-9_-]+)(?::([^\}]+))?\})/i
+				pattern: /(\{(\$?[a-z_]+[\.-]?(?:[a-z0-9_]+[\.-]?)*)(?::([^\}]+))?\})/i
 			});
 
 			//  register our own ready handler, ensuring to be the first in line

@@ -8,12 +8,13 @@
 ### Fixes
 - Fixed [issue #5: traversing over an Array with the `each` extension and `$item` for text is broken](https://github.com/konfirm/kontext/issues/5)
 - Fixed [issue #7: `model.delegation(..)` throws an error if a nested property is not found](https://github.com/konfirm/kontext/issues/7)
+- Fixed [issue #6: Placeholders cannot refer to nested values](https://github.com/konfirm/kontext/issues/6)
 - Prevent potential crash when the `options` argument for `kontext.bind` is `null`
 - Prevent potential crash when the kontext attribute is empty (e.g. `<span data-kontext="">`)
 - Improved code coverage in unit tests for the built kontext.js
 
 ### Statistics
-- Full size: 65K (+1.4K), gzipped: 16.8K
+- Full size: 65K (+1.4K), gzipped: 16.9K
 - Minified size: 15K (+0.42K), gzipped: 5.5K
 
 

@@ -107,4 +107,21 @@ describe('Kontext Bind', function() {
 			kontext.bind({}, container);
 		});
 	});
+
+	describe('placeholder syntax', function() {
+		it('supports scoped variables', function(done) {
+			var element = document.createElement('div'),
+				model;
+
+			element.appendChild(document.createTextNode('{sub.greet} world'));
+
+			model = kontext.bind({sub:{greet: 'hello'}}, element);
+
+			expect(element.firstChild.data).toBe('hello');
+			expect(element.innerText).toBe('hello world');
+			expect(element.firstChild.nodeType).toBe(3);
+
+			done();
+		});
+	});
 });
