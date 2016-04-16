@@ -1,9 +1,10 @@
 # Release notes
 
-## _CURRENT MASTER_ (not represented in the dist folder!)
-`each` can now use the defining node as template, reducing the nesting of dom elements slightly (note: this does not decrease the total amount of DOMNodes), useful for creating sibling nodes (e.g. `<dt>` and `<dd>`).
-`event` can now fall back onto a global event handler if the provided handler is not in the model.
-
+## 1.5.0
+- `event` can now fall back onto a global event handler if the provided handler is not in the model.
+- `each` can now use the defining node as template, reducing the nesting of dom elements slightly (note: this does not decrease the total amount of DOMNodes),
+useful for creating sibling nodes (e.g. `<dt>` and `<dd>`).
+**NOTE**, when using `each: {self: true, target: X}`, the `data-kontext` attribute will be removed from the element, which means that pretty much only the `each`-extension will be functional and the others are discarded ([see issue #4](https://github.com/konfirm/kontext/issues/4)).
 
 ### Fixes
 - Fixed [issue #5: traversing over an Array with the `each` extension and `$item` for text is broken](https://github.com/konfirm/kontext/issues/5)
