@@ -1,11 +1,13 @@
 # Release notes
 
 ## _CURRENT MASTER_ (not represented in the dist folder!)
-`each` can now use the defining node as template, reducing the nesting of dom elements slightly (note: this does not decreased the total amount of DOMNodes), useful for creating sibling nodes (e.g. `<dt>` and `<dd>`).
+`each` can now use the defining node as template, reducing the nesting of dom elements slightly (note: this does not decrease the total amount of DOMNodes), useful for creating sibling nodes (e.g. `<dt>` and `<dd>`).
 `event` can now fall back onto a global event handler if the provided handler is not in the model.
+
 
 ### Fixes
 - Fixed [issue #5: traversing over an Array with the `each` extension and `$item` for text is broken](https://github.com/konfirm/kontext/issues/5)
+- Fixed [issue #7: `model.delegation(..)` throws an error if a nested property is not found](https://github.com/konfirm/kontext/issues/7)
 - Prevent potential crash when the `options` argument for `kontext.bind` is `null`
 - Prevent potential crash when the kontext attribute is empty (e.g. `<span data-kontext="">`)
 - Improved code coverage in unit tests for the built kontext.js

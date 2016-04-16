@@ -486,7 +486,7 @@
 			property.forEach(function(name, index, all) {
 				key = name in model ? name : null;
 
-				if (index < all.length - 1) {
+				if (key && index < all.length - 1) {
 					model = model[key];
 				}
 			});
