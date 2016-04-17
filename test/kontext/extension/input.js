@@ -135,15 +135,14 @@ describe('Kontext Extension Input', function() {
 
 	describe('single select', function() {
 		it('removes the multiple attribute if the value cannot reflect multiple selection', function(done) {
-			var element = document.createElement('select'),
-				model;
+			var element = document.createElement('select');
 
 			element.setAttribute('multiple', '');
 			element.setAttribute('data-kontext', 'input: {value: selection, options: list}');
 
 			expect(element.hasAttribute('multiple')).toBe(true);
 
-			model = kontext.bind({
+			kontext.bind({
 				selection: null,
 				list: [
 					'a', 'b', 'c', 'd'
@@ -281,14 +280,13 @@ describe('Kontext Extension Input', function() {
 
 	describe('multi select', function() {
 		it('adds the multiple attribute if the value can reflect multiple selection', function(done) {
-			var element = document.createElement('select'),
-				model;
+			var element = document.createElement('select');
 
 			expect(element.getAttribute('multiple')).toBe(null);
 
 			element.setAttribute('data-kontext', 'input: {value: selection, options: list}');
 
-			model = kontext.bind({
+			kontext.bind({
 				selection: [],
 				list: [
 					'a', 'b', 'c', 'd'

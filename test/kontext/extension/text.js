@@ -3,12 +3,11 @@ describe('Kontext Extension Text', function() {
 	'use strict';
 
 	it('replaces model values in text nodes', function(done) {
-		var element = document.createElement('div'),
-			model;
+		var element = document.createElement('div');
 
 		element.setAttribute('data-kontext', 'text: greet,');
 
-		model = kontext.bind({greet: 'hello'}, element);
+		kontext.bind({greet: 'hello'}, element);
 
 		expect(element.firstChild.data).toBe('hello');
 
@@ -17,12 +16,11 @@ describe('Kontext Extension Text', function() {
 
 	it('uses the firstChild if it is a textnode', function(done) {
 		var element = document.createElement('div'),
-			nest = element.appendChild(document.createTextNode('hello world')),
-			model;
+			nest = element.appendChild(document.createTextNode('hello world'));
 
 		element.setAttribute('data-kontext', 'text: greet');
 
-		model = kontext.bind({greet: 'hello'}, element);
+		kontext.bind({greet: 'hello'}, element);
 
 		expect(element.firstChild.data).toBe('hello');
 		expect(element.firstChild).toBe(nest);
@@ -32,12 +30,11 @@ describe('Kontext Extension Text', function() {
 
 	it('creates a textnode and puts it in first', function(done) {
 		var element = document.createElement('div'),
-			nest = element.appendChild(document.createElement('span')),
-			model;
+			nest = element.appendChild(document.createElement('span'));
 
 		element.setAttribute('data-kontext', 'text: greet');
 
-		model = kontext.bind({greet: 'hello'}, element);
+		kontext.bind({greet: 'hello'}, element);
 
 		expect(element.firstChild.data).toBe('hello');
 		expect(element.firstChild.nextSibling).toBe(nest);
@@ -47,12 +44,11 @@ describe('Kontext Extension Text', function() {
 
 	it('supports scoped variables', function(done) {
 		var element = document.createElement('div'),
-			nest = element.appendChild(document.createElement('span')),
-			model;
+			nest = element.appendChild(document.createElement('span'));
 
 		element.setAttribute('data-kontext', 'text: sub.greet');
 
-		model = kontext.bind({sub:{greet: 'hello'}}, element);
+		kontext.bind({sub:{greet: 'hello'}}, element);
 
 		expect(element.firstChild.data).toBe('hello');
 		expect(element.firstChild.nextSibling).toBe(nest);
