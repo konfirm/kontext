@@ -110,12 +110,11 @@ describe('Kontext Bind', function() {
 
 	describe('placeholder syntax', function() {
 		it('supports scoped variables', function(done) {
-			var element = document.createElement('div'),
-				model;
+			var element = document.createElement('div');
 
 			element.appendChild(document.createTextNode('{sub.greet} world'));
 
-			model = kontext.bind({sub:{greet: 'hello'}}, element);
+			kontext.bind({sub:{greet: 'hello'}}, element);
 
 			expect(element.firstChild.data).toBe('hello');
 			expect(element.innerText).toBe('hello world');
