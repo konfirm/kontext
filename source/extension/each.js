@@ -27,6 +27,10 @@ kontext.extension('each', function(element, model, config) {
 			attribute = kontext.defaults().attribute,
 			marker = document.createTextNode('');
 
+		if (!delegate) {
+			return console.error('each: cannot find delegate for', target(config), config);
+		}
+
 		if (typeof config === 'object' && self in config && config[self]) {
 			offset = {
 				start: before(marker, element),
