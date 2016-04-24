@@ -3,9 +3,12 @@
 ## _CURRENT MASTER_ (not represented in the dist folder!)
 - Added `conditional`-extension (don't worry, abbreviations still work)
 
+### Fixes
+- Fixed [issue #8: `update` events do not provide the correct previous value](https://github.com/konfirm/kontext/issues/8)
+
 ### Statistics
-- Full size: 78K (+12.9K), gzipped: 20.1K
-- Minified size: 18K (+2.6K), gzipped: 6.4K
+- Full size: 79.2K (+14.2K), gzipped: 20.5K
+- Minified size: 17.6K (+2.6K), gzipped: 6.4K
 
 
 ## 1.5.0

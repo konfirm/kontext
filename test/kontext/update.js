@@ -92,4 +92,50 @@ describe('Kontext Updates', function() {
 			text.data = '';
 		});
 	});
+
+	it('sends the previous value in updates', function(done) {
+		var element = document.querySelector('.fixture'),
+			model = kontext.bind({num: 0}, element),
+			delegate = model.delegation('num');
+
+		delegate.on('update', function(mod, key, prev, current) {
+			expect(mod).toBe(model);
+			expect(key).toBe('num');
+			expect(prev).toBe(current - 1);
+			expect(model.num).toBe(current);
+		});
+
+		model.on('update', function(mod, key, prev, current) {
+			expect(mod).toBe(model);
+			expect(key).toBe('num');
+			expect(prev).toBe(current - 1);
+			expect(model.num).toBe(current);
+
+			if (current >= 10) {
+				done();
+			}
+			else {
+				++model.num;
+			}
+		});
+
+		model.num = 1;
+	});
+
+	it('triggers the access event', function(done) {
+		var element = document.querySelector('.fixture'),
+			model = kontext.bind({hello: 'world'}, element),
+			delegate = model.delegation('hello');
+
+		delegate.on('access', function(mod, key, prev, current) {
+			expect(mod).toBe(model);
+			expect(key).toBe('hello');
+			expect(prev).toBe(current);
+			expect(model.hello).toBe(current);
+
+			done();
+		});
+
+		expect(model.hello).toBe('world');
+	});
 });

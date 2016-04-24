@@ -1,4 +1,4 @@
-/*global Attribute, Emission, Observer, Settings, Text*/
+/*global Attribute: true, Emission: true, Observer: true, Settings: true, Text: true*/
 /*
  *       __    Kontext (version 1.5.0 - 2016-04-24)
  *      /\_\
@@ -15,9 +15,17 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Sun Apr 24 2016 15:48:00 GMT+0200 (CEST)
-	 *    time: 3.02ms
-	 *    size: 39.21KB
+	 *    date: Sun Apr 24 2016 22:27:18 GMT+0200 (CEST)
+	 *    time: 5.12ms
+	 *    size: 39.46KB
+	 *  ---------------------------------------------------------------------
+	 *   files: included 6 files
+	 *     +1.95KB source/lib/settings
+	 *     +3.06KB source/lib/emission
+	 *     +2.15KB source/lib/observer
+	 *     +2.37KB source/lib/text
+	 *     +8.66KB source/lib/attribute
+	 *     +6.69KB source/lib/json-formatter
 	 */
 
 	//  load dependencies
@@ -30,19 +38,8 @@
 	 *  @name     Settings
 	 *  @package  Kontext
 	 */
-	function /*jshint unused: false*/Settings()/*jshint unused: true*/ {
+	function Settings() {  //  eslint-disable-line no-unused-vars
 		var settings = this;
-
-		/**
-		 *  Initializer - setting up the defaults
-		 *  @name    init
-		 *  @access  internal
-		 *  @return  void
-		 */
-		function init() {
-			//  All values in the array will become methods for the Settings module
-			['_', 'public'].forEach(accessor);
-		}
 
 		/**
 		 *  Merge two objects, adding/overruling values from b onto a
@@ -94,6 +91,17 @@
 		}
 
 		/**
+		 *  Initializer - setting up the defaults
+		 *  @name    init
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function init() {
+			//  All values in the array will become methods for the Settings module
+			['_', 'public'].forEach(accessor);
+		}
+
+		/**
 		 *  Combine the given object with the public settings without changing the default settings
 		 *  @name    combine
 		 *  @access  public
@@ -107,7 +115,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [489.70µs, 1.81KB]
+	//END INCLUDE: lib/settings [842.30µs, 1.80KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -116,7 +124,7 @@
 	 *  @name     Emission
 	 *  @package  Kontext
 	 */
-	function /*jshint unused: false*/Emission()/*jshint unused: true*/ {
+	function Emission() {  //  eslint-disable-line no-unused-vars
 		var emission = this,
 			collection = [];
 
@@ -233,9 +241,8 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [155.05µs, 2.88KB]
+	//END INCLUDE: lib/emission [408.24µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
-	/*global global*/
 	//  strict mode (already enabled)
 
 	/**
@@ -243,7 +250,7 @@
 	 *  @name     Observer
 	 *  @package  Kontext
 	 */
-	function /*jshint unused: false*/Observer()/*jshint unused: true*/ {
+	function Observer() {  //  eslint-disable-line no-unused-vars
 		var observer = this,
 			mutation;
 
@@ -314,7 +321,7 @@
 		observer.monitor = function(text, delegation) {
 			/* istanbul ignore next */
 			if (mutation) {
-				new mutation.observer(function(mutations) {
+				new mutation.observer(function(mutations) {  //  eslint-disable-line new-cap
 					mutations.forEach(function(mutated) {
 						persist(delegation, mutated.target.nodeValue);
 					});
@@ -330,7 +337,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [126.59µs, 1.98KB]
+	//END INCLUDE: lib/observer [345.56µs, 1.99KB]
 	//BEGIN INCLUDE: lib/text
 	//  strict mode (already enabled)
 
@@ -339,7 +346,7 @@
 	 *  @name     Text
 	 *  @package  Kontext
 	 */
-	function /*jshint unused: false*/Text(pattern)/*jshint unused: false*/ {
+	function Text(pattern) {  //  eslint-disable-line no-unused-vars
 		var text = this;
 
 		/**
@@ -423,15 +430,15 @@
 		 *  @return  void
 		 */
 		text.placeholders = function(element, callback) {
-			placeholders(element).forEach(function(text) {
-				callback.apply(null, [text.node, text.key, text.initial]);
+			placeholders(element).forEach(function(data) {
+				callback.apply(null, [data.node, data.key, data.initial]);
 			});
 		};
 	}
 
-	//END INCLUDE: lib/text [141.27µs, 2.23KB]
+	//END INCLUDE: lib/text [407.44µs, 2.22KB]
 	//BEGIN INCLUDE: lib/attribute
-	/*global JSONFormatter*/
+	/*global JSONFormatter: true*/
 	//  strict mode (already enabled)
 
 	/**
@@ -439,7 +446,7 @@
 	 *  @name     Attribute
 	 *  @package  Kontext
 	 */
-	function /*jshint unused: false*/Attribute()/*jshint unused: true*/ {
+	function Attribute() {  //  eslint-disable-line no-unused-vars
 		var attribute = this,
 			json;
 
@@ -452,7 +459,7 @@
 		 *  @name       JSONFormatter
 		 *  @package    Kontext
 		 */
-		function /*jshint unused: false*/JSONFormatter()/*jshint unused: true*/ {
+		function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 			//  Implement a Singleton pattern and allow JSONFormatter to be invoked without the `new` keyword
 			/* istanbul ignore next */
 			if (typeof JSONFormatter.prototype.__instance !== 'undefined' || !(this instanceof JSONFormatter)) {
@@ -512,6 +519,7 @@
 				return pattern.trailer.test(result) ? removeTrailing(result.substr(0, result.length - 1)) : result;
 			}
 
+			/* istanbul ignore next */
 			/**
 			 *  Handle a quoted string, ensuring proper escaping for double quoted strings
 			 *  @name    escapeQuotedInput
@@ -520,8 +528,6 @@
 			 *  @array   Array   list
 			 *  @return  Array   result
 			 */
-
-			/* istanbul ignore next */
 			function escapeQuotedInput(token, list) {
 				var result = [],
 					character;
@@ -558,23 +564,6 @@
 			}
 
 			/**
-			 *  Compile the JSON-formatted string from a list of 'tokenized' data
-			 *  @name    compiler
-			 *  @access  internal
-			 *  @param   Array   list
-			 *  @return  string  JSON-formatted
-			 */
-			function compiler(list) {
-				var result = '';
-
-				while (list.length) {
-					result = nibble(result, list);
-				}
-
-				return result;
-			}
-
-			/**
 			 *  Nibble the next token from the list and handle it
 			 *  @name    nibble
 			 *  @access  internal
@@ -588,6 +577,7 @@
 				var token = list.shift();
 
 				switch (token) {
+
 					//  ignore whitespace outside of quoted patterns
 					case ' ':
 						break;
@@ -608,6 +598,23 @@
 					default:
 						result += addQuotation(token, list[0] === ':');
 						break;
+				}
+
+				return result;
+			}
+
+			/**
+			 *  Compile the JSON-formatted string from a list of 'tokenized' data
+			 *  @name    compiler
+			 *  @access  internal
+			 *  @param   Array   list
+			 *  @return  string  JSON-formatted
+			 */
+			function compiler(list) {
+				var result = '';
+
+				while (list.length) {
+					result = nibble(result, list);
 				}
 
 				return result;
@@ -640,6 +647,7 @@
 				return result;
 			}
 
+			/* istanbul ignore next */
 			/**
 			 *  Apply Object or Array notation (string.replace helper for an expression resulting in ':' or ',')
 			 *  @name    notation
@@ -648,8 +656,6 @@
 			 *  @param   string  matching symbol
 			 *  @return  string  wrapped
 			 */
-
-			/* istanbul ignore next */
 			function notation(match, symbol) {
 				var character = symbol === ':' ? '{}' : '[]',
 					position = match.indexOf(symbol),
@@ -692,7 +698,7 @@
 			};
 		}
 
-		//END INCLUDE: json-formatter [189.53µs, 6.41KB]
+		//END INCLUDE: json-formatter [473.72µs, 6.40KB]
 		/**
 		 *  Initializer - setting up the defaults
 		 *  @name    init
@@ -720,6 +726,7 @@
 					if (element.hasAttribute(attr)) {
 						result.push(element);
 					}
+
 					/*falls through*/
 				case 9:   //  DOMDocument (DOMElement if fallen through)
 				case 11:  //  DocumentFragment
@@ -754,12 +761,48 @@
 		init();
 	}
 
-	//END INCLUDE: lib/attribute [533.77µs, 8.32KB]
+	//END INCLUDE: lib/attribute [1.12ms, 8.31KB]
+	/**
+	 *  Kontext module
+	 *  @name     Kontext
+	 *  @package  Kontext
+	 *  @return   Object Kontext
+	 */
 	function Kontext() {
 		var kontext = this,
 			settings = new Settings(),
 			emission = new Emission(),
 			observer = new Observer();
+
+
+		/**
+		 *  Verify the target contains specific properties
+		 *  @name    contains
+		 *  @access  internal
+		 *  @param   Object  target
+		 *  @param   Array   list
+		 *  @param   number  minimum matches  [optional, default undefined - must contain all in list]
+		 *  @return  bool    contains
+		 */
+		function contains(target, list, min) {
+			var keys = [].concat(list),
+				match = keys.filter(function(key) {
+					return target && key in target;
+				});
+
+			return match.length >= (min ? min : keys.length);
+		}
+
+		/**
+		 *  Basic compatibility check
+		 *  @name    compatible
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function compatible() {
+			return contains(document, 'addEventListener') &&
+				contains(Object, ['defineProperties', 'getOwnPropertyDescriptor']);
+		}
 
 		/**
 		 *  Initializer, set up Kontext defaults
@@ -795,40 +838,12 @@
 				settings._('ready', error || true);
 			}, 1);
 
-			//  add the DOMContentLoaded event to the document, so we can trigger the 'ready' handlers early on
+			//  add the DOMContentLoaded event to the document,
+			//  so we can trigger the 'ready' handlers early on
 			document.addEventListener('DOMContentLoaded', function() {
 				//  call any registered 'ready' handler
 				emission.trigger('ready', [undefined, kontext]);
 			}, false);
-		}
-
-		/**
-		 *  Verify the target contains specific properties
-		 *  @name    contains
-		 *  @access  internal
-		 *  @param   Object  target
-		 *  @param   Array   list
-		 *  @param   number  minimum matches  [optional, default undefined - must contain all in list]
-		 *  @return  bool    contains
-		 */
-		function contains(target, list, min) {
-			var keys = [].concat(list),
-				match = keys.filter(function(key) {
-					return target && key in target;
-				});
-
-			return match.length >= (min ? min : keys.length);
-		}
-
-		/**
-		 *  Basic compatibility check
-		 *  @name    compatible
-		 *  @access  internal
-		 *  @return  void
-		 */
-		function compatible() {
-			return contains(document, 'addEventListener') &&
-				contains(Object, ['defineProperties', 'getOwnPropertyDescriptor']);
 		}
 
 		/**
@@ -868,9 +883,7 @@
 		 *  @return  void
 		 */
 		function define(target, key, expose, getter, setter) {
-			var definition = {
-					enumerable: expose
-				};
+			var definition = {enumerable: expose};
 
 			//  if the setter is a boolean value, there will be no getter/setter function but a value
 			//  the boolean value in setter indicates whether the value is writable
@@ -884,6 +897,48 @@
 			}
 
 			Object.defineProperty(target, key, definition);
+		}
+
+		/**
+		 *  Obtain an extension which is only capable of logging an error
+		 *  @name    extensionError
+		 *  @access  internal
+		 *  @param   string    message  ['%s' will be replaced with additional argument values]
+		 *  @param   string    replacement
+		 *  @return  function  handler
+		 */
+		function extensionError() {
+			var arg = castToArray(arguments),
+				error = arg.reduce(function(prev, current) {
+					return prev.replace('%s', current);
+				});
+
+			return function() {
+				console.error('Kontext: ' + error);
+			};
+		}
+
+		/**
+		 *  Find all extensions of which the first characters match given name
+		 *  @name    abbreviateExtension
+		 *  @access  internal
+		 *  @param   string    name
+		 *  @param   object    extensions
+		 *  @return  function  handler
+		 */
+		function abbreviateExtension(name, ext) {
+			var list = Object.keys(ext)
+					.filter(function(key) {
+						return name === key.substr(0, name.length);
+					}).sort();
+
+			//  if multiple extensions match, we do not try to find the intended one, but log
+			//  an error instead
+			if (list.length > 1) {
+				return extensionError('Multiple extensions match "%s": %s', name, list);
+			}
+
+			return list.length ? ext[list[0]] : null;
 		}
 
 		/**
@@ -919,47 +974,6 @@
 			}
 
 			return ext[name];
-		}
-
-		/**
-		 *  Find all extensions of which the first characters match given name
-		 *  @name    abbreviateExtension
-		 *  @access  internal
-		 *  @param   string    name
-		 *  @param   object    extensions
-		 *  @return  function  handler
-		 */
-		function abbreviateExtension(name, ext) {
-			var list = Object.keys(ext).filter(function(key) {
-					return name === key.substr(0, name.length);
-				}).sort();
-
-			//  if multiple extensions match, we do not try to find the intended one, but log
-			//  an error instead
-			if (list.length > 1) {
-				return extensionError('Multiple extensions match "%s": %s', name, list);
-			}
-
-			return list.length ? ext[list[0]] : null;
-		}
-
-		/**
-		 *  Obtain an extension which is only capable of logging an error
-		 *  @name    extensionError
-		 *  @access  internal
-		 *  @param   string    message  ['%s' will be replaced with additional argument values]
-		 *  @param   string    replacement
-		 *  @return  function  handler
-		 */
-		function extensionError() {
-			var arg = castToArray(arguments),
-				error = arg.reduce(function(prev, current) {
-					return prev.replace('%s', current);
-				});
-
-			return function() {
-				console.error('Kontext: ' + error);
-			};
 		}
 
 		/**
@@ -1008,92 +1022,6 @@
 				});
 		}
 
-		/**
-		 *  Prepare models so all properties become delegates (if not already) and it becomes an emitable
-		 *  @name    prepare
-		 *  @access  internal
-		 *  @param   model
-		 *  @return  model
-		 */
-		function prepare(model) {
-			var emitter;
-
-			if (!('on' in model && 'off' in model && 'delegation')) {
-				//  replace any key with a delegate
-				eachKey(model, function(key, value) {
-					var handle;
-
-					if (!getDelegate(model, key)) {
-						handle = delegate(value, model, key);
-
-						//  add the delegated handle as both getter and setter on the model/key
-						define(model, key, true, handle, handle);
-
-						//  a change emission on a property will trigger an update on the model
-						handle.on('update', function() {
-							emitter.trigger('update', [model, key, value, model[key]]);
-						});
-					}
-
-					//  if the value is an object, we prepare it aswel so we can actually work with
-					//  scoped properties
-					if (value && typeof value === 'object' && !(value instanceof Array)) {
-						//  prepare the submodel
-						prepare(value);
-
-						//  register a handler to pass on the update events to the parent model with the key prefixed
-						value.on('update', function(parent, property, old, val) {
-							emitter.trigger('update', [model, key + '.' + property, old, val]);
-						});
-					}
-				});
-
-				//  add the emission methods
-				emitter = emitable(model);
-
-				//  add the delegation method
-				define(model, 'delegation', true, function(key) {
-					return getDelegate(model, key);
-				}, false);
-			}
-
-			return model;
-		}
-
-		/**
-		 *  Prepare a list of (possible) models
-		 *  @name    listPrepare
-		 *  @access  internal
-		 *  @param   array   list
-		 *  @param   object  config
-		 *  @param   array   subscriber
-		 */
-		function listPrepare(list, config) {
-			var proto = Array.prototype,
-				numeric = /^[0-9]+$/;
-
-			//  determine if the list has been given additional properties and delegate those
-			eachKey(list, function(key, value) {
-				var handle;
-
-				if (!(numeric.test(key) || key in proto || isDelegate(value))) {
-					handle = delegate(value, list, key);
-
-					//  add the delegated handle as both getter and setter on the list key
-					define(list, key, true, handle, handle);
-				}
-			});
-
-			//  iterator over every item in the list and ensure it is a model on its own
-			list.forEach(function(item, index) {
-				if (typeof list[index] === 'object') {
-					list[index] = prepare(item, config.model, config.key);
-					list[index].on('update', function() {
-						config.emission.trigger('update', [config.model, config.key, config.value]);
-					});
-				}
-			});
-		}
 
 		/**
 		 *  Create a delegation function, responsible for keeping track of updates, associated elements and providing the data
@@ -1105,49 +1033,55 @@
 		 *  @return  function  delegate
 		 */
 		function delegate(initial, model, key) {
-			var result = function(value) {
-					var change = arguments.length > 0;
+			var config, result;
 
-					//  update the value if the value argument was provided
-					if (change) {
-						config.value = value;
-					}
+			result = function(value) {
+				var change = arguments.length > 0,
+					previous = config.value;
 
-					//  emit the appropriate event
-					config.emission.trigger(change ? 'update' : 'access', [config.model, config.key, config.value, value]);
+				//  update the value if the value argument was provided
+				if (change) {
+					config.value = value;
+				}
 
-					return config.value;
-				},
+				//  emit the appropriate event
+				config.emission.trigger(
+					change ? 'update' : 'access',
+					[config.model, config.key, previous, config.value]
+				);
 
-				//  store a relevant value in an object, which can be passed on internally
-				config = {
-					emission: emitable(result),
-					element: [],
-					value: initial,
-					model: model,
-					key: key
-				};
+				return config.value;
+			};
+
+			//  store a relevant value in an object, which can be passed on internally
+			config = {
+				emission: emitable(result),
+				element: [],
+				value: initial,
+				model: model,
+				key: key
+			};
 
 			//  if we are dealing with arrays, we'd like to know about mutations
 			if (initial instanceof Array) {
-				['copyWithin', 'fill', 'pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].forEach(function(key) {
+				['copyWithin', 'fill', 'pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].forEach(function(prop) {
 					var original;
 
-					if (typeof initial[key] === 'function') {
-						original = initial[key];
-						initial[key] = function() {
-							var result = original.apply(initial, arguments);
+					if (typeof initial[prop] === 'function') {
+						original = initial[prop];
+						initial[prop] = function() {
+							var rs = original.apply(initial, arguments);
 
 							//  map the changes
-							listPrepare(initial, config);
+							listPrepare(initial, config);  //  eslint-disable-line no-use-before-define
 							config.emission.trigger('update', [config.model, config.key, config.value]);
 
-							return result;
+							return rs;
 						};
 					}
 				});
 
-				listPrepare(initial, config);
+				listPrepare(initial, config);  //  eslint-disable-line no-use-before-define
 			}
 
 			//  create the scope method, used to register the scope (model + key) for delegates created externally
@@ -1243,6 +1177,94 @@
 		}
 
 		/**
+		 *  Prepare models so all properties become delegates (if not already) and it becomes an emitable
+		 *  @name    prepare
+		 *  @access  internal
+		 *  @param   model
+		 *  @return  model
+		 */
+		function prepare(model) {
+			var emitter;
+
+			if (!('on' in model && 'off' in model && 'delegation')) {
+				//  replace any key with a delegate
+				eachKey(model, function(key, value) {
+					var handle;
+
+					if (!getDelegate(model, key)) {
+						handle = delegate(value, model, key);
+
+						//  add the delegated handle as both getter and setter on the model/key
+						define(model, key, true, handle, handle);
+
+						//  a change emission on a property will trigger an update on the model
+						handle.on('update', function() {
+							emitter.trigger('update', castToArray(arguments));
+						});
+					}
+
+					//  if the value is an object, we prepare it aswel so we can actually work with
+					//  scoped properties
+					if (value && typeof value === 'object' && !(value instanceof Array)) {
+						//  prepare the submodel
+						prepare(value);
+
+						//  register a handler to pass on the update events to the parent model
+						//  with the key prefixed
+						value.on('update', function(parent, property, previous, current) {
+							emitter.trigger('update', [model, key + '.' + property, previous, current]);
+						});
+					}
+				});
+
+				//  add the emission methods
+				emitter = emitable(model);
+
+				//  add the delegation method
+				define(model, 'delegation', true, function(key) {
+					return getDelegate(model, key);
+				}, false);
+			}
+
+			return model;
+		}
+
+		/**
+		 *  Prepare a list of (possible) models
+		 *  @name    listPrepare
+		 *  @access  internal
+		 *  @param   array   list
+		 *  @param   object  config
+		 *  @param   array   subscriber
+		 */
+		function listPrepare(list, config) {
+			var proto = Array.prototype,
+				numeric = /^[0-9]+$/;
+
+			//  determine if the list has been given additional properties and delegate those
+			eachKey(list, function(key, value) {
+				var handle;
+
+				if (!(numeric.test(key) || key in proto || isDelegate(value))) {
+					handle = delegate(value, list, key);
+
+					//  add the delegated handle as both getter and setter on the list key
+					define(list, key, true, handle, handle);
+				}
+			});
+
+			//  iterator over every item in the list and ensure it is a model on its own
+			list.forEach(function(item, index) {
+				if (typeof list[index] === 'object') {
+					list[index] = prepare(item, config.model, config.key);
+					list[index].on('update', function() {
+						config.emission.trigger('update', [config.model, config.key, config.value]);
+					});
+				}
+			});
+		}
+
+		/**
 		 *  Register or obtain bindings
 		 *  @name    bindings
 		 *  @access  internal
@@ -1281,8 +1303,8 @@
 					})
 
 					//  narrow down the list so the returned models are unique
-					.filter(function(model, index, all) {
-						return index === all.indexOf(model);
+					.filter(function(mod, index, all) {
+						return index === all.indexOf(mod);
 					});
 			}
 		}
@@ -1411,15 +1433,15 @@
 
 				//  work through all data-kontext (or configured override thereof) attributes
 				//  within (inclusive) given element
-				new Attribute().find(options.attribute, element, function(target, settings) {
+				new Attribute().find(options.attribute, element, function(target, opt) {
 					//  Verify the model exists in the bindings for the current element
-					if (bindings(target).indexOf(model) < 0 || !settings) {
+					if (bindings(target).indexOf(model) < 0 || !opt) {
 						return;
 					}
 
 					//  traverse all the keys present in the attribute value, for these represent
 					//  individual extensions
-					eachKey(settings, function(key, config) {
+					eachKey(opt, function(key, config) {
 						var ext = extension(key);
 
 						ext(target, model, config, kontext);
@@ -1477,7 +1499,7 @@
 	global.kontext = global.kontext || new Kontext();
 
 })(window);
-/*global kontext*/
+/*global kontext: true*/
 /**
  *  Manage attributes/values with Kontext
  *  @name     Attribute
@@ -1512,7 +1534,7 @@ kontext.extension('attribute', function(element, model, config) {
 			}
 		});
 });
-/*global kontext, Condition*/
+/*global kontext: true, Condition: true*/
 /**
  *  Add conditional display of element based on MongoDB query syntax
  *  @name	  Conditional
@@ -1520,6 +1542,17 @@ kontext.extension('attribute', function(element, model, config) {
  */
 (function(kontext) {
 	'use strict';
+
+	/*
+	 *  BUILD INFO
+	 *  ---------------------------------------------------------------------
+	 *    date: Sun Apr 24 2016 22:27:18 GMT+0200 (CEST)
+	 *    time: 696.05µs
+	 *    size: 12.85KB
+	 *  ---------------------------------------------------------------------
+	 *   files: included 1 files
+	 *    +11.72KB source/extension/../lib/condition
+	 */
 
 
 	//BEGIN INCLUDE: ../lib/condition
@@ -1530,7 +1563,7 @@ kontext.extension('attribute', function(element, model, config) {
 	 *  @note     Implements a large portion of the MongoDB query syntax (detection only, not filtering is done)
 	 *            https://docs.mongodb.org/manual/reference/operator/query/
 	 */
-	function /*jshint unused: false*/Condition()/*jshint unused: true*/ {
+	function Condition() {  //  eslint-disable-line no-unused-vars
 		//  strict mode (already enabled)
 
 		var condition = this,
@@ -1637,8 +1670,8 @@ kontext.extension('attribute', function(element, model, config) {
 				result = end ? undefined : key;
 
 			if (part.length) {
-				each(part, function(key) {
-					model = key in model ? model[key] : false;
+				each(part, function(prop) {
+					model = prop in model ? model[prop] : false;
 
 					return model;
 				});
@@ -1969,7 +2002,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [273.99µs, 11.28KB]
+	//END INCLUDE: ../lib/condition [568.22µs, 11.27KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2004,7 +2037,7 @@ kontext.extension('attribute', function(element, model, config) {
 	kontext.extension('conditional', extension);
 
 })(kontext);
-/*global kontext*/
+/*global kontext: true*/
 (function(kontext) {
 	'use strict';
 
@@ -2050,7 +2083,7 @@ kontext.extension('attribute', function(element, model, config) {
 	});
 
 })(kontext);
-/*global kontext*/
+/*global kontext: true*/
 /**
  *  Work with array from data-kontext attributes
  *  @name     Each
@@ -2093,8 +2126,8 @@ kontext.extension('each', function(element, model, config) {
 	 *  @param   DOMNode  before
 	 *  @return  DOMNode  inserted
 	 */
-	function before(target, relative) {
-		return relative.parentNode.insertBefore(target, relative);
+	function before(insert, relative) {
+		return relative.parentNode.insertBefore(insert, relative);
 	}
 
 	/**
@@ -2323,7 +2356,7 @@ kontext.extension('each', function(element, model, config) {
 
 	init();
 });
-/*global kontext*/
+/*global kontext: true*/
 /**
  *  Manage events from data-kontext attributes
  *  @name     Event
@@ -2335,7 +2368,15 @@ kontext.extension('each', function(element, model, config) {
 kontext.extension('event', function(element, model, config) {
 	'use strict';
 
-	//  register the event handler
+	/**
+	 *  Register the event handler
+	 *  @name    register
+	 *  @access  internal
+	 *  @param   string  type
+	 *  @param   string  key
+	 *  @param   mixed   default values
+	 *  @return  void
+	 */
 	function register(type, key, defaults) {
 		element.addEventListener(type, function(event) {
 			var delegate = model.delegation(key),
@@ -2358,7 +2399,14 @@ kontext.extension('event', function(element, model, config) {
 		}, false);
 	}
 
-	//  process the configuration for given event type
+	/**
+	 *  Process the configuration for given event type
+	 *  @name    configure
+	 *  @access  internal
+	 *  @param   string  type
+	 *  @param   Object  settings
+	 *  @return  void
+	 */
 	function configure(type, settings) {
 		if (typeof settings === 'object') {
 			//  process both objects and arrays
@@ -2379,7 +2427,7 @@ kontext.extension('event', function(element, model, config) {
 			configure(key, config[key]);
 		});
 });
-/*global kontext*/
+/*global kontext: true*/
 /**
  *  Manage html from data-kontext attributes
  *  @name	  HTML
@@ -2398,7 +2446,7 @@ kontext.extension('html', function(element, model, key) {
 		})();
 	}
 });
-/*global kontext*/
+/*global kontext: true*/
 (function(kontext) {
 	'use strict';
 
@@ -2409,38 +2457,6 @@ kontext.extension('html', function(element, model, key) {
 	 */
 	function Select(element, model, config) {
 		var delegate = {};
-
-		/**
-		 *  Set up the module basics (delegates, model updates, change events)
-		 *  @name    init
-		 *  @access  internal
-		 *  @return  void
-		 */
-		function init() {
-			//  find the relevant delegates
-			['default', 'options', 'value']
-				.forEach(function(key) {
-					delegate[key] = key in config ? (model.delegation(config[key]) || config[key]) : null;
-				});
-
-			//  subscribe a handler to `default` updates
-			subscribe(delegate.default, function() {
-				options(resolve(delegate.value));
-			});
-
-			//  subscribe a handler to `options` updates
-			subscribe(delegate.options, function() {
-				options(resolve(delegate.value));
-			});
-
-			//  subscribe a handler to `value` updates
-			subscribe(delegate.value, function() {
-				selection(resolve(delegate.value));
-			});
-
-			//  listen for changes and persist those in the model value
-			element.addEventListener('change', persist, false);
-		}
 
 		/**
 		 *  Subscribe to the 'update'-events of a delegate, also immediately invoking the handler to
@@ -2581,6 +2597,38 @@ kontext.extension('html', function(element, model, key) {
 			selection(selected);
 		}
 
+		/**
+		 *  Set up the module basics (delegates, model updates, change events)
+		 *  @name    init
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function init() {
+			//  find the relevant delegates
+			['default', 'options', 'value']
+				.forEach(function(key) {
+					delegate[key] = key in config ? (model.delegation(config[key]) || config[key]) : null;
+				});
+
+			//  subscribe a handler to `default` updates
+			subscribe(delegate.default, function() {
+				options(resolve(delegate.value));
+			});
+
+			//  subscribe a handler to `options` updates
+			subscribe(delegate.options, function() {
+				options(resolve(delegate.value));
+			});
+
+			//  subscribe a handler to `value` updates
+			subscribe(delegate.value, function() {
+				selection(resolve(delegate.value));
+			});
+
+			//  listen for changes and persist those in the model value
+			element.addEventListener('change', persist, false);
+		}
+
 		//  initialize the module
 		init();
 	}
@@ -2609,6 +2657,7 @@ kontext.extension('html', function(element, model, key) {
 		var property = ['value'];
 
 		switch (type(element)) {
+
 			//  select boxes are a special kind of input, these will be handled in
 			//  an entirely different flow
 			case 'select':
@@ -2639,7 +2688,7 @@ kontext.extension('html', function(element, model, key) {
 		});
 	});
 })(kontext);
-/*global kontext*/
+/*global kontext: true*/
 (function(kontext) {
 	'use strict';
 
@@ -2690,58 +2739,8 @@ kontext.extension('html', function(element, model, key) {
 		}
 
 		/**
-		 *  Resolve the configured input from cache, creating it when needed
-		 *  @name    resolve
-		 *  @access  internal
-		 *  @param   Object    config  {path: <string>, selector: <string>}
-		 *  @param   function  callback
-		 *  @return  void
-		 */
-		function resolve(input, done) {
-			var buffer = entry(input.path);
-
-			//  if there is no data in the buffer, the template is external and not yet loaded
-			if (!buffer.data) {
-				//  add a callback to the internal queue
-				buffer.callback.push(function() {
-					resolve(input, done);
-				});
-
-				//  if there is only one (actually one or less, which means one)
-				//  the template will be loaded
-				if (buffer.callback.length <= 1) {
-					load(input.path, function(error, dom) {
-						//  add the data property
-						buffer.data = {
-							error: error,
-							content: dom
-						};
-
-						//  trigger all queued callbacks
-						trigger(buffer.callback);
-					});
-				}
-
-				return;
-			}
-
-			//  if the given selector is not yet known in the internal selectors for the template path
-			//  it will be created from the available data.content (or be empty otherwise)
-			if (!(input.selector in buffer.selector)) {
-				buffer.selector[input.selector] = buffer.data.content ? clone(buffer.data.content, input.selector) : [];
-			}
-
-			//  if an error was encountered, it will always be provided to the callback
-			if (buffer.data.error) {
-				return done(buffer.data.error);
-			}
-
-			//  invoke the callback with a fresh clone of the prepared template
-			done(null, buffer.selector[input.selector].cloneNode(true));
-		}
-
-		/**
-		 *  Obtain the entry for given source from the cache, creating a default entry if it does not yet exist
+		 *  Obtain the entry for given source from the cache,
+		 *  creating a default entry if it does not yet exist
 		 *  @name    entry
 		 *  @access  internal
 		 *  @param   string  source
@@ -2797,6 +2796,57 @@ kontext.extension('html', function(element, model, key) {
 					trigger(list);
 				}, 0);
 			}
+		}
+
+		/**
+		 *  Resolve the configured input from cache, creating it when needed
+		 *  @name    resolve
+		 *  @access  internal
+		 *  @param   Object    config  {path: <string>, selector: <string>}
+		 *  @param   function  callback
+		 *  @return  void
+		 */
+		function resolve(input, done) {
+			var buffer = entry(input.path);
+
+			//  if there is no data in the buffer, the template is external and not yet loaded
+			if (!buffer.data) {
+				//  add a callback to the internal queue
+				buffer.callback.push(function() {
+					resolve(input, done);
+				});
+
+				//  if there is only one (actually one or less, which means one)
+				//  the template will be loaded
+				if (buffer.callback.length <= 1) {
+					load(input.path, function(error, dom) {
+						//  add the data property
+						buffer.data = {
+							error: error,
+							content: dom
+						};
+
+						//  trigger all queued callbacks
+						trigger(buffer.callback);
+					});
+				}
+
+				return;
+			}
+
+			//  if the given selector is not yet known in the internal selectors for the template path
+			//  it will be created from the available data.content (or be empty otherwise)
+			if (!(input.selector in buffer.selector)) {
+				buffer.selector[input.selector] = buffer.data.content ? clone(buffer.data.content, input.selector) : [];
+			}
+
+			//  if an error was encountered, it will always be provided to the callback
+			if (buffer.data.error) {
+				return done(buffer.data.error);
+			}
+
+			//  invoke the callback with a fresh clone of the prepared template
+			done(null, buffer.selector[input.selector].cloneNode(true));
 		}
 
 		/**
@@ -2873,7 +2923,7 @@ kontext.extension('html', function(element, model, key) {
 	 *            <span data-kontext="template: {value: myTemplate}">replaced</span>
 	 */
 	kontext.extension('template', function(element, model, config) {
-		var template = Template(),
+		var template = new Template(),
 			delegate;
 
 		element.style.display = 'none';
@@ -2924,7 +2974,7 @@ kontext.extension('html', function(element, model, key) {
 	});
 
 })(kontext);
-/*global kontext*/
+/*global kontext: true*/
 /**
  *  Manage text from data-kontext attributes
  *  @name     Text

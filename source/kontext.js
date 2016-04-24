@@ -294,7 +294,8 @@
 			var config, result;
 
 			result = function(value) {
-				var change = arguments.length > 0;
+				var change = arguments.length > 0,
+					previous = config.value;
 
 				//  update the value if the value argument was provided
 				if (change) {
@@ -302,7 +303,10 @@
 				}
 
 				//  emit the appropriate event
-				config.emission.trigger(change ? 'update' : 'access', [config.model, config.key, config.value, value]);
+				config.emission.trigger(
+					change ? 'update' : 'access',
+					[config.model, config.key, previous, config.value]
+				);
 
 				return config.value;
 			};
@@ -453,7 +457,7 @@
 
 						//  a change emission on a property will trigger an update on the model
 						handle.on('update', function() {
-							emitter.trigger('update', [model, key, value, model[key]]);
+							emitter.trigger('update', castToArray(arguments));
 						});
 					}
 
@@ -463,9 +467,10 @@
 						//  prepare the submodel
 						prepare(value);
 
-						//  register a handler to pass on the update events to the parent model with the key prefixed
-						value.on('update', function(parent, property, old, val) {
-							emitter.trigger('update', [model, key + '.' + property, old, val]);
+						//  register a handler to pass on the update events to the parent model
+						//  with the key prefixed
+						value.on('update', function(parent, property, previous, current) {
+							emitter.trigger('update', [model, key + '.' + property, previous, current]);
 						});
 					}
 				});
