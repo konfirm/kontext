@@ -17,57 +17,6 @@ kontext.extension('each', function(element, model, config) {
 		offset, state;
 
 	/**
-	 *  Initialize the extension
-	 *  @name    init
-	 *  @access  internal
-	 *  @return  void
-	 */
-	function init() {
-		var delegate = target(config),
-			attribute = kontext.defaults().attribute,
-			marker = document.createTextNode('');
-
-		if (!delegate) {
-			return console.error('each: cannot find delegate for', target(config), config);
-		}
-
-		if (typeof config === 'object' && self in config && config[self]) {
-			offset = {
-				start: before(marker, element),
-				end: before(marker.cloneNode(), element)
-			};
-
-			//  always remove the kontext initializer attribute from the element
-			element.removeAttribute(attribute);
-			template.push(element.parentNode.removeChild(element));
-		}
-		else {
-			//  absorb all childNodes into the template
-			while (element.firstChild) {
-				template.push(element.removeChild(element.firstChild));
-			}
-		}
-
-		delegate.on('update', function() {
-			update(delegate);
-		});
-
-		update(delegate);
-	}
-
-	/**
-	 *  Shorthand function for insertBefore operations
-	 *  @name    before
-	 *  @access  internal
-	 *  @param   DOMNode  insert
-	 *  @param   DOMNode  before
-	 *  @return  DOMNode  inserted
-	 */
-	function before(target, relative) {
-		return relative.parentNode.insertBefore(target, relative);
-	}
-
-	/**
 	 *  Obtain the configured target delegate
 	 *  @name    target
 	 *  @access  internal
@@ -82,6 +31,18 @@ kontext.extension('each', function(element, model, config) {
 		}
 
 		return model.delegation(result);
+	}
+
+	/**
+	 *  Shorthand function for insertBefore operations
+	 *  @name    before
+	 *  @access  internal
+	 *  @param   DOMNode  insert
+	 *  @param   DOMNode  before
+	 *  @return  DOMNode  inserted
+	 */
+	function before(target, relative) {
+		return relative.parentNode.insertBefore(target, relative);
 	}
 
 	/**
@@ -125,6 +86,7 @@ kontext.extension('each', function(element, model, config) {
 		var filtered = cache.filter(function(o) {
 				return o.item === value;
 			}),
+
 			result = filtered.length ? filtered[0] : null,
 			nodeList, bind;
 
@@ -167,54 +129,6 @@ kontext.extension('each', function(element, model, config) {
 		return a.length !== b.length || a.filter(function(value, index) {
 			return b[index] !== value;
 		}).length !== 0;
-	}
-
-	/**
-	 *  Update the internal state and trigger a redraw whenever there are differences between
-	 *  the previous and current state.
-	 *  @name    update
-	 *  @access  internal
-	 *  @param   Array  collection
-	 *  @return  void
-	 */
-	function update(delegate) {
-		var collection = refine(delegate());
-
-		//  if there is no state, of the state has changed, we update the internal state and
-		//  trigger a redraw
-		if (!state || differ(state, collection)) {
-			state = collection.slice();
-			redraw(collection, delegate);
-		}
-	}
-
-	/**
-	 *  Redraw all the submodels in the give collection
-	 *  @name    redraw
-	 *  @access  internal
-	 *  @param   Array  collection
-	 *  @return  void
-	 */
-	function redraw(collection, delegate) {
-		var output = [];
-
-		collection.forEach(function(value, index) {
-			var item = fetch(value);
-
-			item.model.$index = index;
-			if (!('$parent' in item.model) || !item.model.$parent) {
-				item.model.$parent = delegate;
-			}
-
-			output = output.concat(item.nodes);
-		});
-
-		if (offset) {
-			redrawElementSiblings(output);
-		}
-		else {
-			redrawElementChildren(output);
-		}
 	}
 
 	/**
@@ -266,6 +180,93 @@ kontext.extension('each', function(element, model, config) {
 			compare = compare.nextSibling;
 			rm.parentNode.removeChild(rm);
 		}
+	}
+
+	/**
+	 *  Redraw all the submodels in the give collection
+	 *  @name    redraw
+	 *  @access  internal
+	 *  @param   Array  collection
+	 *  @return  void
+	 */
+	function redraw(collection, delegate) {
+		var output = [];
+
+		collection.forEach(function(value, index) {
+			var item = fetch(value);
+
+			item.model.$index = index;
+			if (!('$parent' in item.model) || !item.model.$parent) {
+				item.model.$parent = delegate;
+			}
+
+			output = output.concat(item.nodes);
+		});
+
+		if (offset) {
+			redrawElementSiblings(output);
+		}
+		else {
+			redrawElementChildren(output);
+		}
+	}
+
+	/**
+	 *  Update the internal state and trigger a redraw whenever there are differences between
+	 *  the previous and current state.
+	 *  @name    update
+	 *  @access  internal
+	 *  @param   Array  collection
+	 *  @return  void
+	 */
+	function update(delegate) {
+		var collection = refine(delegate());
+
+		//  if there is no state, of the state has changed, we update the internal state and
+		//  trigger a redraw
+		if (!state || differ(state, collection)) {
+			state = collection.slice();
+			redraw(collection, delegate);
+		}
+	}
+
+	/**
+	 *  Initialize the extension
+	 *  @name    init
+	 *  @access  internal
+	 *  @return  void
+	 */
+	function init() {
+		var delegate = target(config),
+			attribute = kontext.defaults().attribute,
+			marker = document.createTextNode('');
+
+		if (!delegate) {
+			return;
+		}
+
+		if (typeof config === 'object' && self in config && config[self]) {
+			offset = {
+				start: before(marker, element),
+				end: before(marker.cloneNode(), element)
+			};
+
+			//  always remove the kontext initializer attribute from the element
+			element.removeAttribute(attribute);
+			template.push(element.parentNode.removeChild(element));
+		}
+		else {
+			//  absorb all childNodes into the template
+			while (element.firstChild) {
+				template.push(element.removeChild(element.firstChild));
+			}
+		}
+
+		delegate.on('update', function() {
+			update(delegate);
+		});
+
+		update(delegate);
 	}
 
 	init();
