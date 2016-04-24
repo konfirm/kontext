@@ -45,7 +45,7 @@ describe('Attribute', function() {
 		});
 
 		new Attribute().find('data-kontext', fragment, function(elm, config) {
-			expect(config).toEqual({name: element.nodeName.toLowerCase()});
+			expect(config).toEqual({name: elm.nodeName.toLowerCase()});
 		});
 	});
 });
