@@ -55,11 +55,12 @@ function Embed(devour, build) {
 	function buildInfo(content, start, dependencies) {
 		return content.replace(pattern.info, function(match, indentation) {
 			var result = [
-				'/*',
-				'BUILD INFO',
-				new Array(70).join('-'),
-				'  date: ' + new Date()
-			];
+					'/*',
+					'BUILD INFO',
+					new Array(70).join('-'),
+					'  date: ' + new Date()
+				],
+				inc = getIncludes();
 
 			report(start, content.length).split(/[,\s]+/).forEach(function(unit, index) {
 				result.push((index === 0 ? '  time: ' : '  size: ') + unit);
@@ -71,10 +72,23 @@ function Embed(devour, build) {
 				);
 			}
 
+			if (inc.length) {
+				result.push(
+					new Array(70).join('-'),
+					' files: included ' + inc.length + ' files'
+				);
+
+				result = result.concat(inc.map(function(file) {
+					var size = unit(file.content.length, 1024, ['bytes', 'KB', 'MB']);
+
+					return new Array(10 - size.length).join(' ') + '+' + size + ' ' + file.name;
+				}));
+			}
+
 			if (dependencies.length) {
 				result.push(
 					new Array(70).join('-'),
-					' files: included ' + dependencies.length + ' files'
+					' files: dependent ' + dependencies.length + ' files'
 				);
 
 				result = result.concat(dependencies.map(function(dep) {
@@ -87,6 +101,8 @@ function Embed(devour, build) {
 			}
 
 			result.push(' */');
+
+
 
 			return result.map(function(line, index, all) {
 				return indentation + (index > 0 && index < all.length - 1 ? ' *  ' : '') + line;
@@ -111,6 +127,16 @@ function Embed(devour, build) {
 			})
 			.map(function(dep) {
 				return dep.replace(/(?:src|core)\/?/g, '');
+			});
+	}
+
+	function getIncludes() {
+		return Object.keys(list)
+			.filter(function(key) {
+				return list[key].included;
+			})
+			.map(function(key) {
+				return list[key];
 			});
 	}
 

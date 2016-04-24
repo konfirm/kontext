@@ -6,7 +6,7 @@
  *  @name     Observer
  *  @package  Kontext
  */
-function /*jshint unused: false*/Observer()/*jshint unused: true*/ {
+function Observer() {  //  eslint-disable-line no-unused-vars
 	var observer = this,
 		mutation;
 
@@ -77,7 +77,7 @@ function /*jshint unused: false*/Observer()/*jshint unused: true*/ {
 	observer.monitor = function(text, delegation) {
 		//if-included istanbul ignore next
 		if (mutation) {
-			new mutation.observer(function(mutations) {
+			new mutation.observer(function(mutations) {  //  eslint-disable-line new-cap
 				mutations.forEach(function(mutated) {
 					persist(delegation, mutated.target.nodeValue);
 				});

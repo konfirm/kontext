@@ -5,7 +5,7 @@
  *  @name     Emission
  *  @package  Kontext
  */
-function /*jshint unused: false*/Emission()/*jshint unused: true*/ {
+function Emission() {  //  eslint-disable-line no-unused-vars
 	var emission = this,
 		collection = [];
 

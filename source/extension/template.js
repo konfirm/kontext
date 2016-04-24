@@ -49,58 +49,8 @@
 		}
 
 		/**
-		 *  Resolve the configured input from cache, creating it when needed
-		 *  @name    resolve
-		 *  @access  internal
-		 *  @param   Object    config  {path: <string>, selector: <string>}
-		 *  @param   function  callback
-		 *  @return  void
-		 */
-		function resolve(input, done) {
-			var buffer = entry(input.path);
-
-			//  if there is no data in the buffer, the template is external and not yet loaded
-			if (!buffer.data) {
-				//  add a callback to the internal queue
-				buffer.callback.push(function() {
-					resolve(input, done);
-				});
-
-				//  if there is only one (actually one or less, which means one)
-				//  the template will be loaded
-				if (buffer.callback.length <= 1) {
-					load(input.path, function(error, dom) {
-						//  add the data property
-						buffer.data = {
-							error: error,
-							content: dom
-						};
-
-						//  trigger all queued callbacks
-						trigger(buffer.callback);
-					});
-				}
-
-				return;
-			}
-
-			//  if the given selector is not yet known in the internal selectors for the template path
-			//  it will be created from the available data.content (or be empty otherwise)
-			if (!(input.selector in buffer.selector)) {
-				buffer.selector[input.selector] = buffer.data.content ? clone(buffer.data.content, input.selector) : [];
-			}
-
-			//  if an error was encountered, it will always be provided to the callback
-			if (buffer.data.error) {
-				return done(buffer.data.error);
-			}
-
-			//  invoke the callback with a fresh clone of the prepared template
-			done(null, buffer.selector[input.selector].cloneNode(true));
-		}
-
-		/**
-		 *  Obtain the entry for given source from the cache, creating a default entry if it does not yet exist
+		 *  Obtain the entry for given source from the cache,
+		 *  creating a default entry if it does not yet exist
 		 *  @name    entry
 		 *  @access  internal
 		 *  @param   string  source
@@ -156,6 +106,57 @@
 					trigger(list);
 				}, 0);
 			}
+		}
+
+		/**
+		 *  Resolve the configured input from cache, creating it when needed
+		 *  @name    resolve
+		 *  @access  internal
+		 *  @param   Object    config  {path: <string>, selector: <string>}
+		 *  @param   function  callback
+		 *  @return  void
+		 */
+		function resolve(input, done) {
+			var buffer = entry(input.path);
+
+			//  if there is no data in the buffer, the template is external and not yet loaded
+			if (!buffer.data) {
+				//  add a callback to the internal queue
+				buffer.callback.push(function() {
+					resolve(input, done);
+				});
+
+				//  if there is only one (actually one or less, which means one)
+				//  the template will be loaded
+				if (buffer.callback.length <= 1) {
+					load(input.path, function(error, dom) {
+						//  add the data property
+						buffer.data = {
+							error: error,
+							content: dom
+						};
+
+						//  trigger all queued callbacks
+						trigger(buffer.callback);
+					});
+				}
+
+				return;
+			}
+
+			//  if the given selector is not yet known in the internal selectors for the template path
+			//  it will be created from the available data.content (or be empty otherwise)
+			if (!(input.selector in buffer.selector)) {
+				buffer.selector[input.selector] = buffer.data.content ? clone(buffer.data.content, input.selector) : [];
+			}
+
+			//  if an error was encountered, it will always be provided to the callback
+			if (buffer.data.error) {
+				return done(buffer.data.error);
+			}
+
+			//  invoke the callback with a fresh clone of the prepared template
+			done(null, buffer.selector[input.selector].cloneNode(true));
 		}
 
 		/**
@@ -232,7 +233,7 @@
 	 *            <span data-kontext="template: {value: myTemplate}">replaced</span>
 	 */
 	kontext.extension('template', function(element, model, config) {
-		var template = Template(),
+		var template = new Template(),
 			delegate;
 
 		element.style.display = 'none';

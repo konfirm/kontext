@@ -6,7 +6,7 @@
  *  @name     Attribute
  *  @package  Kontext
  */
-function /*jshint unused: false*/Attribute()/*jshint unused: true*/ {
+function Attribute() {  //  eslint-disable-line no-unused-vars
 	var attribute = this,
 		json;
 
@@ -39,6 +39,7 @@ function /*jshint unused: false*/Attribute()/*jshint unused: true*/ {
 				if (element.hasAttribute(attr)) {
 					result.push(element);
 				}
+
 				/*falls through*/
 			case 9:   //  DOMDocument (DOMElement if fallen through)
 			case 11:  //  DocumentFragment

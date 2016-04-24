@@ -5,19 +5,8 @@
  *  @name     Settings
  *  @package  Kontext
  */
-function /*jshint unused: false*/Settings()/*jshint unused: true*/ {
+function Settings() {  //  eslint-disable-line no-unused-vars
 	var settings = this;
-
-	/**
-	 *  Initializer - setting up the defaults
-	 *  @name    init
-	 *  @access  internal
-	 *  @return  void
-	 */
-	function init() {
-		//  All values in the array will become methods for the Settings module
-		['_', 'public'].forEach(accessor);
-	}
 
 	/**
 	 *  Merge two objects, adding/overruling values from b onto a
@@ -66,6 +55,17 @@ function /*jshint unused: false*/Settings()/*jshint unused: true*/ {
 
 			return collection;
 		};
+	}
+
+	/**
+	 *  Initializer - setting up the defaults
+	 *  @name    init
+	 *  @access  internal
+	 *  @return  void
+	 */
+	function init() {
+		//  All values in the array will become methods for the Settings module
+		['_', 'public'].forEach(accessor);
 	}
 
 	/**

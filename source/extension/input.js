@@ -11,38 +11,6 @@
 		var delegate = {};
 
 		/**
-		 *  Set up the module basics (delegates, model updates, change events)
-		 *  @name    init
-		 *  @access  internal
-		 *  @return  void
-		 */
-		function init() {
-			//  find the relevant delegates
-			['default', 'options', 'value']
-				.forEach(function(key) {
-					delegate[key] = key in config ? (model.delegation(config[key]) || config[key]) : null;
-				});
-
-			//  subscribe a handler to `default` updates
-			subscribe(delegate.default, function() {
-				options(resolve(delegate.value));
-			});
-
-			//  subscribe a handler to `options` updates
-			subscribe(delegate.options, function() {
-				options(resolve(delegate.value));
-			});
-
-			//  subscribe a handler to `value` updates
-			subscribe(delegate.value, function() {
-				selection(resolve(delegate.value));
-			});
-
-			//  listen for changes and persist those in the model value
-			element.addEventListener('change', persist, false);
-		}
-
-		/**
 		 *  Subscribe to the 'update'-events of a delegate, also immediately invoking the handler to
 		 *  ensure initial values
 		 *  @name    subscribe
@@ -181,6 +149,38 @@
 			selection(selected);
 		}
 
+		/**
+		 *  Set up the module basics (delegates, model updates, change events)
+		 *  @name    init
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function init() {
+			//  find the relevant delegates
+			['default', 'options', 'value']
+				.forEach(function(key) {
+					delegate[key] = key in config ? (model.delegation(config[key]) || config[key]) : null;
+				});
+
+			//  subscribe a handler to `default` updates
+			subscribe(delegate.default, function() {
+				options(resolve(delegate.value));
+			});
+
+			//  subscribe a handler to `options` updates
+			subscribe(delegate.options, function() {
+				options(resolve(delegate.value));
+			});
+
+			//  subscribe a handler to `value` updates
+			subscribe(delegate.value, function() {
+				selection(resolve(delegate.value));
+			});
+
+			//  listen for changes and persist those in the model value
+			element.addEventListener('change', persist, false);
+		}
+
 		//  initialize the module
 		init();
 	}
@@ -209,6 +209,7 @@
 		var property = ['value'];
 
 		switch (type(element)) {
+
 			//  select boxes are a special kind of input, these will be handled in
 			//  an entirely different flow
 			case 'select':

@@ -41,8 +41,8 @@ kontext.extension('each', function(element, model, config) {
 	 *  @param   DOMNode  before
 	 *  @return  DOMNode  inserted
 	 */
-	function before(target, relative) {
-		return relative.parentNode.insertBefore(target, relative);
+	function before(insert, relative) {
+		return relative.parentNode.insertBefore(insert, relative);
 	}
 
 	/**

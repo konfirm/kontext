@@ -26,6 +26,36 @@
 			emission = new Emission(),
 			observer = new Observer();
 
+
+		/**
+		 *  Verify the target contains specific properties
+		 *  @name    contains
+		 *  @access  internal
+		 *  @param   Object  target
+		 *  @param   Array   list
+		 *  @param   number  minimum matches  [optional, default undefined - must contain all in list]
+		 *  @return  bool    contains
+		 */
+		function contains(target, list, min) {
+			var keys = [].concat(list),
+				match = keys.filter(function(key) {
+					return target && key in target;
+				});
+
+			return match.length >= (min ? min : keys.length);
+		}
+
+		/**
+		 *  Basic compatibility check
+		 *  @name    compatible
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function compatible() {
+			return contains(document, 'addEventListener') &&
+				contains(Object, ['defineProperties', 'getOwnPropertyDescriptor']);
+		}
+
 		/**
 		 *  Initializer, set up Kontext defaults
 		 *  @name    init
@@ -60,40 +90,12 @@
 				settings._('ready', error || true);
 			}, 1);
 
-			//  add the DOMContentLoaded event to the document, so we can trigger the 'ready' handlers early on
+			//  add the DOMContentLoaded event to the document,
+			//  so we can trigger the 'ready' handlers early on
 			document.addEventListener('DOMContentLoaded', function() {
 				//  call any registered 'ready' handler
 				emission.trigger('ready', [undefined, kontext]);
 			}, false);
-		}
-
-		/**
-		 *  Verify the target contains specific properties
-		 *  @name    contains
-		 *  @access  internal
-		 *  @param   Object  target
-		 *  @param   Array   list
-		 *  @param   number  minimum matches  [optional, default undefined - must contain all in list]
-		 *  @return  bool    contains
-		 */
-		function contains(target, list, min) {
-			var keys = [].concat(list),
-				match = keys.filter(function(key) {
-					return target && key in target;
-				});
-
-			return match.length >= (min ? min : keys.length);
-		}
-
-		/**
-		 *  Basic compatibility check
-		 *  @name    compatible
-		 *  @access  internal
-		 *  @return  void
-		 */
-		function compatible() {
-			return contains(document, 'addEventListener') &&
-				contains(Object, ['defineProperties', 'getOwnPropertyDescriptor']);
 		}
 
 		/**
@@ -133,9 +135,7 @@
 		 *  @return  void
 		 */
 		function define(target, key, expose, getter, setter) {
-			var definition = {
-					enumerable: expose
-				};
+			var definition = {enumerable: expose};
 
 			//  if the setter is a boolean value, there will be no getter/setter function but a value
 			//  the boolean value in setter indicates whether the value is writable
@@ -149,6 +149,48 @@
 			}
 
 			Object.defineProperty(target, key, definition);
+		}
+
+		/**
+		 *  Obtain an extension which is only capable of logging an error
+		 *  @name    extensionError
+		 *  @access  internal
+		 *  @param   string    message  ['%s' will be replaced with additional argument values]
+		 *  @param   string    replacement
+		 *  @return  function  handler
+		 */
+		function extensionError() {
+			var arg = castToArray(arguments),
+				error = arg.reduce(function(prev, current) {
+					return prev.replace('%s', current);
+				});
+
+			return function() {
+				console.error('Kontext: ' + error);
+			};
+		}
+
+		/**
+		 *  Find all extensions of which the first characters match given name
+		 *  @name    abbreviateExtension
+		 *  @access  internal
+		 *  @param   string    name
+		 *  @param   object    extensions
+		 *  @return  function  handler
+		 */
+		function abbreviateExtension(name, ext) {
+			var list = Object.keys(ext)
+					.filter(function(key) {
+						return name === key.substr(0, name.length);
+					}).sort();
+
+			//  if multiple extensions match, we do not try to find the intended one, but log
+			//  an error instead
+			if (list.length > 1) {
+				return extensionError('Multiple extensions match "%s": %s', name, list);
+			}
+
+			return list.length ? ext[list[0]] : null;
 		}
 
 		/**
@@ -184,47 +226,6 @@
 			}
 
 			return ext[name];
-		}
-
-		/**
-		 *  Find all extensions of which the first characters match given name
-		 *  @name    abbreviateExtension
-		 *  @access  internal
-		 *  @param   string    name
-		 *  @param   object    extensions
-		 *  @return  function  handler
-		 */
-		function abbreviateExtension(name, ext) {
-			var list = Object.keys(ext).filter(function(key) {
-					return name === key.substr(0, name.length);
-				}).sort();
-
-			//  if multiple extensions match, we do not try to find the intended one, but log
-			//  an error instead
-			if (list.length > 1) {
-				return extensionError('Multiple extensions match "%s": %s', name, list);
-			}
-
-			return list.length ? ext[list[0]] : null;
-		}
-
-		/**
-		 *  Obtain an extension which is only capable of logging an error
-		 *  @name    extensionError
-		 *  @access  internal
-		 *  @param   string    message  ['%s' will be replaced with additional argument values]
-		 *  @param   string    replacement
-		 *  @return  function  handler
-		 */
-		function extensionError() {
-			var arg = castToArray(arguments),
-				error = arg.reduce(function(prev, current) {
-					return prev.replace('%s', current);
-				});
-
-			return function() {
-				console.error('Kontext: ' + error);
-			};
 		}
 
 		/**
@@ -273,92 +274,6 @@
 				});
 		}
 
-		/**
-		 *  Prepare models so all properties become delegates (if not already) and it becomes an emitable
-		 *  @name    prepare
-		 *  @access  internal
-		 *  @param   model
-		 *  @return  model
-		 */
-		function prepare(model) {
-			var emitter;
-
-			if (!('on' in model && 'off' in model && 'delegation')) {
-				//  replace any key with a delegate
-				eachKey(model, function(key, value) {
-					var handle;
-
-					if (!getDelegate(model, key)) {
-						handle = delegate(value, model, key);
-
-						//  add the delegated handle as both getter and setter on the model/key
-						define(model, key, true, handle, handle);
-
-						//  a change emission on a property will trigger an update on the model
-						handle.on('update', function() {
-							emitter.trigger('update', [model, key, value, model[key]]);
-						});
-					}
-
-					//  if the value is an object, we prepare it aswel so we can actually work with
-					//  scoped properties
-					if (value && typeof value === 'object' && !(value instanceof Array)) {
-						//  prepare the submodel
-						prepare(value);
-
-						//  register a handler to pass on the update events to the parent model with the key prefixed
-						value.on('update', function(parent, property, old, val) {
-							emitter.trigger('update', [model, key + '.' + property, old, val]);
-						});
-					}
-				});
-
-				//  add the emission methods
-				emitter = emitable(model);
-
-				//  add the delegation method
-				define(model, 'delegation', true, function(key) {
-					return getDelegate(model, key);
-				}, false);
-			}
-
-			return model;
-		}
-
-		/**
-		 *  Prepare a list of (possible) models
-		 *  @name    listPrepare
-		 *  @access  internal
-		 *  @param   array   list
-		 *  @param   object  config
-		 *  @param   array   subscriber
-		 */
-		function listPrepare(list, config) {
-			var proto = Array.prototype,
-				numeric = /^[0-9]+$/;
-
-			//  determine if the list has been given additional properties and delegate those
-			eachKey(list, function(key, value) {
-				var handle;
-
-				if (!(numeric.test(key) || key in proto || isDelegate(value))) {
-					handle = delegate(value, list, key);
-
-					//  add the delegated handle as both getter and setter on the list key
-					define(list, key, true, handle, handle);
-				}
-			});
-
-			//  iterator over every item in the list and ensure it is a model on its own
-			list.forEach(function(item, index) {
-				if (typeof list[index] === 'object') {
-					list[index] = prepare(item, config.model, config.key);
-					list[index].on('update', function() {
-						config.emission.trigger('update', [config.model, config.key, config.value]);
-					});
-				}
-			});
-		}
 
 		/**
 		 *  Create a delegation function, responsible for keeping track of updates, associated elements and providing the data
@@ -370,49 +285,51 @@
 		 *  @return  function  delegate
 		 */
 		function delegate(initial, model, key) {
-			var result = function(value) {
-					var change = arguments.length > 0;
+			var config, result;
 
-					//  update the value if the value argument was provided
-					if (change) {
-						config.value = value;
-					}
+			result = function(value) {
+				var change = arguments.length > 0;
 
-					//  emit the appropriate event
-					config.emission.trigger(change ? 'update' : 'access', [config.model, config.key, config.value, value]);
+				//  update the value if the value argument was provided
+				if (change) {
+					config.value = value;
+				}
 
-					return config.value;
-				},
+				//  emit the appropriate event
+				config.emission.trigger(change ? 'update' : 'access', [config.model, config.key, config.value, value]);
 
-				//  store a relevant value in an object, which can be passed on internally
-				config = {
-					emission: emitable(result),
-					element: [],
-					value: initial,
-					model: model,
-					key: key
-				};
+				return config.value;
+			};
+
+			//  store a relevant value in an object, which can be passed on internally
+			config = {
+				emission: emitable(result),
+				element: [],
+				value: initial,
+				model: model,
+				key: key
+			};
 
 			//  if we are dealing with arrays, we'd like to know about mutations
 			if (initial instanceof Array) {
-				['copyWithin', 'fill', 'pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].forEach(function(key) {
+				['copyWithin', 'fill', 'pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].forEach(function(prop) {
 					var original;
 
-					if (typeof initial[key] === 'function') {
-						original = initial[key];
-						initial[key] = function() {
-							var result = original.apply(initial, arguments);
+					if (typeof initial[prop] === 'function') {
+						original = initial[prop];
+						initial[prop] = function() {
+							var rs = original.apply(initial, arguments);
 
 							//  map the changes
-							listPrepare(initial, config);
+							listPrepare(initial, config);  //  eslint-disable-line no-use-before-define
 							config.emission.trigger('update', [config.model, config.key, config.value]);
 
-							return result;
+							return rs;
 						};
 					}
 				});
 
-				listPrepare(initial, config);
+				listPrepare(initial, config);  //  eslint-disable-line no-use-before-define
 			}
 
 			//  create the scope method, used to register the scope (model + key) for delegates created externally
@@ -508,6 +425,93 @@
 		}
 
 		/**
+		 *  Prepare models so all properties become delegates (if not already) and it becomes an emitable
+		 *  @name    prepare
+		 *  @access  internal
+		 *  @param   model
+		 *  @return  model
+		 */
+		function prepare(model) {
+			var emitter;
+
+			if (!('on' in model && 'off' in model && 'delegation')) {
+				//  replace any key with a delegate
+				eachKey(model, function(key, value) {
+					var handle;
+
+					if (!getDelegate(model, key)) {
+						handle = delegate(value, model, key);
+
+						//  add the delegated handle as both getter and setter on the model/key
+						define(model, key, true, handle, handle);
+
+						//  a change emission on a property will trigger an update on the model
+						handle.on('update', function() {
+							emitter.trigger('update', [model, key, value, model[key]]);
+						});
+					}
+
+					//  if the value is an object, we prepare it aswel so we can actually work with
+					//  scoped properties
+					if (value && typeof value === 'object' && !(value instanceof Array)) {
+						//  prepare the submodel
+						prepare(value);
+
+						//  register a handler to pass on the update events to the parent model with the key prefixed
+						value.on('update', function(parent, property, old, val) {
+							emitter.trigger('update', [model, key + '.' + property, old, val]);
+						});
+					}
+				});
+
+				//  add the emission methods
+				emitter = emitable(model);
+
+				//  add the delegation method
+				define(model, 'delegation', true, function(key) {
+					return getDelegate(model, key);
+				}, false);
+			}
+
+			return model;
+		}
+
+		/**
+		 *  Prepare a list of (possible) models
+		 *  @name    listPrepare
+		 *  @access  internal
+		 *  @param   array   list
+		 *  @param   object  config
+		 *  @param   array   subscriber
+		 */
+		function listPrepare(list, config) {
+			var proto = Array.prototype,
+				numeric = /^[0-9]+$/;
+
+			//  determine if the list has been given additional properties and delegate those
+			eachKey(list, function(key, value) {
+				var handle;
+
+				if (!(numeric.test(key) || key in proto || isDelegate(value))) {
+					handle = delegate(value, list, key);
+
+					//  add the delegated handle as both getter and setter on the list key
+					define(list, key, true, handle, handle);
+				}
+			});
+
+			//  iterator over every item in the list and ensure it is a model on its own
+			list.forEach(function(item, index) {
+				if (typeof list[index] === 'object') {
+					list[index] = prepare(item, config.model, config.key);
+					list[index].on('update', function() {
+						config.emission.trigger('update', [config.model, config.key, config.value]);
+					});
+				}
+			});
+		}
+
+		/**
 		 *  Register or obtain bindings
 		 *  @name    bindings
 		 *  @access  internal
@@ -546,8 +550,8 @@
 					})
 
 					//  narrow down the list so the returned models are unique
-					.filter(function(model, index, all) {
-						return index === all.indexOf(model);
+					.filter(function(mod, index, all) {
+						return index === all.indexOf(mod);
 					});
 			}
 		}
@@ -676,15 +680,15 @@
 
 				//  work through all data-kontext (or configured override thereof) attributes
 				//  within (inclusive) given element
-				new Attribute().find(options.attribute, element, function(target, settings) {
+				new Attribute().find(options.attribute, element, function(target, opt) {
 					//  Verify the model exists in the bindings for the current element
-					if (bindings(target).indexOf(model) < 0 || !settings) {
+					if (bindings(target).indexOf(model) < 0 || !opt) {
 						return;
 					}
 
 					//  traverse all the keys present in the attribute value, for these represent
 					//  individual extensions
-					eachKey(settings, function(key, config) {
+					eachKey(opt, function(key, config) {
 						var ext = extension(key);
 
 						ext(target, model, config, kontext);

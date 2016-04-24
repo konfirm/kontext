@@ -5,7 +5,7 @@
  *  @note     Implements a large portion of the MongoDB query syntax (detection only, not filtering is done)
  *            https://docs.mongodb.org/manual/reference/operator/query/
  */
-function /*jshint unused: false*/Condition()/*jshint unused: true*/ {
+function Condition() {  //  eslint-disable-line no-unused-vars
 	'use strict';
 
 	var condition = this,
@@ -112,8 +112,8 @@ function /*jshint unused: false*/Condition()/*jshint unused: true*/ {
 			result = end ? undefined : key;
 
 		if (part.length) {
-			each(part, function(key) {
-				model = key in model ? model[key] : false;
+			each(part, function(prop) {
+				model = prop in model ? model[prop] : false;
 
 				return model;
 			});

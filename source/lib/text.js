@@ -5,7 +5,7 @@
  *  @name     Text
  *  @package  Kontext
  */
-function /*jshint unused: false*/Text(pattern)/*jshint unused: false*/ {
+function Text(pattern) {  //  eslint-disable-line no-unused-vars
 	var text = this;
 
 	/**
@@ -89,8 +89,8 @@ function /*jshint unused: false*/Text(pattern)/*jshint unused: false*/ {
 	 *  @return  void
 	 */
 	text.placeholders = function(element, callback) {
-		placeholders(element).forEach(function(text) {
-			callback.apply(null, [text.node, text.key, text.initial]);
+		placeholders(element).forEach(function(data) {
+			callback.apply(null, [data.node, data.key, data.initial]);
 		});
 	};
 }

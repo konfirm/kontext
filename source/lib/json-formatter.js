@@ -5,7 +5,7 @@
  *  @name       JSONFormatter
  *  @package    Kontext
  */
-function /*jshint unused: false*/JSONFormatter()/*jshint unused: true*/ {
+function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 	//  Implement a Singleton pattern and allow JSONFormatter to be invoked without the `new` keyword
 	//if-included istanbul ignore next
 	if (typeof JSONFormatter.prototype.__instance !== 'undefined' || !(this instanceof JSONFormatter)) {
@@ -111,23 +111,6 @@ function /*jshint unused: false*/JSONFormatter()/*jshint unused: true*/ {
 	}
 
 	/**
-	 *  Compile the JSON-formatted string from a list of 'tokenized' data
-	 *  @name    compiler
-	 *  @access  internal
-	 *  @param   Array   list
-	 *  @return  string  JSON-formatted
-	 */
-	function compiler(list) {
-		var result = '';
-
-		while (list.length) {
-			result = nibble(result, list);
-		}
-
-		return result;
-	}
-
-	/**
 	 *  Nibble the next token from the list and handle it
 	 *  @name    nibble
 	 *  @access  internal
@@ -141,6 +124,7 @@ function /*jshint unused: false*/JSONFormatter()/*jshint unused: true*/ {
 		var token = list.shift();
 
 		switch (token) {
+
 			//  ignore whitespace outside of quoted patterns
 			case ' ':
 				break;
@@ -161,6 +145,23 @@ function /*jshint unused: false*/JSONFormatter()/*jshint unused: true*/ {
 			default:
 				result += addQuotation(token, list[0] === ':');
 				break;
+		}
+
+		return result;
+	}
+
+	/**
+	 *  Compile the JSON-formatted string from a list of 'tokenized' data
+	 *  @name    compiler
+	 *  @access  internal
+	 *  @param   Array   list
+	 *  @return  string  JSON-formatted
+	 */
+	function compiler(list) {
+		var result = '';
+
+		while (list.length) {
+			result = nibble(result, list);
 		}
 
 		return result;
