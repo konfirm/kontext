@@ -59,7 +59,8 @@ function Embed(devour, build) {
 					new Array(70).join('-'),
 					'  date: ' + new Date()
 				],
-				inc = getIncludes();
+				inc = getIncludes(),
+				total = content.length;
 
 			report(start, content.length).split(/[,\s]+/).forEach(function(unit, index) {
 				result.push((index === 0 ? '  time: ' : '  size: ') + unit);
@@ -74,11 +75,13 @@ function Embed(devour, build) {
 			if (inc.length) {
 				result.push(
 					new Array(70).join('-'),
-					' files: included ' + inc.length + ' files'
+					' included ' + inc.length + ' files'
 				);
 
 				result = result.concat(inc.map(function(file) {
 					var size = unit(file.content.length, 1024, ['bytes', 'KB', 'MB']);
+
+					total += file.content.length;
 
 					return new Array(10 - size.length).join(' ') + '+' + size + ' ' + file.name;
 				}));
@@ -87,17 +90,24 @@ function Embed(devour, build) {
 			if (dependencies.length) {
 				result.push(
 					new Array(70).join('-'),
-					' files: dependent ' + dependencies.length + ' files'
+					' dependent ' + dependencies.length + ' files'
 				);
 
 				result = result.concat(dependencies.map(function(dep) {
 					var size = unit(dep.content.length, 1024, ['bytes', 'KB', 'MB']),
 						dependant = dependsOn(dep, dependencies);
 
+					total += dep.content.length;
+
 					return new Array(10 - size.length).join(' ') + '+' + size + ' ' + dep.name +
 						(dependant.length ? ' [uses: ' + dependant.join(', ') + ']' : '');
 				}));
 			}
+
+			result = result.concat([
+				new Array(70).join('-'),
+				' total: ' + unit(total, 1024, ['bytes', 'KB', 'MB'])
+			]);
 
 			result.push(' */');
 

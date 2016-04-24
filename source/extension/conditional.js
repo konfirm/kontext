@@ -7,8 +7,6 @@
 (function(kontext) {
 	'use strict';
 
-	//@buildinfo
-
 	//@include ../lib/condition
 
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
