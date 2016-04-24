@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect*/
+/*global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
 describe('Kontext Bind', function() {
 	'use strict';
 
@@ -26,7 +26,7 @@ describe('Kontext Bind', function() {
 	});
 
 	it('binds a model multiple times, never meddles with prepared models', function(done) {
-		var model = {baz:null},
+		var model = {baz: null},
 			a, b, c, d;
 
 		a = kontext.bind(model, document.body);
@@ -56,15 +56,15 @@ describe('Kontext Bind', function() {
 			}, document.body),
 			count = 0;
 
-		model.on('update', function(model, key) {
+		model.on('update', function(mod, key) {
 			if (key === 'list') {
 				++count;
 
-				expect(model[key].length).toBe(2);
-				expect(model[key][1].hello).toBe(count === 2 ? 'planet' : 'universe');
+				expect(mod[key].length).toBe(2);
+				expect(mod[key][1].hello).toBe(count === 2 ? 'planet' : 'universe');
 
 				if (count === 1) {
-					model[key][1].hello = 'planet';
+					mod[key][1].hello = 'planet';
 				}
 				else {
 					done();
@@ -114,7 +114,7 @@ describe('Kontext Bind', function() {
 
 			element.appendChild(document.createTextNode('{sub.greet} world'));
 
-			kontext.bind({sub:{greet: 'hello'}}, element);
+			kontext.bind({sub: {greet: 'hello'}}, element);
 
 			expect(element.firstChild.data).toBe('hello');
 			expect(element.innerText).toBe('hello world');

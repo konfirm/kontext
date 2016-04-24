@@ -1,4 +1,3 @@
-/*jshint node:true*/
 'use strict';
 
 function Embed(devour, build) {

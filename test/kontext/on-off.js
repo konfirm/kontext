@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect*/
+/*global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
 describe('Kontext On-Off', function() {
 	'use strict';
 
@@ -25,6 +25,9 @@ describe('Kontext On-Off', function() {
 		done();
 	});
 
+	/**
+	 *  no-operation function
+	 */
 	function noop() {
 	}
 
@@ -42,7 +45,7 @@ describe('Kontext On-Off', function() {
 		expect(model.off('update', noop)).toEqual([noop]);
 
 		//  kontext itself emits before the model
-		kontext.on('update', function(model, key, old) {
+		kontext.on('update', function(mod, key, old) {
 			if (key === 'onoffFoo') {
 				++notes;
 				expect(old).toBe('bar');
@@ -51,15 +54,15 @@ describe('Kontext On-Off', function() {
 			}
 		});
 
-		model.on('update', function(model, key, old) {
+		model.on('update', function(mod, key, old) {
 			if (key === 'onoffFoo') {
 				++notes;
 
 				expect(notes).toBe(2);
 				expect(old).toBe('bar');
 
-				model.off('update');
-				model.onoffFoo = 'nope';
+				mod.off('update');
+				mod.onoffFoo = 'nope';
 			}
 		});
 

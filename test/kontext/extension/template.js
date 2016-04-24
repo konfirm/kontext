@@ -1,4 +1,4 @@
-/*global kontext, beforeEach, afterEach, describe, it, expect*/
+/*global kontext: true, beforeEach: true, afterEach: true, describe: true, it: true, expect: true*/
 describe('Kontext Extension Template', function() {
 	'use strict';
 

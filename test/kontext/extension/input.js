@@ -1,7 +1,10 @@
-/*global kontext, describe, it, expect*/
+/*global kontext: true, describe: true, it: true, expect: true*/
 describe('Kontext Extension Input', function() {
 	'use strict';
 
+	/**
+	 *  Trigger an event with the given name on the target
+	 */
 	function triggerEvent(target, name) {
 		var type = 'CustomEvent',
 			Evt = type in window && typeof window[type] === 'function' ? window[type] : false,
@@ -20,6 +23,9 @@ describe('Kontext Extension Input', function() {
 		}
 	}
 
+	/**
+	 *  simulate text input by triggering the input event
+	 */
 	function simulateTextInput(target, text) {
 		//  change the value
 		target.value = text;
@@ -27,6 +33,9 @@ describe('Kontext Extension Input', function() {
 		triggerEvent(target, 'input');
 	}
 
+	/**
+	 *  simulate selection input by triggering change event
+	 */
 	function simulateSelectionInput(target, index) {
 		//  change the value
 		target.selectedIndex = index;
@@ -83,7 +92,7 @@ describe('Kontext Extension Input', function() {
 					element.setAttribute('type', type);
 				}
 
-				model = kontext.bind({sub:{
+				model = kontext.bind({sub: {
 					text: 'first'
 				}}, element);
 

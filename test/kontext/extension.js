@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect, spyOn*/
+/*global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true, spyOn: true*/
 describe('Kontext Extension', function() {
 	'use strict';
 
@@ -25,6 +25,9 @@ describe('Kontext Extension', function() {
 		done();
 	});
 
+	/**
+	 * set a data-basic attribute on given element
+	 */
 	function basic(element, model, key) {
 		model.on('update', function(m, k) {
 			element.setAttribute('data-basic', m[k]);

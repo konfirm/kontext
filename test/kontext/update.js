@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect*/
+/*global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
 describe('Kontext Updates', function() {
 	'use strict';
 
@@ -31,9 +31,9 @@ describe('Kontext Updates', function() {
 					variable: 'string'
 				}, element);
 
-			model.on('update', function(model, key) {
-				expect(typeof model[key]).toBe('string');
-				expect(model[key]).toBe('1');
+			model.on('update', function(mod, key) {
+				expect(typeof mod[key]).toBe('string');
+				expect(mod[key]).toBe('1');
 
 				done();
 			});
@@ -48,9 +48,9 @@ describe('Kontext Updates', function() {
 					variable: 'string'
 				}, element);
 
-			model.on('update', function(model, key) {
-				expect(typeof model[key]).toBe('string');
-				expect(model[key]).toBe('true');
+			model.on('update', function(mod, key) {
+				expect(typeof mod[key]).toBe('string');
+				expect(mod[key]).toBe('true');
 
 				done();
 			});
@@ -65,9 +65,9 @@ describe('Kontext Updates', function() {
 					variable: 123
 				}, element);
 
-			model.on('update', function(model, key) {
-				expect(typeof model[key]).toBe('number');
-				expect(model[key]).toBe(456);
+			model.on('update', function(mod, key) {
+				expect(typeof mod[key]).toBe('number');
+				expect(mod[key]).toBe(456);
 
 				done();
 			});
@@ -82,9 +82,9 @@ describe('Kontext Updates', function() {
 					variable: true
 				}, element);
 
-			model.on('update', function(model, key) {
-				expect(typeof model[key]).toBe('boolean');
-				expect(model[key]).toBe(true);
+			model.on('update', function(mod, key) {
+				expect(typeof mod[key]).toBe('boolean');
+				expect(mod[key]).toBe(true);
 
 				done();
 			});

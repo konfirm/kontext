@@ -2,6 +2,9 @@
 describe('Observer', function() {
 	'use strict';
 
+	/**
+	 *  create a delegation function
+	 */
 	function delegate(value) {
 		return function() {
 			if (arguments.length) {
@@ -12,6 +15,9 @@ describe('Observer', function() {
 		};
 	}
 
+	/**
+	 *  runs tests on the observer
+	 */
 	function test(observer, done) {
 		var nodes = [],
 			count = 0;

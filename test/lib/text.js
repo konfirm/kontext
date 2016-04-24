@@ -1,7 +1,10 @@
-/*global kontext, Text, describe, afterEach, beforeEach, it, expect*/
+/*global kontext: true, Text: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
 describe('Text', function() {
 	'use strict';
 
+	/**
+	 *  remove all .fixture elements
+	 */
 	function clean(done) {
 		var wrapper = document.querySelectorAll('.fixture'),
 			i;

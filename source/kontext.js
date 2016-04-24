@@ -1,4 +1,4 @@
-/*global Attribute, Emission, Observer, Settings, Text*/
+/*global Attribute: true, Emission: true, Observer: true, Settings: true, Text: true*/
 /*
  *       __    Kontext (version $DEV$ - $DATE$)
  *      /\_\
@@ -20,6 +20,12 @@
 	//@include lib/text
 	//@include lib/attribute
 
+	/**
+	 *  Kontext module
+	 *  @name     Kontext
+	 *  @package  Kontext
+	 *  @return   Object Kontext
+	 */
 	function Kontext() {
 		var kontext = this,
 			settings = new Settings(),

@@ -1,26 +1,41 @@
-/*global Emission, describe, beforeEach, it, expect*/
+/*global Emission: true, describe: true, beforeEach: true, it: true, expect: true*/
 describe('Emission', function() {
 	'use strict';
 	var emission, result;
 
+	/**
+	 *  Add a foo
+	 */
 	function foo(value) {
 		result.push({type: 'foo', value: value});
 	}
 
+	/**
+	 *  Add a foo2
+	 */
 	function foo2(value) {
 		result.push({type: 'foo2', value: value});
 	}
 
+	/**
+	 *  Add a bar
+	 */
 	function bar(value) {
 		result.push({type: 'bar', value: value});
 	}
 
+	/**
+	 *  Add a bar2
+	 */
 	function bar2(value) {
 		result.push({type: 'bar2', value: value});
 
 		return false;
 	}
 
+	/**
+	 *  Add a bar3
+	 */
 	function bar3(value) {
 		result.push({type: 'bar3', value: value});
 

@@ -1,7 +1,10 @@
-/*global kontext, describe, it, expect*/
+/*global kontext: true, describe: true, it: true, expect: true*/
 describe('Kontext Extension Event', function() {
 	'use strict';
 
+	/**
+	 *  trigger a custom event on the target
+	 */
 	function triggerEvent(target, name) {
 		var type = 'CustomEvent',
 			Evt = type in window && typeof window[type] === 'function' ? window[type] : false,

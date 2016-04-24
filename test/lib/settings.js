@@ -1,4 +1,4 @@
-/*global Settings, describe, it, expect*/
+/*global Settings: true, describe: true, it: true, expect: true*/
 describe('Settings', function() {
 	'use strict';
 
@@ -17,13 +17,13 @@ describe('Settings', function() {
 				expect(method('foo')).toBe(undefined);
 				expect(method('foo', 'bar')).toBe('bar');
 				expect(method('foo')).toBe('bar');
-				expect(method()).toEqual({foo:'bar'});
+				expect(method()).toEqual({foo: 'bar'});
 			});
 
 			it('handles (object) key operations', function() {
-				expect(method()).toEqual({foo:'bar'});
+				expect(method()).toEqual({foo: 'bar'});
 
-				expect(method({foo:'baz', bar:false})).toEqual({foo:'baz', bar:false});
+				expect(method({foo: 'baz', bar: false})).toEqual({foo: 'baz', bar: false});
 				expect(method('foo')).toBe('baz');
 				expect(method('bar')).toBe(false);
 

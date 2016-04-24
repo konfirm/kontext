@@ -1,4 +1,4 @@
-/*global kontext*/
+/*global kontext: true*/
 /**
  *  Manage events from data-kontext attributes
  *  @name     Event
@@ -10,7 +10,15 @@
 kontext.extension('event', function(element, model, config) {
 	'use strict';
 
-	//  register the event handler
+	/**
+	 *  Register the event handler
+	 *  @name    register
+	 *  @access  internal
+	 *  @param   string  type
+	 *  @param   string  key
+	 *  @param   mixed   default values
+	 *  @return  void
+	 */
 	function register(type, key, defaults) {
 		element.addEventListener(type, function(event) {
 			var delegate = model.delegation(key),
@@ -33,7 +41,14 @@ kontext.extension('event', function(element, model, config) {
 		}, false);
 	}
 
-	//  process the configuration for given event type
+	/**
+	 *  Process the configuration for given event type
+	 *  @name    configure
+	 *  @access  internal
+	 *  @param   string  type
+	 *  @param   Object  settings
+	 *  @return  void
+	 */
 	function configure(type, settings) {
 		if (typeof settings === 'object') {
 			//  process both objects and arrays

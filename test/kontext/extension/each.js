@@ -1,4 +1,4 @@
-/*global kontext, describe, it, beforeEach, afterEach, expect*/
+/*global kontext: true, describe: true, it: true, beforeEach: true, afterEach: true, expect: true*/
 describe('Kontext Extension Each', function() {
 	'use strict';
 

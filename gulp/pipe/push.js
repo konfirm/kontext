@@ -1,4 +1,3 @@
-/*jshint node:true*/
 'use strict';
 
 function unit(value, step, units, dec) {

@@ -1,4 +1,4 @@
-/*global Condition, describe, it, expect*/
+/*global Condition: true, describe: true, it: true, expect: true*/
 describe('Condition', function() {
 	'use strict';
 
@@ -35,19 +35,18 @@ describe('Condition', function() {
 
 	it('throws error on not implemented', function(done) {
 		var test = [
+			//  Evaluation
+			'text', 'where',
 
-				//  Evaluation
-				'text', 'where',
+			//  Geospatial
+			'geoWithin', 'geoIntersects', 'near', 'nearSphere',
 
-				//  Geospatial
-				'geoWithin', 'geoIntersects', 'near', 'nearSphere',
+			//  Bitwise
+			'bitsAllSet', 'bitsAnySet', 'bitsAllClear', 'bitsAnyClear',
 
-				//  Bitwise
-				'bitsAllSet', 'bitsAnySet', 'bitsAllClear', 'bitsAnyClear',
-
-				//  Fantasy
-				'foo', 'bar'
-			];
+			//  Fantasy
+			'foo', 'bar'
+		];
 
 		test.forEach(function(name) {
 			var cond = {};

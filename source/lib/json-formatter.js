@@ -65,6 +65,7 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 		return pattern.trailer.test(result) ? removeTrailing(result.substr(0, result.length - 1)) : result;
 	}
 
+	//if-included istanbul ignore next
 	/**
 	 *  Handle a quoted string, ensuring proper escaping for double quoted strings
 	 *  @name    escapeQuotedInput
@@ -73,8 +74,6 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 	 *  @array   Array   list
 	 *  @return  Array   result
 	 */
-
-	//if-included istanbul ignore next
 	function escapeQuotedInput(token, list) {
 		var result = [],
 			character;
@@ -194,6 +193,7 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 		return result;
 	}
 
+	//if-included istanbul ignore next
 	/**
 	 *  Apply Object or Array notation (string.replace helper for an expression resulting in ':' or ',')
 	 *  @name    notation
@@ -202,8 +202,6 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 	 *  @param   string  matching symbol
 	 *  @return  string  wrapped
 	 */
-
-	//if-included istanbul ignore next
 	function notation(match, symbol) {
 		var character = symbol === ':' ? '{}' : '[]',
 			position = match.indexOf(symbol),

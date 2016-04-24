@@ -1,4 +1,4 @@
-/*global kontext, describe, it, expect*/
+/*global kontext: true, describe: true, it: true, expect: true*/
 describe('Kontext Extension Text', function() {
 	'use strict';
 
@@ -48,7 +48,7 @@ describe('Kontext Extension Text', function() {
 
 		element.setAttribute('data-kontext', 'text: sub.greet');
 
-		kontext.bind({sub:{greet: 'hello'}}, element);
+		kontext.bind({sub: {greet: 'hello'}}, element);
 
 		expect(element.firstChild.data).toBe('hello');
 		expect(element.firstChild.nextSibling).toBe(nest);

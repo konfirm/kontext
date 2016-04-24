@@ -1,4 +1,4 @@
-/*global kontext*/
+/*global kontext: true*/
 (function(kontext) {
 	'use strict';
 

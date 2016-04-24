@@ -1,7 +1,10 @@
-/*global kontext, describe, it, expect*/
+/*global kontext: true, describe: true, it: true, expect: true*/
 describe('Kontext Extension Conditional', function() {
 	'use strict';
 
+	/**
+	 *  prepare a model and elements which are passed on to a function
+	 */
 	function prepare(fn) {
 		var model = {
 				num: 0,

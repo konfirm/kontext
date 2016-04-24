@@ -1,4 +1,4 @@
-/*global JSONFormatter*/
+/*global JSONFormatter: true*/
 'use strict';
 
 /**

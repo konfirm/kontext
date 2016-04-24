@@ -1,4 +1,4 @@
-/*global kontext, describe, afterEach, beforeEach, it, expect*/
+/*global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
 describe('Kontext Greedy', function() {
 	'use strict';
 
@@ -26,7 +26,7 @@ describe('Kontext Greedy', function() {
 	});
 
 	it('adds properties not in model but in document by default', function(done) {
-		var model = kontext.bind({baz:null}, document.body);
+		var model = kontext.bind({baz: null}, document.body);
 
 		expect('foo' in model).toBe(true);
 		expect(model.foo).toBe('fool');
@@ -41,7 +41,7 @@ describe('Kontext Greedy', function() {
 	});
 
 	it('does not change default behavious when `null` is explicitly provided as option', function(done) {
-		var model = kontext.bind({baz:null}, document.body, null);
+		var model = kontext.bind({baz: null}, document.body, null);
 
 		expect('foo' in model).toBe(true);
 		expect('bar' in model).toBe(true);
@@ -52,7 +52,7 @@ describe('Kontext Greedy', function() {
 	});
 
 	it('respects greediness to be turned off using bind options', function(done) {
-		var model = kontext.bind({baz:null}, document.body, {greedy: false});
+		var model = kontext.bind({baz: null}, document.body, {greedy: false});
 
 		expect('foo' in model).toBe(false);
 		expect('bar' in model).toBe(false);
@@ -67,7 +67,7 @@ describe('Kontext Greedy', function() {
 
 		kontext.defaults({greedy: false});
 
-		model = kontext.bind({baz:null}, document.body);
+		model = kontext.bind({baz: null}, document.body);
 
 		expect('foo' in model).toBe(false);
 		expect('bar' in model).toBe(false);

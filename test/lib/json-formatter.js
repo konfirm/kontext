@@ -1,18 +1,18 @@
-/*global JSONFormatter, describe, it, expect*/
+/*global JSONFormatter: true, describe: true, it: true, expect:true*/
 describe('JSONFormatter', function() {
 	'use strict';
 
 	it('is a singleton', function() {
-		expect(JSONFormatter()).toBe(JSONFormatter());
-		expect(JSONFormatter()).toBe(new JSONFormatter());
-		expect(new JSONFormatter()).toBe(JSONFormatter());
+		expect(JSONFormatter()).toBe(JSONFormatter());  //  eslint-disable-line new-cap
+		expect(JSONFormatter()).toBe(new JSONFormatter());  //  eslint-disable-line new-cap
+		expect(new JSONFormatter()).toBe(JSONFormatter());  //  eslint-disable-line new-cap
 		expect(new JSONFormatter()).toBe(new JSONFormatter());
 	});
 
 	it('ignores non-string values', function() {
 		var json = new JSONFormatter();
 
-		[1, Math.PI, true, false, [], {}, [1,'a'], {a:1}].forEach(function(v) {
+		[1, Math.PI, true, false, [], {}, [1,'a'], {a: 1}].forEach(function(v) {
 			expect(json.prepare(v)).toBe('');
 			expect(json.parse(v)).toBe(null);
 		});
@@ -45,8 +45,8 @@ describe('JSONFormatter', function() {
 		var json = new JSONFormatter();
 
 		expect(json.parse('hello, world')).toEqual(['hello', 'world']);
-		expect(json.parse('hello: world')).toEqual({hello:'world'});
-		expect(json.parse('foo: bar, baz: true')).toEqual({foo:'bar', baz:true});
+		expect(json.parse('hello: world')).toEqual({hello: 'world'});
+		expect(json.parse('foo: bar, baz: true')).toEqual({foo: 'bar', baz: true});
 	});
 
 	it('is relaxed about trailing commas', function() {
@@ -56,7 +56,7 @@ describe('JSONFormatter', function() {
 		expect(json.parse('3, 4,')).toEqual([3,4]);
 
 		expect(json.prepare('hello: world,')).toBe('{"hello":"world"}');
-		expect(json.parse('hello: world,')).toEqual({hello:'world'});
+		expect(json.parse('hello: world,')).toEqual({hello: 'world'});
 	});
 
 	it('respects quoted values', function() {
@@ -79,25 +79,25 @@ describe('JSONFormatter', function() {
 		var json = new JSONFormatter();
 
 		expect(json.parse('    hello    ')).toEqual('hello');
-		expect(json.parse('    hello    :    world    ')).toEqual({hello:'world'});
+		expect(json.parse('    hello    :    world    ')).toEqual({hello: 'world'});
 	});
 
 	it('allows keywords and numbers to be used as object keys', function() {
 		var json = new JSONFormatter();
 
 		expect(json.prepare('true:true')).toBe('{"true":true}');
-		expect(json.parse('true:true')).toEqual({true:true});
+		expect(json.parse('true:true')).toEqual({true: true});
 
 		expect(json.prepare('false:false')).toBe('{"false":false}');
-		expect(json.parse('false:false')).toEqual({false:false});
+		expect(json.parse('false:false')).toEqual({false: false});
 
 		expect(json.prepare('null:null')).toBe('{"null":null}');
-		expect(json.parse('null:null')).toEqual({null:null});
+		expect(json.parse('null:null')).toEqual({null: null});
 
 		expect(json.prepare('123:456')).toBe('{"123":456}');
-		expect(json.parse('123:456')).toEqual({123:456});
+		expect(json.parse('123:456')).toEqual({123: 456});
 
 		expect(json.prepare('true: true, false: false')).toBe('{"true":true,"false":false}');
-		expect(json.parse('true: true, false: false')).toEqual({true:true,false:false});
+		expect(json.parse('true: true, false: false')).toEqual({true: true,false: false});
 	});
 });

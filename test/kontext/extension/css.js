@@ -1,4 +1,4 @@
-/*global kontext, describe, it, expect*/
+/*global kontext: true, describe: true, it: true, expect: true*/
 describe('Kontext Extension CSS', function() {
 	'use strict';
 
@@ -44,7 +44,7 @@ describe('Kontext Extension CSS', function() {
 
 		element.setAttribute('data-kontext', 'css: {first: sub.first, second: sub.second}');
 
-		model = kontext.bind({sub:{first: true, second: false}}, element);
+		model = kontext.bind({sub: {first: true, second: false}}, element);
 		expect(element.className).toContain('first');
 		expect(element.className).not.toContain('second');
 

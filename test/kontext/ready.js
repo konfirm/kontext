@@ -1,4 +1,4 @@
-/*global kontext, describe, it, expect*/
+/*global kontext: true, describe: true, it: true, expect: true*/
 
 describe('Kontext Ready', function() {
 	'use strict';

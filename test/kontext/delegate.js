@@ -1,4 +1,4 @@
-/*global kontext, describe, it, expect*/
+/*global kontext: true, describe: true, it: true, expect: true*/
 describe('Kontext Delegate', function() {
 	'use strict';
 
@@ -50,7 +50,7 @@ describe('Kontext Delegate', function() {
 			model, length;
 
 		element.appendChild(document.createTextNode('a: {a}, b: {b}, b again: {b}'));
-		model = kontext.bind({a:'first', b:'second'}, element);
+		model = kontext.bind({a: 'first', b: 'second'}, element);
 
 		length = model.delegation('a').element().length;
 		expect(length).toBe(1);

@@ -1,4 +1,4 @@
-/*global kontext*/
+/*global kontext: true*/
 /**
  *  Manage text from data-kontext attributes
  *  @name     Text

@@ -9,11 +9,25 @@
       2,
       "all"
     ],
+    "require-jsdoc": [
+        "error",
+        {
+            "require": {
+                "FunctionDeclaration": true,
+                "MethodDefinition": true,
+                "ClassDeclaration": false
+            }
+        }
+    ],
+    "brace-style": [
+        "error",
+        "stroustrup"
+    ],
     "eqeqeq": 2,
     "guard-for-in": 0,
     "wrap-iife": [
         "error",
-        "any"
+        "inside"
     ],
     "no-use-before-define": 2,
     "new-cap": 2,

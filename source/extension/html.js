@@ -1,4 +1,4 @@
-/*global kontext*/
+/*global kontext: true*/
 /**
  *  Manage html from data-kontext attributes
  *  @name	  HTML

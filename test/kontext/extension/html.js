@@ -1,4 +1,4 @@
-/*global kontext, describe, it, expect*/
+/*global kontext: true, describe: true, it: true, expect: true*/
 describe('Kontext Extension HTML', function() {
 	'use strict';
 
@@ -29,7 +29,7 @@ describe('Kontext Extension HTML', function() {
 
 		element.setAttribute('data-kontext', 'html: sub.content');
 
-		model = kontext.bind({sub:{content: '<h1>Title</h1><p>This is some text</p>'}}, element);
+		model = kontext.bind({sub: {content: '<h1>Title</h1><p>This is some text</p>'}}, element);
 
 		expect(element.children.length).toBe(2);
 		expect(element.children[0].tagName).toBe('H1');
