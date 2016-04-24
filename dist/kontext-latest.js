@@ -1,6 +1,6 @@
 /*global Attribute, Emission, Observer, Settings, Text*/
 /*
- *       __    Kontext (version 1.5.0 - 2016-04-16)
+ *       __    Kontext (version 1.5.0 - 2016-04-24)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,8 +15,8 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Sat Apr 16 2016 17:58:15 GMT+0200 (CEST)
-	 *    time: 3.10ms
+	 *    date: Sun Apr 24 2016 15:48:00 GMT+0200 (CEST)
+	 *    time: 3.02ms
 	 *    size: 39.21KB
 	 */
 
@@ -107,7 +107,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [529.96µs, 1.81KB]
+	//END INCLUDE: lib/settings [489.70µs, 1.81KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -233,7 +233,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [148.32µs, 2.88KB]
+	//END INCLUDE: lib/emission [155.05µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	/*global global*/
 	//  strict mode (already enabled)
@@ -330,7 +330,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [99.39µs, 1.98KB]
+	//END INCLUDE: lib/observer [126.59µs, 1.98KB]
 	//BEGIN INCLUDE: lib/text
 	//  strict mode (already enabled)
 
@@ -429,7 +429,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/text [131.81µs, 2.23KB]
+	//END INCLUDE: lib/text [141.27µs, 2.23KB]
 	//BEGIN INCLUDE: lib/attribute
 	/*global JSONFormatter*/
 	//  strict mode (already enabled)
@@ -692,7 +692,7 @@
 			};
 		}
 
-		//END INCLUDE: json-formatter [190.77µs, 6.41KB]
+		//END INCLUDE: json-formatter [189.53µs, 6.41KB]
 		/**
 		 *  Initializer - setting up the defaults
 		 *  @name    init
@@ -754,7 +754,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/attribute [532.34µs, 8.32KB]
+	//END INCLUDE: lib/attribute [533.77µs, 8.32KB]
 	function Kontext() {
 		var kontext = this,
 			settings = new Settings(),
@@ -1512,6 +1512,498 @@ kontext.extension('attribute', function(element, model, config) {
 			}
 		});
 });
+/*global kontext, Condition*/
+/**
+ *  Add conditional display of element based on MongoDB query syntax
+ *  @name	  Conditional
+ *  @package  Kontext
+ */
+(function(kontext) {
+	'use strict';
+
+
+	//BEGIN INCLUDE: ../lib/condition
+	/**
+	 *  Condition handler
+	 *  @name     Condition
+	 *  @package  kontext
+	 *  @note     Implements a large portion of the MongoDB query syntax (detection only, not filtering is done)
+	 *            https://docs.mongodb.org/manual/reference/operator/query/
+	 */
+	function /*jshint unused: false*/Condition()/*jshint unused: true*/ {
+		//  strict mode (already enabled)
+
+		var condition = this,
+
+			//  types (only the ones used by the Condition module itself are defined, hence 'missing' types
+			//  like T_BOOLEAN and T_FUNCTION)
+			T_ARRAY    = 'array',
+			T_NUMBER   = 'number',
+			T_OBJECT   = 'object',
+			T_STRING   = 'string',
+
+			//  patterns
+			exprStart  = /^\$(?:or|and|not|nor)$/i,
+			exprRegEx  = /^(.)(.+)\1([gimuy]+)?$/,
+
+			//  operators
+			operator = {};
+
+		/**
+		 *  Determine whether the given key matches a $-keyword (e.g. $and, $or, $not, $nor)
+		 *  @name    starter
+		 *  @access  internal
+		 *  @param   string  key
+		 *  @return  bool    is starter
+		 */
+		function starter(key) {
+			return exprStart.test(key);
+		}
+
+		/**
+		 *  Apply the function to every item in the array-ish list until (bool) false is returned or
+		 *  the end of the list is reached
+		 *  @name    each
+		 *  @access  internal
+		 *  @param   Array(-ish)  list
+		 *  @param   function     handle
+		 *  @return  void
+		 */
+		function each(list, fn) {
+			for (var i = 0, l = list.length; i < l; ++i) {
+				if (fn(list[i], i, list) === false) {
+					break;
+				}
+			}
+		}
+
+		/**
+		 *  Determine the type of the provided value and matches it against the given type (comparing the same length)
+		 *  @name    isType
+		 *  @access  internal
+		 *  @param   mixed   value
+		 *  @param   string  type
+		 *  @return  bool    is type
+		 *  @note    Differentiates between objects and arrays (an array is _never_ determined to be an object)
+		 *  @note    lowercase input is assumed
+		 */
+		function isType(value, type) {
+			var detected = typeof value;
+
+			if (detected === T_OBJECT && value instanceof Array) {
+				detected = T_ARRAY;
+			}
+
+			return detected.substr(0, type.length) === type;
+		}
+
+		/**
+		 *  Expand all accepted shorthand notations into the appropriate longhand syntax
+		 *  @name    shorthand
+		 *  @access  public
+		 *  @param   mixed   config
+		 *  @return  Object  config
+		 */
+		function shorthand(config) {
+			var normalized = {};
+
+			if (isType(config, T_STRING)) {
+				normalized[config] = {$exists: true};
+			}
+			else if (isType(config, T_ARRAY) && config.length) {
+				normalized.$and = config;
+			}
+			else if (isType(config, T_OBJECT)) {
+				each(Object.keys(config), function(key) {
+					normalized[key] = isType(config[key], T_OBJECT) || starter(key) ? config[key] : {$eq: config[key]};
+				});
+			}
+
+			return normalized;
+		}
+
+		/**
+		 *  Obtain the true value of the (potentially) scoped key
+		 *  @name    scope
+		 *  @access  internal
+		 *  @param   Object  model
+		 *  @param   mixed   key
+		 *  @return  mixed   value
+		 *  @note    A scoped key has the pattern 'path.to.nested.key'
+		 */
+		function scope(model, key) {
+			var part = isType(key, T_STRING) ? key.split('.') : [],
+				end = part.length ? part.pop() : null,
+				result = end ? undefined : key;
+
+			if (part.length) {
+				each(part, function(key) {
+					model = key in model ? model[key] : false;
+
+					return model;
+				});
+			}
+
+			return model && end in model ? model[end] : result;
+		}
+
+		/**
+		 *  Resolve the value from the model if its type does not match the given
+		 *  @name    resolve
+		 *  @access  internal
+		 *  @param   Object  model
+		 *  @param   mixed   value
+		 *  @param   string  type
+		 *  @return  mixed   value
+		 */
+		function resolve(model, value, type) {
+			var scoped;
+
+			if (type && !isType(value, type) && ((scoped = scope(model, value)) !== undefined) && isType(scoped, type)) {
+				return scoped;
+			}
+
+			return value;
+		}
+
+		/**
+		 *  Compose a function which automatically resolves the model, key, value into a
+		 *  more convenient (mixed) a, (mixed) b signature before calling the verdict function
+		 *  @name    compose
+		 *  @access  internal
+		 *  @param   string    type
+		 *  @param   function  verdict
+		 *  @return  function  composed
+		 *  @note    the composed function has the following signature: function(mixed a, mixed b),
+		 *           where `a` is obtained from the key and `b` from the value
+		 */
+		function compose(type, verdict) {
+			return function(object, key, value) {
+				var a = scope(object, key),
+					b = resolve(object, value, type || typeof a);
+
+				return a !== undefined && b !== undefined && verdict(a, b);
+			};
+		}
+
+		/**
+		 *  Invoke an operation function, if it exists
+		 *  @name    operation
+		 *  @access  internal
+		 *  @param   string  name
+		 *  @param   Object  scope  [model]
+		 *  @param   mixed   key
+		 *  @param   mixed   value
+		 *  @return  bool    verdict
+		 */
+		function operation(name, object, key, value) {
+			if (name in operator) {
+				return operator[name](object, key, value);
+			}
+
+			throw new Error('Operator "' + name + '" not implemented');
+		}
+
+		/**
+		 *  Match each property config against the model
+		 *  @name    matches
+		 *  @access  internal
+		 *  @param   string  property
+		 *  @param   Object  config
+		 *  @param   Object  model
+		 *  @return  bool    matches
+		 */
+		function matches(property, config, model) {
+			var verdict = null;
+
+			each(Object.keys(config), function(key) {
+				verdict = operation(key, model, property, config[key]);
+
+				return verdict;
+			});
+
+			return verdict;
+		}
+
+		/**
+		 *  Evaluate the configuration against the model
+		 *  @name    evaluate
+		 *  @access  internal
+		 *  @param   mixed   config
+		 *  @param   Object  model
+		 *  @return  bool    matches
+		 */
+		function evaluate(config, model) {
+			var normalized = shorthand(config),
+				verdict = false;
+
+			each(Object.keys(normalized), function(key) {
+				if (starter(key)) {
+					verdict = operation(key, model, normalized[key]);
+				}
+				else {
+					verdict = matches(key, normalized[key], model);
+				}
+
+				return verdict;
+			});
+
+			return verdict;
+		}
+
+		//  Register operators
+		operator = {
+			//  Comparison
+
+			//  equal to (uses the === operator, only exact matches)
+			//  usage:  {field: {$eq: mixed}}
+			//  short:  {field: value}
+			$eq: compose(null, function(a, b) {
+				return a === b;
+			}),
+
+			//  greater than
+			//  usage:  {field: {$gt: number}}
+			$gt: compose(T_NUMBER, function(a, b) {
+				return a > b;
+			}),
+
+			//  greater than or equal to
+			//  usage:  {field: {$gte: number}}
+			$gte: compose(T_NUMBER, function(a, b) {
+				return a >= b;
+			}),
+
+			//  less than
+			//  usage:  {field: {$lt: number}}
+			$lt: compose(T_NUMBER, function(a, b) {
+				return a < b;
+			}),
+
+			//  less than or equal to
+			//  usage:  {field: {$lte: number}}
+			$lte: compose(T_NUMBER, function(a, b) {
+				return a <= b;
+			}),
+
+			//  not equal to (uses the !== operator, only exact matches)
+			//  usage:  {field: {$ne: mixed}}
+			$ne: compose(null, function(a, b) {
+				return a !== b;
+			}),
+
+			//  in (contains)
+			//  usage:  {field: {$in: array}}
+			$in: compose(T_ARRAY, function(a, b) {
+				return b.indexOf(a) >= 0;
+			}),
+
+			//  not in (does not contain)
+			//  usage:  {field: {$nin: array}}
+			$nin: compose(T_ARRAY, function(a, b) {
+				return b.indexOf(a) < 0;
+			}),
+
+			//  Logical
+
+			//  or, does any condition match
+			//  usage:  {$or: [<condition>, ...]}
+			//  note:   {$or: <condition>} is allowed (though the syntax is more elaborate than necessary)
+			$or: function(object, list) {
+				var verdict;
+
+				each([].concat(list), function(config) {
+					verdict = evaluate(config, object);
+
+					return !verdict;
+				});
+
+				return verdict;
+			},
+
+			//  and, do all conditions match
+			//  usage:  {$and: [<condition>, ...]}
+			//  short:  [<condition>, ...]
+			//  note:   {$and: <condition>} is allowed (though the syntax is more elaborate than necessary)
+			$and: function(object, list) {
+				var verdict;
+
+				each([].concat(list), function(config) {
+					verdict = evaluate(config, object);
+
+					return verdict;
+				});
+
+				return verdict;
+			},
+
+			//  not, do none of the conditions match
+			//  usage:  {$not: [<condition>, ...]}
+			//  note:   {$not: <condition>} is allowed
+			$not: function(object, list) {
+				return !operation('$and', object, list);
+			},
+
+			//  nor, do neither of the conditions match
+			//  usage:  {$nor: [<condition>, ...]}
+			//  note:   {$nor: <condition>} is allowed (though the syntax is more elaborate than necessary)
+			$nor: function(object, list) {
+				return !operation('$or', object, list);
+			},
+
+			//  Element
+
+			//  exists, test the existance of the field
+			//  usage:  {field: {$exists: bool}}
+			//  short:  field
+			$exists: function(object, key, value) {
+				return (scope(object, key) !== undefined) === resolve(object, value);
+			},
+
+			//  type, does the field match the given type
+			//  usage:  {field: {$type: string type}}
+			//  note:   Valid types are: array, boolean, function, number, object, string.
+			//          These may be abbreviated (e.g. boolean > bool, b)
+			$type: function(object, key, value) {
+				return isType(scope(object, key), value.toLowerCase());
+			},
+
+			//  Evaluation
+
+			//  modulo
+			//  usage:  {field: {$mod: [int divisor, int remainder]}}
+			//  short:  {field: {$mod: int divisor}}, {field: {$mod: [int divisor]}}
+			//  note:   if the remainder is omitted, it is set to 0 (no remainder)
+			$mod: compose(T_ARRAY, function(a, b) {
+				var mod = [].concat(b).concat(0);
+
+				return a % mod[0] === mod[1];
+			}),
+
+			//  regex, match the field value against a regular expression
+			//  usage:  {field: {$regex: string pattern}}
+			//  note:   enclosing characters are optional for simple patterns, though required if any flag is used
+			$regex: function(object, key, value) {
+				var a = scope(object, key),
+					b = scope(object, value) || value,
+					match = ('' + b).match(exprRegEx),
+					regex = new RegExp(match ? match[2] : value, match ? match[3] : '');
+
+				return regex.test(a);
+			},
+
+			//  NOT IMPLEMENTED
+			//$text: function(a, b) {},
+			//$where: function(a, b) {},
+
+			//  Geospatial
+
+			//  NOT IMPLEMENTED
+			//$geoWithin: function() {},
+			//$geoIntersects: function() {},
+			//$near: function() {},
+			//$nearSphere: function() {},
+
+			//  Array
+
+			//  all, does the field match all conditions
+			//  usage:  {field: {$all: [<condition>, ...]}}
+			//  TODO:  verify if {field: {<condition>, ...}} works the same as $all
+			$all: function(object, key, value) {
+				var a = scope(object, key).map(function(v) {
+						return scope(object, v);
+					}),
+
+					verdict;
+
+				each(resolve(object, value, T_ARRAY), function(find) {
+					verdict = operation('$in', object, find, a);
+
+					return verdict;
+				});
+
+				return verdict;
+			},
+
+			//  elemMatch, does the field contain any value matching all conditions
+			//  usage:  {field: {$elemMatch: {<condition>, ...}}}
+			//  NOTE:  this does not limit the array in any way
+			$elemMatch: function(object, key, value) {
+				var a = scope(object, key),
+					verdict;
+
+				each(a, function(val) {
+					verdict = matches(val, value, object);
+
+					return !verdict;
+				});
+
+				return verdict;
+			},
+
+			//  size, is the field an array of specified size
+			//  usage:  {field: {$size: number}}
+			$size: compose(T_ARRAY, function(a, b) {
+				return isType(a, T_ARRAY) && a.length === b;
+			})
+
+			//  Bitwise
+
+			//  NOT IMPLEMENTED
+			//$bitsAllSet: function() {},
+			//$bitsAnySet: function() {},
+			//$bitsAllClear: function() {},
+			//$bitsAnyClear: function() {}
+		};
+
+		/**
+		 *  Evaluate the configuration against the model
+		 *  @name    evaluate
+		 *  @access  public
+		 *  @param   mixed   config
+		 *  @param   Object  model
+		 *  @return  bool    meets condition(s)
+		 */
+		condition.evaluate = function(config, model) {
+			return config && isType(model, T_OBJECT) ? evaluate(config, model) : false;
+		};
+	}
+
+	//END INCLUDE: ../lib/condition [273.99µs, 11.28KB]
+	//  construct the Condiction module once, as it does not contain state, it can be re-used
+	var condition = new Condition();
+
+	//  Create the extension function which will be registered to Kontext
+	//  (Separate function so the condition instance can be exposed so other extensions may use it)
+	function extension(element, model, config) {
+		var anchor;
+
+		if (element.parentNode) {
+			anchor = element.parentNode.insertBefore(document.createTextNode(''), element);
+		}
+
+		function update() {
+			if (condition.evaluate(config, model)) {
+				if (!element.parentNode) {
+					anchor.parentNode.insertBefore(element, anchor);
+				}
+			}
+			else if (element.parentNode) {
+				element.parentNode.removeChild(element);
+			}
+		}
+
+		model.on('update', update);
+		update();
+	}
+
+	//  expose Condition instance
+	extension.condition = condition;
+
+	//  register the extension als 'conditional'
+	kontext.extension('conditional', extension);
+
+})(kontext);
 /*global kontext*/
 (function(kontext) {
 	'use strict';
@@ -1577,53 +2069,6 @@ kontext.extension('each', function(element, model, config) {
 		offset, state;
 
 	/**
-	 *  Initialize the extension
-	 *  @name    init
-	 *  @access  internal
-	 *  @return  void
-	 */
-	function init() {
-		var delegate = target(config),
-			attribute = kontext.defaults().attribute,
-			marker = document.createTextNode('');
-
-		if (typeof config === 'object' && self in config && config[self]) {
-			offset = {
-				start: before(marker, element),
-				end: before(marker.cloneNode(), element)
-			};
-
-			//  always remove the kontext initializer attribute from the element
-			element.removeAttribute(attribute);
-			template.push(element.parentNode.removeChild(element));
-		}
-		else {
-			//  absorb all childNodes into the template
-			while (element.firstChild) {
-				template.push(element.removeChild(element.firstChild));
-			}
-		}
-
-		delegate.on('update', function() {
-			update(delegate);
-		});
-
-		update(delegate);
-	}
-
-	/**
-	 *  Shorthand function for insertBefore operations
-	 *  @name    before
-	 *  @access  internal
-	 *  @param   DOMNode  insert
-	 *  @param   DOMNode  before
-	 *  @return  DOMNode  inserted
-	 */
-	function before(target, relative) {
-		return relative.parentNode.insertBefore(target, relative);
-	}
-
-	/**
 	 *  Obtain the configured target delegate
 	 *  @name    target
 	 *  @access  internal
@@ -1638,6 +2083,18 @@ kontext.extension('each', function(element, model, config) {
 		}
 
 		return model.delegation(result);
+	}
+
+	/**
+	 *  Shorthand function for insertBefore operations
+	 *  @name    before
+	 *  @access  internal
+	 *  @param   DOMNode  insert
+	 *  @param   DOMNode  before
+	 *  @return  DOMNode  inserted
+	 */
+	function before(target, relative) {
+		return relative.parentNode.insertBefore(target, relative);
 	}
 
 	/**
@@ -1681,6 +2138,7 @@ kontext.extension('each', function(element, model, config) {
 		var filtered = cache.filter(function(o) {
 				return o.item === value;
 			}),
+
 			result = filtered.length ? filtered[0] : null,
 			nodeList, bind;
 
@@ -1723,54 +2181,6 @@ kontext.extension('each', function(element, model, config) {
 		return a.length !== b.length || a.filter(function(value, index) {
 			return b[index] !== value;
 		}).length !== 0;
-	}
-
-	/**
-	 *  Update the internal state and trigger a redraw whenever there are differences between
-	 *  the previous and current state.
-	 *  @name    update
-	 *  @access  internal
-	 *  @param   Array  collection
-	 *  @return  void
-	 */
-	function update(delegate) {
-		var collection = refine(delegate());
-
-		//  if there is no state, of the state has changed, we update the internal state and
-		//  trigger a redraw
-		if (!state || differ(state, collection)) {
-			state = collection.slice();
-			redraw(collection, delegate);
-		}
-	}
-
-	/**
-	 *  Redraw all the submodels in the give collection
-	 *  @name    redraw
-	 *  @access  internal
-	 *  @param   Array  collection
-	 *  @return  void
-	 */
-	function redraw(collection, delegate) {
-		var output = [];
-
-		collection.forEach(function(value, index) {
-			var item = fetch(value);
-
-			item.model.$index = index;
-			if (!('$parent' in item.model) || !item.model.$parent) {
-				item.model.$parent = delegate;
-			}
-
-			output = output.concat(item.nodes);
-		});
-
-		if (offset) {
-			redrawElementSiblings(output);
-		}
-		else {
-			redrawElementChildren(output);
-		}
 	}
 
 	/**
@@ -1822,6 +2232,93 @@ kontext.extension('each', function(element, model, config) {
 			compare = compare.nextSibling;
 			rm.parentNode.removeChild(rm);
 		}
+	}
+
+	/**
+	 *  Redraw all the submodels in the give collection
+	 *  @name    redraw
+	 *  @access  internal
+	 *  @param   Array  collection
+	 *  @return  void
+	 */
+	function redraw(collection, delegate) {
+		var output = [];
+
+		collection.forEach(function(value, index) {
+			var item = fetch(value);
+
+			item.model.$index = index;
+			if (!('$parent' in item.model) || !item.model.$parent) {
+				item.model.$parent = delegate;
+			}
+
+			output = output.concat(item.nodes);
+		});
+
+		if (offset) {
+			redrawElementSiblings(output);
+		}
+		else {
+			redrawElementChildren(output);
+		}
+	}
+
+	/**
+	 *  Update the internal state and trigger a redraw whenever there are differences between
+	 *  the previous and current state.
+	 *  @name    update
+	 *  @access  internal
+	 *  @param   Array  collection
+	 *  @return  void
+	 */
+	function update(delegate) {
+		var collection = refine(delegate());
+
+		//  if there is no state, of the state has changed, we update the internal state and
+		//  trigger a redraw
+		if (!state || differ(state, collection)) {
+			state = collection.slice();
+			redraw(collection, delegate);
+		}
+	}
+
+	/**
+	 *  Initialize the extension
+	 *  @name    init
+	 *  @access  internal
+	 *  @return  void
+	 */
+	function init() {
+		var delegate = target(config),
+			attribute = kontext.defaults().attribute,
+			marker = document.createTextNode('');
+
+		if (!delegate) {
+			return;
+		}
+
+		if (typeof config === 'object' && self in config && config[self]) {
+			offset = {
+				start: before(marker, element),
+				end: before(marker.cloneNode(), element)
+			};
+
+			//  always remove the kontext initializer attribute from the element
+			element.removeAttribute(attribute);
+			template.push(element.parentNode.removeChild(element));
+		}
+		else {
+			//  absorb all childNodes into the template
+			while (element.firstChild) {
+				template.push(element.removeChild(element.firstChild));
+			}
+		}
+
+		delegate.on('update', function() {
+			update(delegate);
+		});
+
+		update(delegate);
 	}
 
 	init();

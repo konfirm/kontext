@@ -1,5 +1,13 @@
 # Release notes
 
+## _CURRENT MASTER_ (not represented in the dist folder!)
+- Added `conditional`-extension (don't worry, abbreviations still work)
+
+### Statistics
+- Full size: 78K (+12.9K), gzipped: 20.1K
+- Minified size: 18K (+2.6K), gzipped: 6.4K
+
+
 ## 1.5.0
 - `event` can now fall back onto a global event handler if the provided handler is not in the model.
 - `each` can now use the defining node as template, reducing the nesting of dom elements slightly (note: this does not decrease the total amount of DOMNodes),
