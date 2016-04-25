@@ -251,8 +251,8 @@
 			//  kontext itself can (and will) emit update 'events' when models are updated
 			//  therefor we subscribe to model updates and re-send them
 			if (typeof model === 'object') {
-				model.on('update', function() {
-					emission.trigger('update', castToArray(arguments));
+				model.on('update', function(mod, key, prior, current) {
+					emission.trigger('update', [mod, key, prior, current]);
 				});
 			}
 
@@ -295,7 +295,7 @@
 
 			result = function(value) {
 				var change = arguments.length > 0,
-					previous = config.value;
+					prior = config.value;
 
 				//  update the value if the value argument was provided
 				if (change) {
@@ -305,7 +305,7 @@
 				//  emit the appropriate event
 				config.emission.trigger(
 					change ? 'update' : 'access',
-					[config.model, config.key, previous, config.value]
+					[model, key, prior, config.value]
 				);
 
 				return config.value;
@@ -332,7 +332,7 @@
 
 							//  map the changes
 							listPrepare(initial, config);  //  eslint-disable-line no-use-before-define
-							config.emission.trigger('update', [config.model, config.key, config.value]);
+							config.emission.trigger('update', [model, key, config.value]);
 
 							return rs;
 						};
@@ -456,8 +456,8 @@
 						define(model, key, true, handle, handle);
 
 						//  a change emission on a property will trigger an update on the model
-						handle.on('update', function() {
-							emitter.trigger('update', castToArray(arguments));
+						handle.on('update', function(m, k, prior, current) {
+							emitter.trigger('update', [model, key, prior, current]);
 						});
 					}
 
@@ -469,8 +469,8 @@
 
 						//  register a handler to pass on the update events to the parent model
 						//  with the key prefixed
-						value.on('update', function(parent, property, previous, current) {
-							emitter.trigger('update', [model, key + '.' + property, previous, current]);
+						value.on('update', function(parent, property, prior, current) {
+							emitter.trigger('update', [model, key + '.' + property, prior, current]);
 						});
 					}
 				});

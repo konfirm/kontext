@@ -14,6 +14,9 @@
 
 	//  Create the extension function which will be registered to Kontext
 	//  (Separate function so the condition instance can be exposed so other extensions may use it)
+
+	/**
+	 */
 	function extension(element, model, config) {
 		var anchor;
 
@@ -21,6 +24,8 @@
 			anchor = element.parentNode.insertBefore(document.createTextNode(''), element);
 		}
 
+		/**
+		 */
 		function update() {
 			if (condition.evaluate(config, model)) {
 				if (!element.parentNode) {
