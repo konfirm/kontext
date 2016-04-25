@@ -2,16 +2,14 @@
 describe('Kontext Defaults', function() {
 	'use strict';
 
-	it('defaults contain.. defaults', function(done) {
+	it('defaults contain.. defaults', function() {
 		var a = kontext.defaults();
 
 		expect(a.greedy).toBe(true);
 		expect(a.attribute).toBe('data-kontext');
-
-		done();
 	});
 
-	it('defaults can be changed, reflected in all referenced defaults', function(done) {
+	it('defaults can be changed, reflected in all referenced defaults', function() {
 		var a = kontext.defaults();
 
 		expect(a.greedy).toBe(true);
@@ -24,16 +22,12 @@ describe('Kontext Defaults', function() {
 		kontext.defaults({greedy: true});
 		expect(a.greedy).toBe(true);
 		expect(kontext.defaults().greedy).toBe(true);
-
-		done();
 	});
 
-	it('prefers object types', function(done) {
+	it('prefers object types', function() {
 		kontext.defaults({a: {b: {c: 1}}});
 		kontext.defaults({a: {b: {d: 2}}});
 
 		expect(kontext.defaults().a.b).toEqual({c: 1, d: 2});
-
-		done();
 	});
 });

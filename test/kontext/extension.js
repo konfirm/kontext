@@ -36,7 +36,7 @@ describe('Kontext Extension', function() {
 		element.setAttribute('data-basic', model[key]);
 	}
 
-	it('informs about unknown extensions', function(done) {
+	it('informs about unknown extensions', function() {
 		var unknown = kontext.extension('unknown');
 
 		spyOn(console, 'error');
@@ -45,11 +45,9 @@ describe('Kontext Extension', function() {
 
 		expect(console.error).toHaveBeenCalled();
 		expect(console.error).toHaveBeenCalledWith('Kontext: Unknown extension "unknown"');
-
-		done();
 	});
 
-	it('default allows for abbreviated extension names', function(done) {
+	it('default allows for abbreviated extension names', function() {
 		var a = kontext.extension('attribute'),
 			b = kontext.extension('attr'),
 			c = kontext.extension('at'),
@@ -59,11 +57,9 @@ describe('Kontext Extension', function() {
 		expect(b).toBe(c);
 		expect(c).toBe(d);
 		expect(d).toBe(a);
-
-		done();
 	});
 
-	it('turn off abbreviated extension names', function(done) {
+	it('turn off abbreviated extension names', function() {
 		var attr;
 
 		kontext.defaults('abbreviateExtensions', false);
@@ -79,11 +75,9 @@ describe('Kontext Extension', function() {
 
 		//  bring back the defaults
 		kontext.defaults('abbreviateExtensions', true);
-
-		done();
 	});
 
-	it('triggers an error if an abbreviated extension name leads to multiple options', function(done) {
+	it('triggers an error if an abbreviated extension name leads to multiple options', function() {
 		var ambiguous = kontext.extension('e'),
 			event = kontext.extension('ev'),
 			each = kontext.extension('ea');
@@ -95,8 +89,6 @@ describe('Kontext Extension', function() {
 		expect(console.error).toHaveBeenCalledWith('Kontext: Multiple extensions match "e": each,event');
 
 		expect(event).not.toBe(each);
-
-		done();
 	});
 
 	it('registers custom handlers', function(done) {

@@ -8,7 +8,7 @@ describe('Kontext Extension Conditional', function() {
 	function prepare(fn) {
 		var model = {
 				num: 0,
-				arr: [],
+				arr: [2, 4],
 				str: 'hello',
 				path: {
 					to: {
@@ -22,721 +22,188 @@ describe('Kontext Extension Conditional', function() {
 		fn(model, element, main);
 	}
 
+	function runner(name, cond, no, yes, conditioner) {
+		var first = true,
+			ready = false;
+
+		prepare(function(model, element, main) {
+			it(name, function(done) {
+				element.setAttribute('data-kontext', conditioner(cond));
+				kontext.bind(model, main);
+
+				model.on('update', function() {
+					// console.log(name, model.num, element.parentNode);
+
+					if (ready) {
+						return console.log('MODEL.UPDATE after ready');
+					}
+
+					if (first) {
+						first = false;
+						expect(element.parentNode).toBe(null);
+
+						if (typeof yes === 'function') {
+							yes(model);
+						}
+						else {
+							model.num = yes;
+						}
+					}
+					else {
+						expect(element.parentNode).toBe(main);
+						ready = true;
+						done();
+					}
+				});
+
+				if (no === null) {
+					expect(element.parentNode).toBe(yes ? main : null);
+					done();
+				}
+				else if (typeof no === 'function') {
+					no(model);
+				}
+				else {
+					model.num = no;
+				}
+			});
+		});
+	}
+
+	function elaborate(name, cond, no, yes) {
+		return runner(name, cond, no, yes, function(cond) {
+			return 'conditional: ' + cond;
+		});
+	}
+
+	function comparison(name, cond, no, yes) {
+		return runner(name, cond, no, yes, function(cond) {
+			return 'conditional: {num: ' + cond + '}';
+		});
+	}
+
 	describe('adds/changes/removes itself', function() {
-		it('$eq', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$eq: 3}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num === 3 ? main : null);
+		describe('comparison', function() {
+			comparison('$eq', '{$eq: 3}', 2, 3);
+			comparison('$eq (short)', '7', 6, 7);
 
-					if (model.num === 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
+			comparison('$lt', '{$lt: 3}', 3, 2);
+			comparison('$lte (<)', '{$lte: 4}', 8, 1);
+			comparison('$lte (=)', '{$lte: 3}', 7, 3);
 
-				++model.num;
+			comparison('$gt', '{$gt: 3}', 3, 7);
+			comparison('$gte (>)', '{$gte: 4}', 1, 8);
+			comparison('$gte (=)', '{$gte: 7}', 2, 7);
+
+			comparison('$ne', '{$ne: 1}', 1, 2);
+
+			comparison('$in', '{$in: [1, 2]}', 4, 2);
+			comparison('$in (resolved, num change)', '{$in: arr}', 3, 2);
+			comparison('$in (resolved, arr change)', '{$in: arr}', 3, function(model) {
+				model.arr.push(3);
+			});
+
+			comparison('$nin', '{$nin: [1, 2]}', 2, 4);
+			comparison('$nin (resolved, num change)', '{$nin: arr}', 2, 3);
+			comparison('$nin (resolved, arr change)', '{$nin: arr}', 2, function(model) {
+				model.arr.shift();
 			});
 		});
 
-		it('$eq (shorthand)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: 3}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num === 3 ? main : null);
+		describe('logical', function() {
+			elaborate('$or', '{$or: [{num: 1}, {num: {$gt:2}}]}', 2, 3);
 
-					if (model.num === 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
+			elaborate('$and', '{$and: [{num: 1}, {str: {$in: [world]}}]}', 1, function(model) {
+				model.str = 'world';
+			});
 
-				++model.num;
+			elaborate('$and (short)', '[{num: 2}, {str: {$in: [hello]}}]', 1, 2);
+
+			elaborate('$not', '{$not: [{num: 1}, {str: hello}]}', 1, 2);
+
+			elaborate('$nor', '{$nor: [{num: 1}, {str: hello}]}', 2, function(model) {
+				model.str = 'world';
 			});
 		});
 
-		it('$lt', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$lt: 3}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num < 3 ? main : null);
+		describe('element', function() {
+			elaborate('$exist (short, true)', 'str', null, true);
+			elaborate('$exist (short, false)', 'foo', null, false);
 
-					if (model.num === 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
+			elaborate('$exist (scoped: short, true)', 'path.to.nested', null, true);
+			elaborate('$exist (scoped: short, false)', 'path.to.foo', null, false);
 
-				++model.num;
+			elaborate('$exist (yes, true)', '{str: {$exists: true}}', null, true);
+			elaborate('$exist (no, true)', '{foo: {$exists: false}}', null, true);
+			elaborate('$exist (no, false)', '{str: {$exists: false}}', null, false);
+			elaborate('$exist (yes, false)', '{foo: {$exists: true}}', null, false);
+
+			elaborate('$exist (scoped: yes, true)', '{path.to.nested: {$exists: true}}', null, true);
+			elaborate('$exist (scoped: no, true)', '{path.to.foo: {$exists: false}}', null, true);
+			elaborate('$exist (scoped: no, false)', '{path.to.nested: {$exists: false}}', null, false);
+			elaborate('$exist (scoped: yes, false)', '{path.foo: {$exists: true}}', null, false);
+
+			elaborate('$type (number = number)', '{num: {$type: number}}', null, true);
+			elaborate('$type (number = n)', '{num: {$type: n}}', null, true);
+
+			elaborate('$type (number != string)', '{num: {$type: string}}', null, false);
+			elaborate('$type (number != s)', '{num: {$type: s}}', null, false);
+
+			elaborate('$type (array = array)', '{arr: {$type: array}}', null, true);
+			elaborate('$type (array = a)', '{arr: {$type: a}}', null, true);
+
+			elaborate('$type (array != boolean)', '{array: {$type: boolean}}', null, false);
+			elaborate('$type (array != b)', '{array: {$type: b}}', null, false);
+		});
+
+		describe('evaluation', function() {
+			elaborate('$mod [3, 1]', '{num: {$mod: [3, 1]}}', 3, 4);
+			elaborate('$mod [5, 0]', '{num: {$mod: [5, 0]}}', 4, 5);
+			elaborate('$mod [7]', '{num: {$mod: [7]}}', 2, 14);
+			elaborate('$mod 4', '{num: {$mod: 4}}', 2, 8);
+
+			elaborate('$regex (str, ello)', '{str: {$regex: ello}}', null, true);
+			elaborate('$regex (str, ^ello)', '{str: {$regex: ^ello}}', null, false);
+			elaborate('$regex (str, ^hell)', '{str: {$regex: ^hell}}', null, true);
+			elaborate('$regex (str, /^Hel+o$/)', '{str: {$regex: /^Hel+o$/}}', null, false);
+			elaborate('$regex (str, /^Hel+o$/i)', '{str: {$regex: /^Hel+o$/i}}', null, true);
+			elaborate('$regex (num, 3)', '{num: {$regex: 3}}', 2, 3);
+		});
+
+		describe('array', function() {
+			elaborate('$all', '{arr: {$all: [1, 3, 4]}}', function(model) {
+				model.arr.push(1);
+			}, function(model) {
+				model.arr.push(3);
+			});
+
+			elaborate('$elemMatch', '{arr: {$elemMatch: {$gte: 2, $lt: 4}}}', function(model) {
+				model.arr.shift();
+			}, function(model) {
+				model.arr.push(3);
+			});
+
+			elaborate('$size', '{arr: {$size: 4}}', function(model) {
+				model.arr.push('foo');
+			}, function(model) {
+				model.arr.push('bar');
 			});
 		});
 
-		it('$lte', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$lte: 3}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num <= 3 ? main : null);
+		describe('invalid conditions', function() {
+			elaborate('null condition', 'null', null, false);
+			elaborate('number condition', '123', null, false);
 
-					if (model.num === 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
+			it('unavailable condition', function(done) {
+				prepare(function(model, element, main) {
+					element.setAttribute('data-kontext', 'conditional: {field: {$meh: false}}');
 
-				++model.num;
-			});
-		});
-
-		it('$gt', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$gt: 2}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num > 2 ? main : null);
-
-					if (model.num === 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$gte', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$gte: 2}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num >= 2 ? main : null);
-
-					if (model.num === 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$ne', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$ne: 2}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num !== 2 ? main : null);
-
-					if (model.num === 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$in', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$in: [1, 2]}}');
-				kontext.bind(model, main);
-
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num <= 2 ? main : null);
-
-					if (model.num === 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$nin', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$nin: [1, 2]}}');
-				kontext.bind(model, main);
-
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num > 2 ? main : null);
-
-					if (model.num === 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$nin (changing array)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$in: arr}}');
-				kontext.bind(model, main);
-
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.arr.indexOf(model.num) >= 0 ? main : null);
-
-					if (model.arr.length > 4) {
-						done();
-					}
-					else {
-						model.arr.push(model.arr.length);
-					}
-				});
-
-				model.arr.push(model.arr.length);
-			});
-		});
-
-		it('$or', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {$or: [{num: 1}, {num: {$gt:2}}]}');
-				kontext.bind(model, main);
-
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num === 1 || model.num > 2 ? main : null);
-
-					if (model.num > 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$and', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {$and: [{num: 1}, {str: {$in:[world]}}]}');
-				kontext.bind(model, main);
-
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num === 1 && model.str === 'world' ? main : null);
-
-					if (model.num > 4) {
-						done();
-					}
-					else if (model.num === 1 && model.str === 'hello') {
-						model.str = 'world';
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$and (shorthand)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: [{num: 2}, {str: {$in:[world]}}]');
-				kontext.bind(model, main);
-
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num === 2 && model.str === 'world' ? main : null);
-
-					if (model.num > 4) {
-						done();
-					}
-					else if (model.num === 2 && model.str === 'hello') {
-						model.str = 'world';
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$not', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {$not: [{num: 1}, {str: {$in:[world]}}]}');
-				kontext.bind(model, main);
-
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num === 1 && model.str === 'world' ? null : main);
-
-					if (model.num > 4) {
-						done();
-					}
-					else if (model.num === 1 && model.str === 'hello') {
-						model.str = 'world';
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$nor', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {$nor: [{num: 1}, {num: {$gt:2}}]}');
-				kontext.bind(model, main);
-
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num === 1 || model.num > 2 ? null : main);
-
-					if (model.num > 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$exists (must exist but does not)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {field: {$exists: true}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(null);
+					expect(function() {
+						kontext.bind(model, main);
+					}).toThrow(new Error('Operator "$meh" not implemented'));
 
 					done();
-				}, 20);
-			});
-		});
-
-		it('$exists (shorthand)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: field');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(null);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$exists (must not exist and does not)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {field: {$exists: false}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$exists (must exist and does)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$exists: true}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$exists (shorthand)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: num');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$exists (shorthand, scoped)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: path.to.nested');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$exists (must not exist but does)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$exists: false}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(null);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$type (number = number)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$type: number}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$type (number = n)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$type: n}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$type (number = string)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$type: string}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(null);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$type (array = array)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {arr: {$type: array}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$type (array = a)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {arr: {$type: a}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$type (array = bool)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {arr: {$type: bool}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(null);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$mod [3, 1]', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$mod: [3, 1]}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num % 3 === 1 ? main : null);
-
-					if (model.num > 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
 				});
-
-				++model.num;
-			});
-		});
-
-		it('$mod [3, 0]', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$mod: [3, 0]}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num % 3 === 0 ? main : null);
-
-					if (model.num > 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$mod [3] (implicit remainder 0)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$mod: [3]}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num % 3 === 0 ? main : null);
-
-					if (model.num > 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$mod 3 (no array, implicit remainder 0)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$mod: 3}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num % 3 === 0 ? main : null);
-
-					if (model.num > 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$regex (str, ello)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {str: {$regex: ello}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$regex (str, ^ello)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {str: {$regex: ^ello}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(null);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$regex (str, ^hell)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {str: {$regex: ^hell}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$regex (str, /^hel+o$/i)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {str: {$regex: /^hel+o$/i}}');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(main);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('$regex (num, 3)', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {num: {$regex: 3}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.num === 3 ? main : null);
-
-					if (model.num > 4) {
-						done();
-					}
-					else {
-						++model.num;
-					}
-				});
-
-				++model.num;
-			});
-		});
-
-		it('$all', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {arr: {$all: [1, 3, 4]}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					expect(element.parentNode).toBe(model.arr.length > 4 ? main : null);
-
-					if (model.arr.length > 6) {
-						done();
-					}
-					else {
-						model.arr.push(model.arr.length);
-					}
-				});
-
-				model.arr.push(model.arr.length);
-			});
-		});
-
-		it('$elemMatch', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {arr: {$elemMatch: {$gte: 2, $lt: 4}}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					var exp = model.arr.length >= 3 ? main : null;
-
-					expect(element.parentNode).toBe(exp);
-
-					if (model.arr.length > 6) {
-						done();
-					}
-					else {
-						model.arr.push(model.arr.length);
-					}
-				});
-
-				model.arr.push(model.arr.length);
-			});
-		});
-
-		it('$size', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {arr: {$size: 3}}');
-				kontext.bind(model, main);
-				model.on('update', function() {
-					var exp = model.arr.length === 3 ? main : null;
-
-					expect(element.parentNode).toBe(exp);
-
-					if (model.arr.length > 6) {
-						done();
-					}
-					else {
-						model.arr.push(model.arr.length);
-					}
-				});
-
-				model.arr.push(model.arr.length);
-			});
-		});
-
-		it('null as condition', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: null');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(null);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('number as condition', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: 123');
-				kontext.bind(model, main);
-
-				setTimeout(function() {
-					expect(element.parentNode).toBe(null);
-
-					done();
-				}, 20);
-			});
-		});
-
-		it('unavailable condition', function(done) {
-			prepare(function(model, element, main) {
-				element.setAttribute('data-kontext', 'conditional: {field: {$meh: false}}');
-
-				expect(function() {
-					kontext.bind(model, main);
-				}).toThrow(new Error('Operator "$meh" not implemented'));
-
-				done();
 			});
 		});
 	});

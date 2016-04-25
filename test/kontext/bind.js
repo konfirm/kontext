@@ -25,7 +25,7 @@ describe('Kontext Bind', function() {
 		done();
 	});
 
-	it('binds a model multiple times, never meddles with prepared models', function(done) {
+	it('binds a model multiple times, never meddles with prepared models', function() {
 		var model = {baz: null},
 			a, b, c, d;
 
@@ -44,8 +44,6 @@ describe('Kontext Bind', function() {
 		expect(kontext.bindings(document.body)[0]).toBe(b);
 		expect(kontext.bindings()[0]).toBe(c);
 		expect(kontext.bindings()[0]).toBe(d);
-
-		done();
 	});
 
 	it('binds arrays', function(done) {
@@ -81,7 +79,7 @@ describe('Kontext Bind', function() {
 			textNode = container.appendChild(document.createTextNode('A {foo} walks into a {bar}')),
 			model = kontext.bind({foo: 'fool', bar: 'trap'}, textNode);
 
-		model.on('update', function() {
+		model.on('update', function(mod, key, prev, cur) {
 			expect(container.innerText).toBe('A clown walks into a trap');
 
 			done();
@@ -109,7 +107,7 @@ describe('Kontext Bind', function() {
 	});
 
 	describe('placeholder syntax', function() {
-		it('supports scoped variables', function(done) {
+		it('supports scoped variables', function() {
 			var element = document.createElement('div');
 
 			element.appendChild(document.createTextNode('{sub.greet} world'));
@@ -119,8 +117,6 @@ describe('Kontext Bind', function() {
 			expect(element.firstChild.data).toBe('hello');
 			expect(element.innerText).toBe('hello world');
 			expect(element.firstChild.nodeType).toBe(3);
-
-			done();
 		});
 	});
 });

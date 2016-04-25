@@ -102,18 +102,21 @@ describe('Kontext Updates', function() {
 			delegate.on('update', function(mod, key, prev, current) {
 				expect(mod).toBe(model);
 				expect(key).toBe('num');
-				expect(prev).toBe(current - 1);
-				expect(model.num).toBe(current);
+				expect(current).toBe(model.num);
 
-				if (current >= 10) {
-					done();
+				if (model.num === 2) {
+					expect(prev).toBe(0);
+
+					model.num = 5;
 				}
 				else {
-					++model.num;
+					expect(prev).toBe(2);
+
+					done();
 				}
 			});
 
-			model.num = 1;
+			model.num = 2;
 		});
 
 		it('model', function(done) {
@@ -123,18 +126,45 @@ describe('Kontext Updates', function() {
 			model.on('update', function(mod, key, prev, current) {
 				expect(mod).toBe(model);
 				expect(key).toBe('num');
-				expect(prev).toBe(current - 1);
-				expect(model.num).toBe(current);
+				expect(current).toBe(model.num);
 
-				if (current >= 10) {
-					done();
+				if (model.num === 2) {
+					expect(prev).toBe(0);
+
+					model.num = 5;
 				}
 				else {
-					++model.num;
+					expect(prev).toBe(2);
+
+					done();
 				}
 			});
 
-			model.num = 1;
+			model.num = 2;
+		});
+
+		it('kontext', function(done) {
+			var element = document.querySelector('.fixture'),
+				model = kontext.bind({num: 0}, element);
+
+			kontext.on('update', function(mod, key, prev, current) {
+				expect(mod).toBe(model);
+				expect(key).toBe('num');
+				expect(current).toBe(model.num);
+
+				if (model.num === 2) {
+					expect(prev).toBe(0);
+
+					model.num = 5;
+				}
+				else {
+					expect(prev).toBe(2);
+
+					done();
+				}
+			});
+
+			model.num = 2;
 		});
 	});
 

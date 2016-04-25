@@ -2,7 +2,7 @@
 describe('Kontext Delegate', function() {
 	'use strict';
 
-	it('automatically creates delegates', function(done) {
+	it('automatically creates delegates', function() {
 		var model = kontext.bind({
 				foo: 'bar'
 			}, document.body),
@@ -12,11 +12,9 @@ describe('Kontext Delegate', function() {
 		expect(typeof desc.get).toBe('function');
 		expect(typeof desc.set).toBe('function');
 		expect(desc.get).toBe(desc.set);
-
-		done();
 	});
 
-	it('accepts explicit delegates and sets the scope to the model/key if not done already', function(done) {
+	it('accepts explicit delegates and sets the scope to the model/key if not done already', function() {
 		var element = document.createElement('div'),
 			model;
 
@@ -28,10 +26,9 @@ describe('Kontext Delegate', function() {
 		model.delegateFoo('baz');
 
 		expect(model.delegateFoo()).toBe('baz');
-		done();
 	});
 
-	it('provides `delegation` method on models', function(done) {
+	it('provides `delegation` method on models', function() {
 		var model = kontext.bind({foo: 'bar'}, document.createElement('div')),
 			delegate;
 
@@ -41,11 +38,9 @@ describe('Kontext Delegate', function() {
 		expect(typeof delegate).toBe('function');
 		expect(delegate('baz')).toBe('baz');
 		expect(model.foo).toBe('baz');
-
-		done();
 	});
 
-	it('can obtain a list of bound elements from a delegate', function(done) {
+	it('can obtain a list of bound elements from a delegate', function() {
 		var element = document.createElement('div'),
 			model, length;
 
@@ -57,11 +52,9 @@ describe('Kontext Delegate', function() {
 
 		length = model.delegation('b').element().length;
 		expect(length).toBe(2);
-
-		done();
 	});
 
-	it('does not meddle with implicitly created delegates', function(done) {
+	it('does not meddle with implicitly created delegates', function() {
 		var model = {
 				foo: 'bar'
 			},
@@ -84,11 +77,9 @@ describe('Kontext Delegate', function() {
 		expect(desc.get).toBe(desc.set);
 
 		expect(a).toBe(b);
-
-		done();
 	});
 
-	it('does not meddle with explicitly created delegates', function(done) {
+	it('does not meddle with explicitly created delegates', function() {
 		var model = {
 				foo: 'bar'
 			},
@@ -107,7 +98,5 @@ describe('Kontext Delegate', function() {
 		expect(desc.get).toBe(desc.set);
 
 		expect(model.bar).toBe(dlgt);
-
-		done();
 	});
 });

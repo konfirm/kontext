@@ -10,10 +10,6 @@ describe('Kontext Extension Attribute', function() {
 
 		model = kontext.bind({first: 'one', second: null}, element);
 
-		expect(element.hasAttribute('data-first')).toBe(true);
-		expect(element.getAttribute('data-first')).toBe('one');
-		expect(element.hasAttribute('data-second')).toBe(false);
-
 		model.on('update', function() {
 			expect(element.hasAttribute('data-first')).toBe(false);
 			expect(element.hasAttribute('data-second')).toBe(true);
@@ -21,6 +17,10 @@ describe('Kontext Extension Attribute', function() {
 
 			done();
 		});
+
+		expect(element.hasAttribute('data-first')).toBe(true);
+		expect(element.getAttribute('data-first')).toBe('one');
+		expect(element.hasAttribute('data-second')).toBe(false);
 
 		model.first = null;
 		model.second = 'two';
@@ -34,10 +34,6 @@ describe('Kontext Extension Attribute', function() {
 
 		model = kontext.bind({sub: {first: 'one', second: null}}, element);
 
-		expect(element.hasAttribute('data-first')).toBe(true);
-		expect(element.getAttribute('data-first')).toBe('one');
-		expect(element.hasAttribute('data-second')).toBe(false);
-
 		model.on('update', function() {
 			expect(element.hasAttribute('data-first')).toBe(false);
 			expect(element.hasAttribute('data-second')).toBe(true);
@@ -45,6 +41,10 @@ describe('Kontext Extension Attribute', function() {
 
 			done();
 		});
+
+		expect(element.hasAttribute('data-first')).toBe(true);
+		expect(element.getAttribute('data-first')).toBe('one');
+		expect(element.hasAttribute('data-second')).toBe(false);
 
 		model.sub.first = null;
 		model.sub.second = 'two';
