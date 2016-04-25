@@ -93,33 +93,49 @@ describe('Kontext Updates', function() {
 		});
 	});
 
-	it('sends the previous value in updates', function(done) {
-		var element = document.querySelector('.fixture'),
-			model = kontext.bind({num: 0}, element),
-			delegate = model.delegation('num');
+	describe('sends the previous value in updates', function() {
+		it('delegate', function(done) {
+			var element = document.querySelector('.fixture'),
+				model = kontext.bind({num: 0}, element),
+				delegate = model.delegation('num');
 
-		delegate.on('update', function(mod, key, prev, current) {
-			expect(mod).toBe(model);
-			expect(key).toBe('num');
-			expect(prev).toBe(current - 1);
-			expect(model.num).toBe(current);
+			delegate.on('update', function(mod, key, prev, current) {
+				expect(mod).toBe(model);
+				expect(key).toBe('num');
+				expect(prev).toBe(current - 1);
+				expect(model.num).toBe(current);
+
+				if (current >= 10) {
+					done();
+				}
+				else {
+					++model.num;
+				}
+			});
+
+			model.num = 1;
 		});
 
-		model.on('update', function(mod, key, prev, current) {
-			expect(mod).toBe(model);
-			expect(key).toBe('num');
-			expect(prev).toBe(current - 1);
-			expect(model.num).toBe(current);
+		it('model', function(done) {
+			var element = document.querySelector('.fixture'),
+				model = kontext.bind({num: 0}, element);
 
-			if (current >= 10) {
-				done();
-			}
-			else {
-				++model.num;
-			}
+			model.on('update', function(mod, key, prev, current) {
+				expect(mod).toBe(model);
+				expect(key).toBe('num');
+				expect(prev).toBe(current - 1);
+				expect(model.num).toBe(current);
+
+				if (current >= 10) {
+					done();
+				}
+				else {
+					++model.num;
+				}
+			});
+
+			model.num = 1;
 		});
-
-		model.num = 1;
 	});
 
 	it('triggers the access event', function(done) {
