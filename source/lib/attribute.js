@@ -55,6 +55,35 @@ function Attribute() {  //  eslint-disable-line no-unused-vars
 	}
 
 	/**
+	 *  Verify whether the target resides in the element (regardless of its type)
+	 *  @name    contains
+	 *  @access  internal
+	 *  @param   DOMNode  element
+	 *  @param   DOMNode  target
+	 *  @return  bool  contains
+	 */
+	function contains(element, target) {
+		var i;
+
+		switch (element.nodeType) {
+			case 1:  //  DOMElement
+				return element.contains(target);
+
+			case 9:  //  DOMDocument
+				return element.body.contains(target);
+
+			case 11:  //  DocumentFragment
+				for (i = 0; i < element.childNodes.length; ++i) {
+					if (contains(element.childNodes[i], target)) {
+						return true;
+					}
+				}
+		}
+
+		return false;
+	}
+
+	/**
 	 *  Search for elements containing the specificed attribute within the given element,
 	 *  invoking the callback with the matching element and the JSON parsed contents
 	 *  @name    find
@@ -67,7 +96,11 @@ function Attribute() {  //  eslint-disable-line no-unused-vars
 	attribute.find = function(name, element, callback) {
 		attributes(name, element)
 			.forEach(function(node) {
-				callback(node, json.parse(node.getAttribute(name)));
+				var options = contains(element, node) ? json.parse(node.getAttribute(name)) : null;
+
+				if (options) {
+					callback(node, options);
+				}
 			});
 	};
 

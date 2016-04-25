@@ -691,12 +691,8 @@
 
 				//  work through all data-kontext (or configured override thereof) attributes
 				//  within (inclusive) given element
+				//  Attribute.find will do the filtering of unparsable/unavailable target
 				new Attribute().find(options.attribute, element, function(target, opt) {
-					//  Verify the model exists in the bindings for the current element
-					if (bindings(target).indexOf(model) < 0 || !opt) {
-						return;
-					}
-
 					//  traverse all the keys present in the attribute value, for these represent
 					//  individual extensions
 					eachKey(opt, function(key, config) {
