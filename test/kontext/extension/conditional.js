@@ -22,6 +22,9 @@ describe('Kontext Extension Conditional', function() {
 		fn(model, element, main);
 	}
 
+	/**
+	 * create a very isolated test
+	 */
 	function runner(name, cond, no, yes, conditioner) {
 		var first = true,
 			ready = false;
@@ -70,15 +73,21 @@ describe('Kontext Extension Conditional', function() {
 		});
 	}
 
+	/**
+	 *  create a runner whose condition is used in full for the data-kontext="conditional: .."
+	 */
 	function elaborate(name, cond, no, yes) {
-		return runner(name, cond, no, yes, function(cond) {
-			return 'conditional: ' + cond;
+		return runner(name, cond, no, yes, function(c) {
+			return 'conditional: ' + c;
 		});
 	}
 
+	/**
+	 *  create a runner whose condition is wrapped with {num: <cond>} for the data-kontext="conditional: .."
+	 */
 	function comparison(name, cond, no, yes) {
-		return runner(name, cond, no, yes, function(cond) {
-			return 'conditional: {num: ' + cond + '}';
+		return runner(name, cond, no, yes, function(c) {
+			return 'conditional: {num: ' + c + '}';
 		});
 	}
 

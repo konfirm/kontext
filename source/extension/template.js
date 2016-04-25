@@ -1,4 +1,4 @@
-/*global kontext: true*/
+/*global kontext: true, Template: true*/
 (function(kontext) {
 	'use strict';
 

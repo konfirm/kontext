@@ -79,7 +79,7 @@ describe('Kontext Bind', function() {
 			textNode = container.appendChild(document.createTextNode('A {foo} walks into a {bar}')),
 			model = kontext.bind({foo: 'fool', bar: 'trap'}, textNode);
 
-		model.on('update', function(mod, key, prev, cur) {
+		model.on('update', function() {
 			expect(container.innerText).toBe('A clown walks into a trap');
 
 			done();

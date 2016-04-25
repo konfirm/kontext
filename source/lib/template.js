@@ -4,7 +4,7 @@
  *  @package  Kontext
  *  @note     The Template module uses the singleton pattern to ensure the caching is per page
  */
-function Template() {
+function Template() {  //  eslint-disable-line no-unused-vars
 	var template = this,
 		cache = {};
 
