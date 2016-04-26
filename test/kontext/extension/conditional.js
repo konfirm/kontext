@@ -35,8 +35,6 @@ describe('Kontext Extension Conditional', function() {
 				kontext.bind(model, main);
 
 				model.on('update', function() {
-					// console.log(name, model.num, element.parentNode);
-
 					if (ready) {
 						return console.log('MODEL.UPDATE after ready');
 					}
@@ -213,6 +211,45 @@ describe('Kontext Extension Conditional', function() {
 
 					done();
 				});
+			});
+		});
+
+		it('works with nested conditions', function(done) {
+			prepare(function(model, element, main) {
+				var nest = element.appendChild(document.createElement('div'));
+
+				element.setAttribute('data-kontext', 'conditional: {num: {$gt: 1}}, text: num');
+				nest.setAttribute('data-kontext', 'conditional: {num: 8}, text: num');
+
+				kontext.bind(model, main);
+
+				model.on('update', function() {
+					setTimeout(function() {
+						if (model.num === 1) {
+							expect(element.parentNode).toBe(null);
+							expect(nest.parentNode).toBe(null);
+							expect(main.innerText).toBe('');
+
+							model.num = 4;
+						}
+						else if (model.num === 4) {
+							expect(element.parentNode).toBe(main);
+							expect(nest.parentNode).toBe(null);
+							expect(main.innerText).toBe('4');
+
+							model.num = 8;
+						}
+						else if (model.num === 8) {
+							expect(element.parentNode).toBe(main);
+							expect(nest.parentNode).toBe(element);
+							expect(main.innerText).toBe('88');
+
+							done();
+						}
+					}, 20);
+				});
+
+				model.num = 1;
 			});
 		});
 	});
