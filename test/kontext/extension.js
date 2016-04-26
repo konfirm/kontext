@@ -98,19 +98,20 @@ describe('Kontext Extension', function() {
 		kontext.extension('basic', basic);
 
 		model = kontext.bind({
-			foo: 'bar'
+			foo: 'initial'
 		}, document.body);
 
 		model.on('update', function() {
-			expect(list[0].getAttribute('data-basic')).toBe('baz');
-
-			done();
+			if (model.foo === 'bar') {
+				expect(list[0].getAttribute('data-basic')).toBe('bar');
+				model.foo = 'baz';
+			}
+			else {
+				expect(list[0].getAttribute('data-basic')).toBe('baz');
+				done();
+			}
 		});
 
-		setTimeout(function() {
-			expect(list[0].getAttribute('data-basic')).toBe('bar');
-
-			model.foo = 'baz';
-		}, 60);
+		model.foo = 'bar';
 	});
 });

@@ -19,7 +19,7 @@ describe('Condition', function() {
 			r: '/^[0-9\.-]+$/i'
 		};
 
-	it('does not trip on unexpected/empty config', function(done) {
+	it('does not trip on unexpected/empty config', function() {
 		expect(condition.evaluate(null, model)).toBe(false);
 		expect(condition.evaluate(undefined, model)).toBe(false);
 		expect(condition.evaluate(1, model)).toBe(false);
@@ -29,11 +29,9 @@ describe('Condition', function() {
 		expect(condition.evaluate([], model)).toBe(false);
 		expect(condition.evaluate(true, model)).toBe(false);
 		expect(condition.evaluate(false, model)).toBe(false);
-
-		done();
 	});
 
-	it('throws error on not implemented', function(done) {
+	it('throws error on not implemented', function() {
 		var test = [
 			//  Evaluation
 			'text', 'where',
@@ -56,11 +54,9 @@ describe('Condition', function() {
 				condition.evaluate({field: cond}, model);
 			}).toThrow(new Error('Operator "$' + name + '" not implemented'));
 		});
-
-		done();
 	});
 
-	it('$eq', function(done) {
+	it('$eq', function() {
 		expect(condition.evaluate({a: {$eq: 2}}, model)).toBe(false);
 		expect(condition.evaluate({a: {$eq: 3}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$eq: 'b'}}, model)).toBe(false);
@@ -68,32 +64,26 @@ describe('Condition', function() {
 		expect(condition.evaluate({a: {$eq: 'i'}}, model)).toBe(true);
 		expect(condition.evaluate({'c.d': {$eq: 'i'}}, model)).toBe(false);
 		expect(condition.evaluate({'c.zz': {$eq: 'i'}}, model)).toBe(false);
-
-		done();
 	});
 
-	it('$eq (shorthand)', function(done) {
+	it('$eq (shorthand)', function() {
 		expect(condition.evaluate({a: 2}, model)).toBe(false);
 		expect(condition.evaluate({a: 3}, model)).toBe(true);
 		expect(condition.evaluate({a: 'b'}, model)).toBe(false);
 		expect(condition.evaluate({a: 'i'}, model)).toBe(true);
 		expect(condition.evaluate({a: 'c.d'}, model)).toBe(false);
-
-		done();
 	});
 
-	it('$lt', function(done) {
+	it('$lt', function() {
 		expect(condition.evaluate({a: {$lt: 2}}, model)).toBe(false);
 		expect(condition.evaluate({a: {$lt: 3}}, model)).toBe(false);
 		expect(condition.evaluate({a: {$lt: 4}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$lt: 'b'}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$lt: 'i'}}, model)).toBe(false);
 		expect(condition.evaluate({a: {$lt: 'c.d'}}, model)).toBe(true);
-
-		done();
 	});
 
-	it('$lte', function(done) {
+	it('$lte', function() {
 		expect(condition.evaluate({a: {$lte: 2}}, model)).toBe(false);
 		expect(condition.evaluate({a: {$lte: 3}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$lte: 4}}, model)).toBe(true);
@@ -101,43 +91,35 @@ describe('Condition', function() {
 		expect(condition.evaluate({a: {$lte: 'i'}}, model)).toBe(true);
 		expect(condition.evaluate({'c.d': {$lte: 'c.e'}}, model)).toBe(true);
 		expect(condition.evaluate({'c.e': {$lte: 'c.d'}}, model)).toBe(false);
-
-		done();
 	});
 
-	it('$ne', function(done) {
+	it('$ne', function() {
 		expect(condition.evaluate({a: {$ne: 2}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$ne: 3}}, model)).toBe(false);
 		expect(condition.evaluate({a: {$ne: 'b'}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$ne: 'i'}}, model)).toBe(false);
 		expect(condition.evaluate({'c.d': {$ne: 'i'}}, model)).toBe(true);
-
-		done();
 	});
 
-	it('$in', function(done) {
+	it('$in', function() {
 		expect(condition.evaluate({a: {$in: [2, 3, 4]}}, model)).toBe(true);
 		expect(condition.evaluate({b: {$in: [2, 3, 4]}}, model)).toBe(false);
 		expect(condition.evaluate({'c.d': {$in: [2, 3, 4]}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$in: 'f'}}, model)).toBe(true);
 		expect(condition.evaluate({b: {$in: 'f'}}, model)).toBe(true);
 		expect(condition.evaluate({'c.d': {$in: 'f'}}, model)).toBe(true);
-
-		done();
 	});
 
-	it('$nin', function(done) {
+	it('$nin', function() {
 		expect(condition.evaluate({a: {$nin: [2, 3, 4]}}, model)).toBe(false);
 		expect(condition.evaluate({b: {$nin: [2, 3, 4]}}, model)).toBe(true);
 		expect(condition.evaluate({'c.d': {$nin: [2, 3, 4]}}, model)).toBe(false);
 		expect(condition.evaluate({a: {$nin: 'f'}}, model)).toBe(false);
 		expect(condition.evaluate({b: {$nin: 'f'}}, model)).toBe(false);
 		expect(condition.evaluate({'c.d': {$nin: 'f'}}, model)).toBe(false);
-
-		done();
 	});
 
-	it('$exists', function(done) {
+	it('$exists', function() {
 		expect(condition.evaluate({a: {$exists: true}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$exists: false}}, model)).toBe(false);
 		expect(condition.evaluate({zz: {$exists: true}}, model)).toBe(false);
@@ -146,20 +128,16 @@ describe('Condition', function() {
 		expect(condition.evaluate({'c.d': {$exists: false}}, model)).toBe(false);
 		expect(condition.evaluate({'c.zz': {$exists: true}}, model)).toBe(false);
 		expect(condition.evaluate({'c.zz': {$exists: false}}, model)).toBe(true);
-
-		done();
 	});
 
-	it('$exists (shorthand)', function(done) {
+	it('$exists (shorthand)', function() {
 		expect(condition.evaluate('a', model)).toBe(true);
 		expect(condition.evaluate('zz', model)).toBe(false);
 		expect(condition.evaluate('c.d', model)).toBe(true);
 		expect(condition.evaluate('c.zz', model)).toBe(false);
-
-		done();
 	});
 
-	it('$type', function(done) {
+	it('$type', function() {
 		expect(condition.evaluate({a: {$type: 'number'}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$type: 'numb'}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$type: 'n'}}, model)).toBe(true);
@@ -187,11 +165,9 @@ describe('Condition', function() {
 		expect(condition.evaluate({k: {$type: 'boolean'}}, model)).toBe(true);
 		expect(condition.evaluate({k: {$type: 'bool'}}, model)).toBe(true);
 		expect(condition.evaluate({k: {$type: 'b'}}, model)).toBe(true);
-
-		done();
 	});
 
-	it('$all', function(done) {
+	it('$all', function() {
 		expect(condition.evaluate({f: {$all: [1, 2, 3]}}, model)).toBe(false);
 		expect(condition.evaluate({f: {$all: [2, 3, 4]}}, model)).toBe(false);
 		expect(condition.evaluate({f: {$all: [3, 4, 5]}}, model)).toBe(true);
@@ -205,29 +181,23 @@ describe('Condition', function() {
 		expect(condition.evaluate({g: {$all: [3, 6]}}, model)).toBe(false);
 		expect(condition.evaluate({g: {$all: [3, 7]}}, model)).toBe(true);
 		expect(condition.evaluate({g: {$all: ['a', 7]}}, model)).toBe(true);
-
-		done();
 	});
 
-	it('$elemMatch', function(done) {
+	it('$elemMatch', function() {
 		expect(condition.evaluate({f: {$elemMatch: {$gte: 2, $lt: 4}}}, model)).toBe(true);
 		expect(condition.evaluate({f: {$elemMatch: {$gt: 7, $lt: 10}}}, model)).toBe(false);
 		expect(condition.evaluate({g: {$elemMatch: {$gte: 3, $lt: 6}}}, model)).toBe(true);
 		expect(condition.evaluate({g: {$elemMatch: {$gte: 6, $lt: 10}}}, model)).toBe(true);
 		expect(condition.evaluate({g: {$elemMatch: {$gt: 7, $lt: 10}}}, model)).toBe(false);
-
-		done();
 	});
 
-	it('$size', function(done) {
+	it('$size', function() {
 		expect(condition.evaluate({g: {$size: 1}}, model)).toBe(false);
 		expect(condition.evaluate({g: {$size: 2}}, model)).toBe(true);
 		expect(condition.evaluate({g: {$size: 3}}, model)).toBe(false);
-
-		done();
 	});
 
-	it('$mod', function(done) {
+	it('$mod', function() {
 		expect(condition.evaluate({a: {$mod: 2}}, model)).toBe(false);
 		expect(condition.evaluate({a: {$mod: 3}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$mod: [2]}}, model)).toBe(false);
@@ -238,11 +208,9 @@ describe('Condition', function() {
 		expect(condition.evaluate({a: {$mod: [3, 1]}}, model)).toBe(false);
 		expect(condition.evaluate({'c.d': {$mod: [3, 1]}}, model)).toBe(true);
 		expect(condition.evaluate({'c.d': {$mod: [4, 0]}}, model)).toBe(true);
-
-		done();
 	});
 
-	it('$regex', function(done) {
+	it('$regex', function() {
 		expect(condition.evaluate({a: {$regex: 3}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$regex: '[0-9]+'}}, model)).toBe(true);
 		expect(condition.evaluate({a: {$regex: '/[0-9]+/'}}, model)).toBe(true);
@@ -260,57 +228,45 @@ describe('Condition', function() {
 		expect(condition.evaluate({h: {$regex: 'world'}}, model)).toBe(true);
 		expect(condition.evaluate({h: {$regex: '^world'}}, model)).toBe(false);
 		expect(condition.evaluate({h: {$regex: 'world$'}}, model)).toBe(true);
-
-		done();
 	});
 
-	it('$or', function(done) {
+	it('$or', function() {
 		expect(condition.evaluate({$or: [{b: {$eq: 3}}, {b: {$eq: 7}}]}, model)).toBe(true);
 		expect(condition.evaluate({$or: [{a: {$eq: 3}}, {a: {$eq: 7}}]}, model)).toBe(true);
 		expect(condition.evaluate({$or: [{a: {$eq: 1}}, {a: {$eq: 2}}]}, model)).toBe(false);
-
-		done();
 	});
 
-	it('$and', function(done) {
+	it('$and', function() {
 		expect(condition.evaluate({$and: {a: {$eq: 3}}}, model)).toBe(true);
 		expect(condition.evaluate({$and: {a: 3}}, model)).toBe(true);
 		expect(condition.evaluate({$and: [{a: {$eq: 3}}, {a: {$eq: 7}}]}, model)).toBe(false);
 		expect(condition.evaluate({$and: [{b: {$eq: 3}}, {b: {$eq: 7}}]}, model)).toBe(false);
 		expect(condition.evaluate({$and: [{b: {$eq: 3}}, {a: {$eq: 7}}]}, model)).toBe(false);
 		expect(condition.evaluate({$and: [{a: {$eq: 3}}, {b: {$eq: 7}}]}, model)).toBe(true);
-
-		done();
 	});
 
-	it('$and (shorthand)', function(done) {
+	it('$and (shorthand)', function() {
 		expect(condition.evaluate([{a: {$eq: 3}}, {a: {$eq: 7}}], model)).toBe(false);
 		expect(condition.evaluate([{b: {$eq: 3}}, {b: {$eq: 7}}], model)).toBe(false);
 		expect(condition.evaluate([{b: {$eq: 3}}, {a: {$eq: 7}}], model)).toBe(false);
 		expect(condition.evaluate([{a: {$eq: 3}}, {b: {$eq: 7}}], model)).toBe(true);
-
-		done();
 	});
 
-	it('$not', function(done) {
+	it('$not', function() {
 		expect(condition.evaluate({$not: [{a: {$eq: 3}}, {a: {$eq: 7}}]}, model)).toBe(true);
 		expect(condition.evaluate({$not: [{b: {$eq: 3}}, {b: {$eq: 7}}]}, model)).toBe(true);
 		expect(condition.evaluate({$not: [{b: {$eq: 3}}, {a: {$eq: 7}}]}, model)).toBe(true);
 		expect(condition.evaluate({$not: [{a: {$eq: 3}}, {b: {$eq: 7}}]}, model)).toBe(false);
 		expect(condition.evaluate({$not: {a: 3}}, model)).toBe(false);
 		expect(condition.evaluate({$not: {a: 7}}, model)).toBe(true);
-
-		done();
 	});
 
-	it('$nor', function(done) {
+	it('$nor', function() {
 		expect(condition.evaluate({$nor: [{a: {$eq: 3}}, {a: {$eq: 7}}]}, model)).toBe(false);
 		expect(condition.evaluate({$nor: [{b: {$eq: 3}}, {b: {$eq: 7}}]}, model)).toBe(false);
 		expect(condition.evaluate({$nor: [{b: {$eq: 3}}, {a: {$eq: 7}}]}, model)).toBe(true);
 		expect(condition.evaluate({$nor: [{a: {$eq: 3}}, {b: {$eq: 7}}]}, model)).toBe(false);
 		expect(condition.evaluate({$nor: {a: 3}}, model)).toBe(false);
 		expect(condition.evaluate({$nor: {a: 7}}, model)).toBe(true);
-
-		done();
 	});
 });

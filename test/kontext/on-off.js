@@ -63,15 +63,15 @@ describe('Kontext On-Off', function() {
 
 				mod.off('update');
 				mod.onoffFoo = 'nope';
+
+				setTimeout(function() {
+					expect(notes).toBe(2);
+					done();
+				}, 100);
 			}
 		});
 
 		model.onoffFoo = 'baz';
-
-		setTimeout(function() {
-			expect(notes).toBe(2);
-			done();
-		}, 100);
 	});
 
 	it('recursively triggers for submodels', function(done) {

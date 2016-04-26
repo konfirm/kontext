@@ -20,13 +20,14 @@ describe('Observer', function() {
 	 */
 	function test(observer, done) {
 		var nodes = [],
-			count = 0;
+			expectation = [];
 
 		['foo', 1, false].forEach(function(v) {
 			var tmp = {
 				value: v,
 				node: document.body.appendChild(document.createTextNode(v)),
-				delegate: delegate(v)
+				delegate: delegate(v),
+				expect: null
 			};
 
 			observer.monitor(tmp.node, tmp.delegate);
@@ -35,44 +36,35 @@ describe('Observer', function() {
 		});
 
 		nodes.forEach(function(o) {
+			expectation.push(o);
+
 			switch (typeof o.value) {
 				case 'string':
-					o.node.nodeValue = 'bar';
-					setTimeout(function() {
-						expect(o.delegate()).toBe('bar');
-						++count;
-
-						o.node.nodeValue = 'bar';
-						setTimeout(function() {
-							expect(o.delegate()).toBe('bar');
-							++count;
-						}, 10);
-					}, 10);
-
+					o.expect = 'bar';
+					o.node.nodeValue = o.expect;
 					break;
 
 				case 'number':
-					o.node.nodeValue = 2;
-					setTimeout(function() {
-						expect(o.delegate()).toBe(2);
-						++count;
-					}, 10);
-
+					o.expect = 2;
+					o.node.nodeValue = o.expect;
 					break;
 
 				case 'boolean':
-					o.node.nodeValue = 'true';
-					setTimeout(function() {
-						expect(o.delegate()).toBe(true);
-						++count;
-					}, 10);
-
+					o.expect = true;
+					o.node.nodeValue = JSON.stringify(o.expect);
 					break;
 			}
 		});
 
 		setTimeout(function() {
-			expect(count).toBe(4);
+			expect(expectation.length).toBe(3);
+
+			expectation.forEach(function(tmp) {
+				var compare = typeof tmp.expect !== 'string' ? JSON.stringify(tmp.expect) : tmp.expect;
+
+				expect(tmp.expect).not.toBe(null);
+				expect(tmp.node.nodeValue).toBe(compare);
+			});
 
 			done();
 		}, 200);
@@ -81,29 +73,26 @@ describe('Observer', function() {
 	it('Uses the MutationObserver if available', function(done) {
 		//  as the Observer module does not use the window scope per se, we provide a cultivated `global` scope
 		//  allowing to provide alternative environments and test all possible observation flows
-		// window.global = window;
+		window.global = window;
 
-		// test(new Observer(), done);
-		done();
+		test(new Observer(), done);
 	});
 
 	it('Uses the webkitMutationEvents alternatively', function(done) {
 		//  as the Observer module does not use the window scope per se, we provide a cultivated `global` scope
 		//  allowing to provide alternative environments and test all possible observation flows
-		// window.global = {
-		// 	webkitMutationObserver: window.webkitMutationObserver
-		// };
+		window.global = {
+			webkitMutationObserver: window.webkitMutationObserver
+		};
 
-		// test(new Observer(), done);
-		done();
+		test(new Observer(), done);
 	});
 
 	it('Uses the MutationEvents alternatively', function(done) {
 		//  as the Observer module does not use the window scope per se, we provide a cultivated `global` scope
 		//  allowing to provide alternative environments and test all possible observation flows
-		// window.global = {};
+		window.global = {};
 
-		// test(new Observer(), done);
-		done();
+		test(new Observer(), done);
 	});
 });
