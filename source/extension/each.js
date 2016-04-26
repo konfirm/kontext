@@ -8,7 +8,7 @@
  *            <ul data-kontext="each: {target: <key>, filter|map: <function>}"><li>...</li></ul>
  *            <ul data-kontext="each: {target: <key>, filter|map: [<function>, ...]}"><li>...</li></ul>
  */
-kontext.extension('each', function(element, model, config) {
+kontext.extension('each', function(element, model, config, options) {
 	'use strict';
 
 	var template = [],
@@ -240,6 +240,9 @@ kontext.extension('each', function(element, model, config) {
 		var delegate = target(config),
 			attribute = kontext.defaults().attribute,
 			marker = document.createTextNode('');
+
+		//  tell Kontext not to descend into the children of our element
+		options.stopDescend();
 
 		if (!delegate) {
 			return;
