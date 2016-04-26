@@ -94,14 +94,16 @@ function Attribute() {  //  eslint-disable-line no-unused-vars
 	 *  @return  void
 	 */
 	attribute.find = function(name, element, callback) {
-		attributes(name, element)
-			.forEach(function(node) {
-				var options = contains(element, node) ? json.parse(node.getAttribute(name)) : null;
+		if (element) {
+			attributes(name, element)
+				.forEach(function(node) {
+					var options = contains(element, node) ? json.parse(node.getAttribute(name)) : null;
 
-				if (options) {
-					callback(node, options);
-				}
-			});
+					if (options) {
+						callback(node, options);
+					}
+				});
+		}
 	};
 
 	init();

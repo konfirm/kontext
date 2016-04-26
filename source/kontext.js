@@ -670,6 +670,24 @@
 		};
 
 		/**
+		 *  Verify wether given node is contained within or equal to any element that is excluded
+		 *  @name    isDescendPrevented
+		 *  @access  internal
+		 *  @param   Array-ish  list of nodes
+		 *  @param   DOMNode    target
+		 *  @return  bool       prevented
+		 */
+		function isDescendPrevented(list, node) {
+			for (var i = 0; i < list.length; ++i) {
+				if (list[i] === node || list[i].contains(node)) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/**
 		 *  Bind a model to an element, this also prepares the model so event emissions can be triggered
 		 *  @name    bind
 		 *  @access  public
@@ -682,7 +700,8 @@
 			var arg = castToArray(arguments),
 				model = prepare(arg.shift()),
 				pop = arg.length && !contains(arg[arg.length - 1], ['nodeType', 'length'], 1),
-				options = settings.combine(pop ? arg.pop() : {});
+				options = settings.combine(pop ? arg.pop() : {}),
+				exclude = [];
 
 			//  bind the model to each element provided
 			expandNodeList(arg).forEach(function(element) {
@@ -693,12 +712,22 @@
 				//  within (inclusive) given element
 				//  Attribute.find will do the filtering of unparsable/unavailable target
 				new Attribute().find(options.attribute, element, function(target, opt) {
+					if (isDescendPrevented(exclude, target)) {
+						return;
+					}
+
 					//  traverse all the keys present in the attribute value, for these represent
 					//  individual extensions
 					eachKey(opt, function(key, config) {
-						var ext = extension(key);
+						var ext = extension(key),
+							jit = {
+								extension: key,
+								stopDescend: function() {
+									exclude.push(target);
+								}
+							};
 
-						ext(target, model, config, kontext);
+						ext(target, model, config, jit);
 					});
 				});
 
