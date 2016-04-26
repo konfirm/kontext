@@ -20,7 +20,17 @@ module.exports = function(config) {
 		'build/kontext.js',
 		'build/extension/**/!(*min|*map).js',
 		'source/lib/**/*.js',
-		'test/**/*.js',
+
+		//  test all extensions
+		'test/kontext/extension/*.js',
+
+		//  test kontext itself
+		'test/kontext/*.js',
+
+		//  test the (included eventually) library components
+		'test/lib/*.js',
+
+		//  files to be served from the internal webserver
 		{
 			pattern: 'test/data/*.html',
 			included: false,
