@@ -1,6 +1,6 @@
 /*global Attribute: true, Emission: true, Observer: true, Settings: true, Text: true*/
 /*
- *       __    Kontext (version 1.5.0 - 2016-04-24)
+ *       __    Kontext (version 1.5.0 - 2016-04-26)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,17 +15,19 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Sun Apr 24 2016 22:27:18 GMT+0200 (CEST)
-	 *    time: 5.12ms
-	 *    size: 39.46KB
+	 *    date: Tue Apr 26 2016 10:11:40 GMT+0200 (CEST)
+	 *    time: 8.08ms
+	 *    size: 40.84KB
 	 *  ---------------------------------------------------------------------
-	 *   files: included 6 files
+	 *   included 6 files
 	 *     +1.95KB source/lib/settings
 	 *     +3.06KB source/lib/emission
 	 *     +2.15KB source/lib/observer
-	 *     +2.37KB source/lib/text
-	 *     +8.66KB source/lib/attribute
+	 *     +2.40KB source/lib/text
+	 *     +9.42KB source/lib/attribute
 	 *     +6.69KB source/lib/json-formatter
+	 *  ---------------------------------------------------------------------
+	 *   total: 66.50KB
 	 */
 
 	//  load dependencies
@@ -115,7 +117,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [842.30µs, 1.80KB]
+	//END INCLUDE: lib/settings [529.81µs, 1.80KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -241,7 +243,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [408.24µs, 2.88KB]
+	//END INCLUDE: lib/emission [253.21µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -337,7 +339,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [345.56µs, 1.99KB]
+	//END INCLUDE: lib/observer [254.91µs, 1.99KB]
 	//BEGIN INCLUDE: lib/text
 	//  strict mode (already enabled)
 
@@ -430,13 +432,15 @@
 		 *  @return  void
 		 */
 		text.placeholders = function(element, callback) {
-			placeholders(element).forEach(function(data) {
-				callback.apply(null, [data.node, data.key, data.initial]);
-			});
+			if (element) {
+				placeholders(element).forEach(function(data) {
+					callback.apply(null, [data.node, data.key, data.initial]);
+				});
+			}
 		};
 	}
 
-	//END INCLUDE: lib/text [407.44µs, 2.22KB]
+	//END INCLUDE: lib/text [244.87µs, 2.24KB]
 	//BEGIN INCLUDE: lib/attribute
 	/*global JSONFormatter: true*/
 	//  strict mode (already enabled)
@@ -698,7 +702,7 @@
 			};
 		}
 
-		//END INCLUDE: json-formatter [473.72µs, 6.40KB]
+		//END INCLUDE: json-formatter [383.70µs, 6.40KB]
 		/**
 		 *  Initializer - setting up the defaults
 		 *  @name    init
@@ -742,6 +746,35 @@
 		}
 
 		/**
+		 *  Verify whether the target resides in the element (regardless of its type)
+		 *  @name    contains
+		 *  @access  internal
+		 *  @param   DOMNode  element
+		 *  @param   DOMNode  target
+		 *  @return  bool  contains
+		 */
+		function contains(element, target) {
+			var i;
+
+			switch (element.nodeType) {
+				case 1:  //  DOMElement
+					return element.contains(target);
+
+				case 9:  //  DOMDocument
+					return element.body.contains(target);
+
+				case 11:  //  DocumentFragment
+					for (i = 0; i < element.childNodes.length; ++i) {
+						if (contains(element.childNodes[i], target)) {
+							return true;
+						}
+					}
+			}
+
+			return false;
+		}
+
+		/**
 		 *  Search for elements containing the specificed attribute within the given element,
 		 *  invoking the callback with the matching element and the JSON parsed contents
 		 *  @name    find
@@ -752,16 +785,22 @@
 		 *  @return  void
 		 */
 		attribute.find = function(name, element, callback) {
-			attributes(name, element)
-				.forEach(function(node) {
-					callback(node, json.parse(node.getAttribute(name)));
-				});
+			if (element) {
+				attributes(name, element)
+					.forEach(function(node) {
+						var options = contains(element, node) ? json.parse(node.getAttribute(name)) : null;
+
+						if (options) {
+							callback(node, options);
+						}
+					});
+			}
 		};
 
 		init();
 	}
 
-	//END INCLUDE: lib/attribute [1.12ms, 8.31KB]
+	//END INCLUDE: lib/attribute [4.67ms, 9.04KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -993,8 +1032,8 @@
 			//  kontext itself can (and will) emit update 'events' when models are updated
 			//  therefor we subscribe to model updates and re-send them
 			if (typeof model === 'object') {
-				model.on('update', function() {
-					emission.trigger('update', castToArray(arguments));
+				model.on('update', function(mod, key, prior, current) {
+					emission.trigger('update', [mod, key, prior, current]);
 				});
 			}
 
@@ -1037,7 +1076,7 @@
 
 			result = function(value) {
 				var change = arguments.length > 0,
-					previous = config.value;
+					prior = config.value;
 
 				//  update the value if the value argument was provided
 				if (change) {
@@ -1047,7 +1086,7 @@
 				//  emit the appropriate event
 				config.emission.trigger(
 					change ? 'update' : 'access',
-					[config.model, config.key, previous, config.value]
+					[model, key, prior, config.value]
 				);
 
 				return config.value;
@@ -1074,7 +1113,7 @@
 
 							//  map the changes
 							listPrepare(initial, config);  //  eslint-disable-line no-use-before-define
-							config.emission.trigger('update', [config.model, config.key, config.value]);
+							config.emission.trigger('update', [model, key, config.value]);
 
 							return rs;
 						};
@@ -1198,8 +1237,8 @@
 						define(model, key, true, handle, handle);
 
 						//  a change emission on a property will trigger an update on the model
-						handle.on('update', function() {
-							emitter.trigger('update', castToArray(arguments));
+						handle.on('update', function(m, k, prior, current) {
+							emitter.trigger('update', [model, key, prior, current]);
 						});
 					}
 
@@ -1211,8 +1250,8 @@
 
 						//  register a handler to pass on the update events to the parent model
 						//  with the key prefixed
-						value.on('update', function(parent, property, previous, current) {
-							emitter.trigger('update', [model, key + '.' + property, previous, current]);
+						value.on('update', function(parent, property, prior, current) {
+							emitter.trigger('update', [model, key + '.' + property, prior, current]);
 						});
 					}
 				});
@@ -1412,6 +1451,24 @@
 		};
 
 		/**
+		 *  Verify wether given node is contained within or equal to any element that is excluded
+		 *  @name    isDescendPrevented
+		 *  @access  internal
+		 *  @param   Array-ish  list of nodes
+		 *  @param   DOMNode    target
+		 *  @return  bool       prevented
+		 */
+		function isDescendPrevented(list, node) {
+			for (var i = 0; i < list.length; ++i) {
+				if (list[i] === node || list[i].contains(node)) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/**
 		 *  Bind a model to an element, this also prepares the model so event emissions can be triggered
 		 *  @name    bind
 		 *  @access  public
@@ -1424,7 +1481,8 @@
 			var arg = castToArray(arguments),
 				model = prepare(arg.shift()),
 				pop = arg.length && !contains(arg[arg.length - 1], ['nodeType', 'length'], 1),
-				options = settings.combine(pop ? arg.pop() : {});
+				options = settings.combine(pop ? arg.pop() : {}),
+				exclude = [];
 
 			//  bind the model to each element provided
 			expandNodeList(arg).forEach(function(element) {
@@ -1433,18 +1491,24 @@
 
 				//  work through all data-kontext (or configured override thereof) attributes
 				//  within (inclusive) given element
+				//  Attribute.find will do the filtering of unparsable/unavailable target
 				new Attribute().find(options.attribute, element, function(target, opt) {
-					//  Verify the model exists in the bindings for the current element
-					if (bindings(target).indexOf(model) < 0 || !opt) {
+					if (isDescendPrevented(exclude, target)) {
 						return;
 					}
 
 					//  traverse all the keys present in the attribute value, for these represent
 					//  individual extensions
 					eachKey(opt, function(key, config) {
-						var ext = extension(key);
+						var ext = extension(key),
+							jit = {
+								extension: key,
+								stopDescend: function() {
+									exclude.push(target);
+								}
+							};
 
-						ext(target, model, config, kontext);
+						ext(target, model, config, jit);
 					});
 				});
 
@@ -1542,17 +1606,6 @@ kontext.extension('attribute', function(element, model, config) {
  */
 (function(kontext) {
 	'use strict';
-
-	/*
-	 *  BUILD INFO
-	 *  ---------------------------------------------------------------------
-	 *    date: Sun Apr 24 2016 22:27:18 GMT+0200 (CEST)
-	 *    time: 696.05µs
-	 *    size: 12.85KB
-	 *  ---------------------------------------------------------------------
-	 *   files: included 1 files
-	 *    +11.72KB source/extension/../lib/condition
-	 */
 
 
 	//BEGIN INCLUDE: ../lib/condition
@@ -2002,19 +2055,28 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [568.22µs, 11.27KB]
+	//END INCLUDE: ../lib/condition [495.28µs, 11.27KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
-	//  Create the extension function which will be registered to Kontext
-	//  (Separate function so the condition instance can be exposed so other extensions may use it)
-	function extension(element, model, config) {
+	/**
+	 *  The actual extension which will be registered to Kontext
+	 *  @name    extension
+	 *  @access  internal
+	 *  @param   DOMNode  element
+	 *  @param   Object   model
+	 *  @param   mixed    config
+	 *  @note    the extension function will receive the condition instance as property
+	 */
+	function extension(element, model, config, options) {
 		var anchor;
 
-		if (element.parentNode) {
-			anchor = element.parentNode.insertBefore(document.createTextNode(''), element);
-		}
-
+		/**
+		 *  Update the element state based on the provided conditions
+		 *  @name    update
+		 *  @access  internal
+		 *  @return  void
+		 */
 		function update() {
 			if (condition.evaluate(config, model)) {
 				if (!element.parentNode) {
@@ -2026,12 +2088,31 @@ kontext.extension('attribute', function(element, model, config) {
 			}
 		}
 
+		//  tell Kontext not to traverse into the children of our element
+		options.stopDescend();
+
+		if (element.parentNode) {
+			//  create the anchor node, consisting of an empty text node
+			anchor = element.parentNode.insertBefore(document.createTextNode(''), element);
+
+			kontext.bind(model, element.childNodes);
+		}
+
 		model.on('update', update);
 		update();
 	}
 
-	//  expose Condition instance
-	extension.condition = condition;
+	/**
+	 *  Evaluate a condition
+	 *  @name    evaluate
+	 *  @access  public
+	 *  @param   mixed   condition
+	 *  @param   Object  object to apply the condition on
+	 *  @return  bool    matches
+	 */
+	extension.evaluate = function(config, target) {
+		return condition.evaluate(config, target);
+	};
 
 	//  register the extension als 'conditional'
 	kontext.extension('conditional', extension);
@@ -2093,7 +2174,7 @@ kontext.extension('attribute', function(element, model, config) {
  *            <ul data-kontext="each: {target: <key>, filter|map: <function>}"><li>...</li></ul>
  *            <ul data-kontext="each: {target: <key>, filter|map: [<function>, ...]}"><li>...</li></ul>
  */
-kontext.extension('each', function(element, model, config) {
+kontext.extension('each', function(element, model, config, options) {
 	'use strict';
 
 	var template = [],
@@ -2325,6 +2406,9 @@ kontext.extension('each', function(element, model, config) {
 		var delegate = target(config),
 			attribute = kontext.defaults().attribute,
 			marker = document.createTextNode('');
+
+		//  tell Kontext not to descend into the children of our element
+		options.stopDescend();
 
 		if (!delegate) {
 			return;
@@ -2688,23 +2772,19 @@ kontext.extension('html', function(element, model, key) {
 		});
 	});
 })(kontext);
-/*global kontext: true*/
+/*global kontext: true, Template: true*/
 (function(kontext) {
 	'use strict';
 
+
+	//BEGIN INCLUDE: ../lib/template
 	/**
 	 *  Template handling module
 	 *  @name     Template
 	 *  @package  Kontext
 	 *  @note     The Template module uses the singleton pattern to ensure the caching is per page
 	 */
-	function Template() {
-		if (!(typeof Template.prototype.__instance === 'undefined' && this instanceof Template)) {
-			return Template.prototype.__instance || new Template();
-		}
-
-		Template.prototype.__instance = this;
-
+	function Template() {  //  eslint-disable-line no-unused-vars
 		var template = this,
 			cache = {};
 
@@ -2910,6 +2990,10 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
+	//END INCLUDE: ../lib/template [372.68µs, 5.21KB]
+	//  construct the Template module once, as it does not contain state, it can be re-used
+	var template = new Template();
+
 	/**
 	 *  Replace the contents of an element with a template
 	 *  @name     Template
@@ -2923,8 +3007,7 @@ kontext.extension('html', function(element, model, key) {
 	 *            <span data-kontext="template: {value: myTemplate}">replaced</span>
 	 */
 	kontext.extension('template', function(element, model, config) {
-		var template = new Template(),
-			delegate;
+		var delegate;
 
 		element.style.display = 'none';
 

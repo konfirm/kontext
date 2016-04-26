@@ -3,12 +3,18 @@
 ## _CURRENT MASTER_ (not represented in the dist folder!)
 - Added `conditional`-extension (don't worry, abbreviations still work)
 
+### Breaking
+- The fourth argument to extensions is no longer `kontext`, but instead an object with the follow properties:
+		- (string) `extension`: The name of the extension as it was used in the `data-kontext` attribute
+		- (function) `stopDescend`: A method to invoke if Kontext should not apply the model to any children of the element (e.g. the extension will handle this itself, or nothing will be bound at all)
+
 ### Fixes
 - Fixed [issue #8: `update` events do not provide the correct previous value](https://github.com/konfirm/kontext/issues/8)
+- Fixed issue with the binding of children of conditional elements
 
 ### Statistics
-- Full size: 79.2K (+14.2K), gzipped: 20.5K
-- Minified size: 17.6K (+2.6K), gzipped: 6.4K
+- Full size: 81.1K (+16.1K), gzipped: 20.8K
+- Minified size: 17.9K (+2.9K), gzipped: 6.5K
 
 
 ## 1.5.0
