@@ -256,7 +256,7 @@
 				});
 			}
 
-			//  return the emission
+			//  return the model emission
 			return result;
 		}
 
@@ -264,12 +264,12 @@
 		 *  Update elements to reflect a new value
 		 *  @name    update
 		 *  @access  internal
-		 *  @param   Array     elements
-		 *  @param   function  delegation
+		 *  @param   Array   elements
+		 *  @param   Object  config
 		 *  @return  void
 		 */
-		function update(list, delegation) {
-			var nodeValue = '' + delegation();
+		function update(list, config) {
+			var nodeValue = '' + config.value;
 
 			list
 				.filter(function(element) {
@@ -364,7 +364,7 @@
 					});
 
 					//  update the newly added elements
-					update(append, result);
+					update(append, config);
 
 					//  append the new elements to the existing ones (if any)
 					config.element = config.element.concat(append);
@@ -377,7 +377,7 @@
 			//  listen for changes so these can be updated in the associated elements
 			config.emission.add('update', function() {
 				settings._('rAF')(function() {
-					update(config.element, result);
+					update(config.element, config);
 				});
 			});
 
@@ -444,7 +444,7 @@
 		function prepare(model) {
 			var emitter;
 
-			if (!('on' in model && 'off' in model && 'delegation')) {
+			if (!contains(model, ['on', 'off', 'delegation'])) {
 				//  replace any key with a delegate
 				eachKey(model, function(key, value) {
 					var handle;
@@ -586,6 +586,24 @@
 		}
 
 		/**
+		 *  Verify wether given node is contained within or equal to any element that is excluded
+		 *  @name    isDescendPrevented
+		 *  @access  internal
+		 *  @param   Array-ish  list of nodes
+		 *  @param   DOMNode    target
+		 *  @return  bool       prevented
+		 */
+		function isDescendPrevented(list, node) {
+			for (var i = 0; i < list.length; ++i) {
+				if (list[i] === node || list[i].contains(node)) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/**
 		 *  Get/set the default options
 		 *  @name    defaults
 		 *  @access  public
@@ -668,24 +686,6 @@
 		kontext.delegate = function(initial) {
 			return delegate(initial);
 		};
-
-		/**
-		 *  Verify wether given node is contained within or equal to any element that is excluded
-		 *  @name    isDescendPrevented
-		 *  @access  internal
-		 *  @param   Array-ish  list of nodes
-		 *  @param   DOMNode    target
-		 *  @return  bool       prevented
-		 */
-		function isDescendPrevented(list, node) {
-			for (var i = 0; i < list.length; ++i) {
-				if (list[i] === node || list[i].contains(node)) {
-					return true;
-				}
-			}
-
-			return false;
-		}
 
 		/**
 		 *  Bind a model to an element, this also prepares the model so event emissions can be triggered
