@@ -170,18 +170,19 @@ describe('Kontext Updates', function() {
 
 	it('triggers the access event', function(done) {
 		var element = document.querySelector('.fixture'),
-			model = kontext.bind({hello: 'world'}, element),
-			delegate = model.delegation('hello');
+			model = kontext.bind({update: 'access'}, element),
+			delegate = model.delegation('update');
 
+		//  TODO: is the 'access' emission really triggered once per access?
 		delegate.on('access', function(mod, key, prev, current) {
 			expect(mod).toBe(model);
-			expect(key).toBe('hello');
+			expect(key).toBe('update');
 			expect(prev).toBe(current);
-			expect(model.hello).toBe(current);
+			expect(model.update).toBe(current);
 
 			done();
-		});
+		}, 1);
 
-		expect(model.hello).toBe('world');
+		expect(model.update).toBe('access');
 	});
 });
