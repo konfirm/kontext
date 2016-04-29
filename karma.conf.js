@@ -19,6 +19,7 @@ module.exports = function(config) {
 	files: [
 		'build/kontext.js',
 		'build/extension/**/!(*min|*map).js',
+		'build/provider/**/!(*min|*map).js',
 		'source/lib/**/*.js',
 
 		//  test all extensions
