@@ -52,6 +52,66 @@ describe('Kontext Extension Each', function() {
 			});
 		});
 
+		describe('implements $-properties, which point to the correct values', function() {
+			it('simple type resolves $index, $item, $parent', function(done) {
+				var main = document.createElement('main'),
+					repeat = main.appendChild(document.createElement('div')),
+					model;
+
+				main.setAttribute('data-kontext', 'each: list');
+				repeat.appendChild(document.createTextNode('{$index} - {$item} - {$parent}'));
+
+				model = kontext.bind({list: ['hello', 42]}, main);
+
+				expect(typeof model.list[0]).toBe('string');
+				expect(typeof model.list[1]).toBe('number');
+
+				//  we have to wait for two things to have happened:
+				//  - first, the template rending is async
+				//  - second, both the $index and $parent properties are updated for each render, which is
+				//            also async (so, the first async update triggers the second async update)
+				setTimeout(function() {
+					expect(main.childNodes.length).toBe(2);
+
+					//  we use the mechanics of javascript which converts an array to string as if
+					//  it was Array.join(',')-ed
+					expect(main.childNodes[0].innerText).toBe('0 - hello - hello,42');
+					expect(main.childNodes[1].innerText).toBe('1 - 42 - hello,42');
+
+					done();
+				}, 100);
+			});
+
+			it('object type has added $index, $item, $parent and $model', function(done) {
+				var main = document.createElement('main'),
+					repeat = main.appendChild(document.createElement('div')),
+					model;
+
+				main.setAttribute('data-kontext', 'each: list');
+				repeat.appendChild(document.createTextNode('{$index} - {$item.name} - {$model.name}'));
+
+				model = kontext.bind({
+					name: 'Model',
+					list: [{name: 'a'}, {name: 'b'}]
+				}, main);
+
+				expect(model.list[0].name).toBe('a');
+				expect(model.list[0].$item).toBe(model.list[0]);
+				expect(model.list[0].$index).toBe(0);
+				expect(model.list[0].$parent).toBe(model.list);
+				expect(model.list[0].$model).toBe(model);
+
+				setTimeout(function() {
+					expect(main.childNodes.length).toBe(2);
+
+					expect(main.childNodes[0].innerText).toBe('0 - a - Model');
+					expect(main.childNodes[1].innerText).toBe('1 - b - Model');
+
+					done();
+				}, 100);
+			});
+		});
+
 		it('string items as {$item}', function(done) {
 			var node = document.createElement('div'),
 				model;

@@ -1,12 +1,18 @@
 # Release notes
 
-## _CURRENT MASTER_ (not represented in the dist folder!)
+## _CURRENT MASTER_ (represented by `kontext-latest(.min).js` in the dist folder!)
 - Added `conditional`-extension (don't worry, abbreviations still work)
+- Fourth argument to extension invocation is now an options object, not kontext itself
+- `each`-extension now properly populates the `$parent` with the actual array instead of the delegate function (which could not be resolved in HTML)
+- `each`-extension now adds a `$model` property to the (magic) bindings, so access to model properties/methods is now supported
+- `update`-events now properly provide the previous value
 
-### Breaking
-- The fourth argument to extensions is no longer `kontext`, but instead an object with the follow properties:
-		- (string) `extension`: The name of the extension as it was used in the `data-kontext` attribute
-		- (function) `stopDescend`: A method to invoke if Kontext should not apply the model to any children of the element (e.g. the extension will handle this itself, or nothing will be bound at all)
+### Extension: Options object
+The fourth argument to extensions is no longer `kontext`, but instead an object with the following properties:
+	- (string) `extension`: The name of the extension as it was used in the `data-kontext` attribute
+	- (function) `stopDescend`: A method to invoke if Kontext should not apply the model to any children of the element (e.g. the extension will handle this itself, or nothing will be bound at all)
+
+The impact of this change is considered to be minimal, as it was a rather pointless argument since `kontext` must have been already known at that point in order to register the extension. This change is not considered to be _breaking_ and might not cause a major version bump, although a minor version _jump_ (from 1.5 to 1.7) is considered.
 
 ### Fixes
 - Fixed [issue #8: `update` events do not provide the correct previous value](https://github.com/konfirm/kontext/issues/8)
@@ -14,7 +20,7 @@
 
 ### Statistics
 - Full size: 81.1K (+16.1K), gzipped: 20.8K
-- Minified size: 17.9K (+2.9K), gzipped: 6.5K
+- Minified size: 18K (+3K), gzipped: 6.5K
 
 
 ## 1.5.0

@@ -1,6 +1,6 @@
 /*global Attribute: true, Emission: true, Observer: true, Settings: true, Text: true*/
 /*
- *       __    Kontext (version 1.5.0 - 2016-04-26)
+ *       __    Kontext (version 1.5.0 - 2016-04-29)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,9 +15,9 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue Apr 26 2016 10:11:40 GMT+0200 (CEST)
-	 *    time: 8.08ms
-	 *    size: 40.84KB
+	 *    date: Fri Apr 29 2016 10:31:48 GMT+0200 (CEST)
+	 *    time: 8.85ms
+	 *    size: 40.83KB
 	 *  ---------------------------------------------------------------------
 	 *   included 6 files
 	 *     +1.95KB source/lib/settings
@@ -27,7 +27,7 @@
 	 *     +9.42KB source/lib/attribute
 	 *     +6.69KB source/lib/json-formatter
 	 *  ---------------------------------------------------------------------
-	 *   total: 66.50KB
+	 *   total: 66.49KB
 	 */
 
 	//  load dependencies
@@ -117,7 +117,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [529.81µs, 1.80KB]
+	//END INCLUDE: lib/settings [533.49µs, 1.80KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -243,7 +243,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [253.21µs, 2.88KB]
+	//END INCLUDE: lib/emission [252.14µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -339,7 +339,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [254.91µs, 1.99KB]
+	//END INCLUDE: lib/observer [258.80µs, 1.99KB]
 	//BEGIN INCLUDE: lib/text
 	//  strict mode (already enabled)
 
@@ -440,7 +440,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/text [244.87µs, 2.24KB]
+	//END INCLUDE: lib/text [301.36µs, 2.24KB]
 	//BEGIN INCLUDE: lib/attribute
 	/*global JSONFormatter: true*/
 	//  strict mode (already enabled)
@@ -702,7 +702,7 @@
 			};
 		}
 
-		//END INCLUDE: json-formatter [383.70µs, 6.40KB]
+		//END INCLUDE: json-formatter [362.38µs, 6.40KB]
 		/**
 		 *  Initializer - setting up the defaults
 		 *  @name    init
@@ -800,7 +800,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/attribute [4.67ms, 9.04KB]
+	//END INCLUDE: lib/attribute [4.91ms, 9.04KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -1037,7 +1037,7 @@
 				});
 			}
 
-			//  return the emission
+			//  return the model emission
 			return result;
 		}
 
@@ -1045,12 +1045,12 @@
 		 *  Update elements to reflect a new value
 		 *  @name    update
 		 *  @access  internal
-		 *  @param   Array     elements
-		 *  @param   function  delegation
+		 *  @param   Array   elements
+		 *  @param   Object  config
 		 *  @return  void
 		 */
-		function update(list, delegation) {
-			var nodeValue = '' + delegation();
+		function update(list, config) {
+			var nodeValue = '' + config.value;
 
 			list
 				.filter(function(element) {
@@ -1145,7 +1145,7 @@
 					});
 
 					//  update the newly added elements
-					update(append, result);
+					update(append, config);
 
 					//  append the new elements to the existing ones (if any)
 					config.element = config.element.concat(append);
@@ -1158,7 +1158,7 @@
 			//  listen for changes so these can be updated in the associated elements
 			config.emission.add('update', function() {
 				settings._('rAF')(function() {
-					update(config.element, result);
+					update(config.element, config);
 				});
 			});
 
@@ -1225,7 +1225,7 @@
 		function prepare(model) {
 			var emitter;
 
-			if (!('on' in model && 'off' in model && 'delegation')) {
+			if (!contains(model, ['on', 'off', 'delegation'])) {
 				//  replace any key with a delegate
 				eachKey(model, function(key, value) {
 					var handle;
@@ -1367,6 +1367,24 @@
 		}
 
 		/**
+		 *  Verify wether given node is contained within or equal to any element that is excluded
+		 *  @name    isDescendPrevented
+		 *  @access  internal
+		 *  @param   Array-ish  list of nodes
+		 *  @param   DOMNode    target
+		 *  @return  bool       prevented
+		 */
+		function isDescendPrevented(list, node) {
+			for (var i = 0; i < list.length; ++i) {
+				if (list[i] === node || list[i].contains(node)) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/**
 		 *  Get/set the default options
 		 *  @name    defaults
 		 *  @access  public
@@ -1449,24 +1467,6 @@
 		kontext.delegate = function(initial) {
 			return delegate(initial);
 		};
-
-		/**
-		 *  Verify wether given node is contained within or equal to any element that is excluded
-		 *  @name    isDescendPrevented
-		 *  @access  internal
-		 *  @param   Array-ish  list of nodes
-		 *  @param   DOMNode    target
-		 *  @return  bool       prevented
-		 */
-		function isDescendPrevented(list, node) {
-			for (var i = 0; i < list.length; ++i) {
-				if (list[i] === node || list[i].contains(node)) {
-					return true;
-				}
-			}
-
-			return false;
-		}
 
 		/**
 		 *  Bind a model to an element, this also prepares the model so event emissions can be triggered
@@ -2055,7 +2055,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [495.28µs, 11.27KB]
+	//END INCLUDE: ../lib/condition [563.40µs, 11.27KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2270,6 +2270,7 @@ kontext.extension('each', function(element, model, config, options) {
 			bind.$item   = value;
 			bind.$index  = 0;
 			bind.$parent = null;
+			bind.$model  = model;
 
 			result = {
 				item: value,
@@ -2362,8 +2363,8 @@ kontext.extension('each', function(element, model, config, options) {
 			var item = fetch(value);
 
 			item.model.$index = index;
-			if (!('$parent' in item.model) || !item.model.$parent) {
-				item.model.$parent = delegate;
+			if (!('$parent' in item.model && item.model.$parent)) {
+				item.model.$parent = delegate();
 			}
 
 			output = output.concat(item.nodes);
@@ -2990,7 +2991,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [372.68µs, 5.21KB]
+	//END INCLUDE: ../lib/template [331.91µs, 5.21KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 

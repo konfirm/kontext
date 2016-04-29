@@ -104,6 +104,7 @@ kontext.extension('each', function(element, model, config, options) {
 			bind.$item   = value;
 			bind.$index  = 0;
 			bind.$parent = null;
+			bind.$model  = model;
 
 			result = {
 				item: value,
@@ -196,8 +197,8 @@ kontext.extension('each', function(element, model, config, options) {
 			var item = fetch(value);
 
 			item.model.$index = index;
-			if (!('$parent' in item.model) || !item.model.$parent) {
-				item.model.$parent = delegate;
+			if (!('$parent' in item.model && item.model.$parent)) {
+				item.model.$parent = delegate();
 			}
 
 			output = output.concat(item.nodes);
