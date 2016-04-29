@@ -19,11 +19,13 @@ function Settings() {  //  eslint-disable-line no-unused-vars
 	function merge(a, b) {
 		Object.keys(b)
 			.forEach(function(key) {
-				if (typeof b[key] === 'object' && b[key]) {
-					a[key] = merge(typeof a[key] === 'object' ? a[key] : b[key] instanceof RegExp ? b[key] : {}, b[key]);
+				var value = b[key];
+
+				if (key in a && b[key] && typeof b[key] === 'object' && !(value instanceof RegExp || value instanceof Array)) {
+					a[key] = merge(a[key], value);
 				}
 				else {
-					a[key] = b[key];
+					a[key] = value;
 				}
 			});
 

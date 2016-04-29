@@ -86,6 +86,7 @@
 			//  public settings (this is what is provided/changed when using the kontext.defaults method)
 			settings.public({
 				greedy: true,
+				providers: [],
 				abbreviateExtensions: true,
 				attribute: 'data-kontext',
 				pattern: /(\{(\$?[a-z_]+[\.-]?(?:[a-z0-9_]+[\.-]?)*)(?::([^\}]+))?\})/i
@@ -232,6 +233,27 @@
 			}
 
 			return ext[name];
+		}
+
+		function provider(name, handler) {
+			var prov = settings._('provider') || {},
+				available;
+
+			if (handler) {
+				prov[name] = handler;
+				settings._('provider', prov);
+				available = settings.public('providers');
+				if (available.indexOf(name) < 0) {
+					available.push(name);
+					settings.public('providers', available);
+				}
+			}
+
+			if (!(name in prov)) {
+				return extensionError('Unknown provider %s', name);
+			}
+
+			return prov[name];
 		}
 
 		/**
@@ -676,6 +698,9 @@
 		 */
 		kontext.extension = extension;
 
+
+		kontext.provider = provider;
+
 		/**
 		 *  Create a delegation value with an initial value
 		 *  @name    delegate
@@ -701,7 +726,10 @@
 				model = prepare(arg.shift()),
 				pop = arg.length && !contains(arg[arg.length - 1], ['nodeType', 'length'], 1),
 				options = settings.combine(pop ? arg.pop() : {}),
+				providers = options.providers,
 				exclude = [];
+
+console.log(providers);
 
 			//  bind the model to each element provided
 			expandNodeList(arg).forEach(function(element) {
@@ -731,9 +759,14 @@
 					});
 				});
 
-				//  work through all placeholders in DOMText nodes within (inclusive) within the element
+				//  work through all placeholders in DOMText nodes within (inclusive) the element
 				new Text(options.pattern).placeholders(element, function(text, key, initial) {
-					var delegated = getDelegate(model, key);
+					var delegated;
+
+					if (isDescendPrevented(exclude, text)) {
+						return;
+					}
+					delegated = getDelegate(model, key);
 
 					//  if there is a delegation, we provide the scope
 					//  (only effective if no scope has been set)

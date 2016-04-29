@@ -25,6 +25,9 @@ kontext:
 npm-test:
 	@npm test;
 
+provider-test:
+	@karma start --single-run --browsers PhantomJS karma-provider.conf.js;
+
 #  create a fresh distribution in the dist folder
 distribution:
 	@make clean authors kontext npm-test && \

@@ -35,10 +35,10 @@ var Wanted = require('wanted'),
 						[
 							'!source/*/**/*.js',
 							'source/kontext.js',
-							'source/@(extension)/**/*.js'
+							'source/@(extension|provider)/**/*.js'
 						],
 						[
-							'!source/extension/**/*.js',
+							'!source/@(extension|provider)/**/*.js',
 							'source/**/*.js'
 						]
 					)
@@ -47,6 +47,16 @@ var Wanted = require('wanted'),
 					.task('kontext:extensions',
 						[
 							'./source/@(extension)/**/*.js'
+						],
+						[
+							'source/**/*.js'
+						]
+					)
+
+					//  compile providers whenever they change
+					.task('kontext:providers',
+						[
+							'./source/@(provider)/**/*.js'
 						],
 						[
 							'source/**/*.js'
