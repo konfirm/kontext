@@ -79,10 +79,11 @@ kontext.extension('each', function(element, model, config, options) {
 	 *  Obtain the cached item, creating it if it is not available yet
 	 *  @name    fetch
 	 *  @access  internal
-	 *  @param   mixed   value
-	 *  @return  Object  item
+	 *  @param   mixed     value
+	 *  @param   function  delegate
+	 *  @return  Object    item
 	 */
-	function fetch(value) {
+	function fetch(value, delegate) {
 		var filtered = cache.filter(function(o) {
 				return o.item === value;
 			}),
@@ -103,7 +104,7 @@ kontext.extension('each', function(element, model, config, options) {
 			//  as normal model members (which also means they become visible)
 			bind.$item   = value;
 			bind.$index  = 0;
-			bind.$parent = null;
+			bind.$parent = delegate();
 			bind.$model  = model;
 
 			result = {
@@ -194,12 +195,9 @@ kontext.extension('each', function(element, model, config, options) {
 		var output = [];
 
 		collection.forEach(function(value, index) {
-			var item = fetch(value);
+			var item = fetch(value, delegate);
 
 			item.model.$index = index;
-			if (!('$parent' in item.model && item.model.$parent)) {
-				item.model.$parent = delegate();
-			}
 
 			output = output.concat(item.nodes);
 		});
