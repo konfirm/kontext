@@ -27,6 +27,8 @@ module.exports = function(config) {
 
 		//  test all extensions
 		// 'test/kontext/extension/*.js',
+		'test/kontext/extension/text.js',
+		'test/kontext/extension/each.js',
 
 		//  test kontext itself
 		// 'test/kontext/*.js',

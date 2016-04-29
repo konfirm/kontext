@@ -4,7 +4,7 @@
   "description": "two-way binding",
   "main": "index.js",
   "scripts": {
-    "pretest": "./node_modules/.bin/devour kontext kontext:extensions",
+    "pretest": "./node_modules/.bin/devour kontext kontext:extensions kontext:providers",
     "test": "./node_modules/.bin/karma start --single-run --browsers PhantomJS"
   },
   "repository": {

@@ -759,6 +759,28 @@
 
 				//  work through all placeholders in DOMText nodes within (inclusive) the element
 				new Text(options.pattern).placeholders(element, function(text, key, initial) {
+					var ext = extension('text'),
+						jit = {
+							extension: key,
+							stopDescend: function() {
+								exclude.push(text);
+							}
+						},
+						delegated;
+
+					if (isDescendPrevented(exclude, text)) {
+						// return;
+					}
+					else if (options.greedy && !(delegated = getDelegate(model, key))) {
+						//  create the delegate function
+						delegated = delegate(initial, model, key);
+
+						//  add the delegate function as getter/setter on the model
+						define(model, key, true, delegated, delegated);
+					}
+
+					ext(text, model, {target: key, initial: initial}, jit);
+return;
 					var delegated;
 
 					if (isDescendPrevented(exclude, text)) {
