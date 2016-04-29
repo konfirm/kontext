@@ -729,8 +729,6 @@
 				providers = options.providers,
 				exclude = [];
 
-console.log(providers);
-
 			//  bind the model to each element provided
 			expandNodeList(arg).forEach(function(element) {
 				//  register the bond, so we can retrieve it later on
