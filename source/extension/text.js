@@ -36,8 +36,7 @@
 	kontext.extension('text', function(element, model, config) {
 		'use strict';
 
-		var key = value(config, 'target') || String(config),
-			initial = value(config, 'initial') || null,
+		var key = config,
 			delegate = key ? model.delegation(key) : null,
 			text;
 
@@ -61,11 +60,6 @@
 
 			//  add the element to the elements which push/receive updates by Kontext
 			delegate.element(text);
-
-			//  if the delegate resolves to an empty value and we have an initial value, set it
-			if (!delegate() && initial) {
-				delegate(initial);
-			}
 		}
 	});
 })(kontext);

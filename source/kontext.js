@@ -761,7 +761,7 @@
 				new Text(options.pattern).placeholders(element, function(text, key, initial) {
 					var ext = extension('text'),
 						jit = {
-							extension: key,
+							extension: 'text',
 							stopDescend: function() {
 								exclude.push(text);
 							}
@@ -779,38 +779,38 @@
 						define(model, key, true, delegated, delegated);
 					}
 
-					ext(text, model, {target: key, initial: initial}, jit);
-return;
-					var delegated;
+					ext(text, model, key, jit);
 
-					if (isDescendPrevented(exclude, text)) {
-						return;
-					}
-					delegated = getDelegate(model, key);
-
-					//  if there is a delegation, we provide the scope
-					//  (only effective if no scope has been set)
-					if (delegated) {
-						delegated.scope(model, key);
-
-						//  if there is no (false-ish) value, we set the initial value from the textNode
-						//  (which may still be an empty string)
-						if (!delegated()) {
-							delegated(initial);
-						}
-					}
-					else if (options.greedy) {
-						//  create the delegate function
-						delegated = delegate(initial, model, key);
-
-						//  add the delegate function as getter/setter on the model
-						define(model, key, true, delegated, delegated);
-					}
-
-					//  if Kontext created the delegate, we should register the element to the delegation
-					if (delegated) {
-						delegated.element(text);
-					}
+					// var delegated;
+					//
+					// if (isDescendPrevented(exclude, text)) {
+					// 	return;
+					// }
+					// delegated = getDelegate(model, key);
+					//
+					// //  if there is a delegation, we provide the scope
+					// //  (only effective if no scope has been set)
+					// if (delegated) {
+					// 	delegated.scope(model, key);
+					//
+					// 	//  if there is no (false-ish) value, we set the initial value from the textNode
+					// 	//  (which may still be an empty string)
+					// 	if (!delegated()) {
+					// 		delegated(initial);
+					// 	}
+					// }
+					// else if (options.greedy) {
+					// 	//  create the delegate function
+					// 	delegated = delegate(initial, model, key);
+					//
+					// 	//  add the delegate function as getter/setter on the model
+					// 	define(model, key, true, delegated, delegated);
+					// }
+					//
+					// //  if Kontext created the delegate, we should register the element to the delegation
+					// if (delegated) {
+					// 	delegated.element(text);
+					// }
 				});
 			});
 
