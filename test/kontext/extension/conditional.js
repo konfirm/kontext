@@ -89,6 +89,16 @@ describe('Kontext Extension Conditional', function() {
 		});
 	}
 
+	it('implements public evaluation method', function() {
+		var condition = kontext.extension('conditional');
+
+		expect(typeof condition).toBe('function');
+		expect(typeof condition.evaluate).toBe('function');
+		expect(condition.evaluate({num: {$gte: 2}}, {num: 1})).toBe(false);
+		expect(condition.evaluate({num: {$gte: 2}}, {num: 2})).toBe(true);
+		expect(condition.evaluate({num: {$gte: 2}}, {num: 3})).toBe(true);
+	});
+
 	describe('adds/changes/removes itself', function() {
 		describe('comparison', function() {
 			comparison('$eq', '{$eq: 3}', 2, 3);
