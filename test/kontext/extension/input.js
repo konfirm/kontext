@@ -46,7 +46,7 @@ describe('Kontext Extension Input', function() {
 	describe('textual inputs', function() {
 		['', 'text', 'password', 'date'].forEach(function(type) {
 
-			it(type, function(done) {
+			it(type || 'empty type (no type)', function(done) {
 				var element = document.createElement('input'),
 					model;
 
