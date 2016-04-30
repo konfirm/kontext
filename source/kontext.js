@@ -1,4 +1,4 @@
-/*global Attribute: true, Emission: true, Observer: true, Settings: true, Text: true*/
+/*global Emission: true, Observer: true, Settings: true*/
 /*
  *       __    Kontext (version $DEV$ - $DATE$)
  *      /\_\
@@ -17,8 +17,6 @@
 	//@include lib/settings
 	//@include lib/emission
 	//@include lib/observer
-	//@include lib/text
-	//@include lib/attribute
 
 	/**
 	 *  Kontext module
@@ -160,13 +158,13 @@
 
 		/**
 		 *  Obtain an extension which is only capable of logging an error
-		 *  @name    extensionError
+		 *  @name    errorTrigger
 		 *  @access  internal
 		 *  @param   string    message  ['%s' will be replaced with additional argument values]
 		 *  @param   string    replacement
 		 *  @return  function  handler
 		 */
-		function extensionError() {
+		function errorTrigger() {
 			var arg = castToArray(arguments),
 				error = arg.reduce(function(prev, current) {
 					return prev.replace('%s', current);
@@ -179,13 +177,13 @@
 
 		/**
 		 *  Find all extensions of which the first characters match given name
-		 *  @name    abbreviateExtension
+		 *  @name    abbreviation
 		 *  @access  internal
 		 *  @param   string    name
 		 *  @param   object    extensions
 		 *  @return  function  handler
 		 */
-		function abbreviateExtension(name, ext) {
+		function abbreviation(name, ext) {
 			var list = Object.keys(ext)
 					.filter(function(key) {
 						return name === key.substr(0, name.length);
@@ -194,14 +192,14 @@
 			//  if multiple extensions match, we do not try to find the intended one, but log
 			//  an error instead
 			if (list.length > 1) {
-				return extensionError('Multiple extensions match "%s": %s', name, list);
+				return errorTrigger('Multiple extensions match "%s": %s', name, list);
 			}
 
 			return list.length ? ext[list[0]] : null;
 		}
 
 		/**
-		 *  Obtain and/or register an extension to be defined in the data attribute
+		 *  Obtain and/or register an extension
 		 *  @name    extension
 		 *  @access  internal
 		 *  @param   string    name
@@ -224,9 +222,9 @@
 			//  this should ensure Kontext to fully function and deliver more helpful error messages to
 			//  the developer
 			if (!(name in ext)) {
-				abbreviated = settings.public('abbreviateExtensions') ? abbreviateExtension(name, ext) : null;
+				abbreviated = settings.public('abbreviateExtensions') ? abbreviation(name, ext) : null;
 
-				return abbreviated || extensionError(
+				return abbreviated || errorTrigger(
 					'Unknown extension "%s"',
 					name
 				);
@@ -235,6 +233,14 @@
 			return ext[name];
 		}
 
+		/**
+		 *  Obtain and/or register a provider
+		 *  @name    provider
+		 *  @access  internal
+		 *  @param   string    name
+		 *  @param   function  handler  [optional, default undefined - return the provider]
+		 *  @return  function  handler
+		 */
 		function provider(name, handler) {
 			var prov = settings._('provider') || {},
 				available;
@@ -250,7 +256,7 @@
 			}
 
 			if (!(name in prov)) {
-				return extensionError('Unknown provider %s', name);
+				return errorTrigger('Unknown provider %s', name);
 			}
 
 			return prov[name];
@@ -464,17 +470,21 @@
 		 *  @return  model
 		 */
 		function prepare(model) {
-			var emitter;
+			var definer, emitter;
 
-			if (!contains(model, ['on', 'off', 'delegation'])) {
-				//  replace any key with a delegate
-				eachKey(model, function(key, value) {
-					var handle;
+			if (!contains(model, ['on', 'off', 'delegation', 'define'])) {
+				//  the model is not yet prepared
+				//  NOTE: this is an assumption based on the fact that one or more of
+				//        the expected methods are missing
 
-					if (!getDelegate(model, key)) {
-						handle = delegate(value, model, key);
+				//  create a function responsible for defining properties and registering
+				//  those to propagate updates
+				definer = function(key, initial) {
+					var handle = getDelegate(model, key);
 
-						//  add the delegated handle as both getter and setter on the model/key
+					if (!handle) {
+						handle = delegate(initial, model, key);
+
 						define(model, key, true, handle, handle);
 
 						//  a change emission on a property will trigger an update on the model
@@ -482,6 +492,13 @@
 							emitter.trigger('update', [model, key, prior, current]);
 						});
 					}
+
+					return handle;
+				};
+
+				//  replace any key with a delegate
+				eachKey(model, function(key, value) {
+					definer(key, value);
 
 					//  if the value is an object, we prepare it aswel so we can actually work with
 					//  scoped properties
@@ -497,8 +514,14 @@
 					}
 				});
 
-				//  add the emission methods
+				//  make the model emitable (adding the emission methods: on, off)
 				emitter = emitable(model);
+
+				//  add the 'define' method
+				//  NOTE:  this method is needed as with the introduction of providers,
+				//         all must in the same manner and there is the `greedy:true`
+				//         setting to support, which adds model properties found in templates
+				define(model, 'define', true, definer, false);
 
 				//  add the delegation method
 				define(model, 'delegation', true, function(key) {
@@ -694,11 +717,18 @@
 		 *  @access  public
 		 *  @param   string    name
 		 *  @param   function  handle
-		 *  @return  void
+		 *  @return  function  handle
 		 */
 		kontext.extension = extension;
 
-
+		/**
+		 *  Register providers
+		 *  @name    provider
+		 *  @access  public
+		 *  @param   string    name
+		 *  @param   function  handle
+		 *  @return  function  handle
+		 */
 		kontext.provider = provider;
 
 		/**
@@ -734,84 +764,34 @@
 				//  register the bond, so we can retrieve it later on
 				bindings(element, model);
 
-				//  work through all data-kontext (or configured override thereof) attributes
-				//  within (inclusive) given element
-				//  Attribute.find will do the filtering of unparsable/unavailable target
-				new Attribute().find(options.attribute, element, function(target, opt) {
-					if (isDescendPrevented(exclude, target)) {
-						return;
-					}
-
-					//  traverse all the keys present in the attribute value, for these represent
-					//  individual extensions
-					eachKey(opt, function(key, config) {
-						var ext = extension(key),
-							jit = {
-								extension: key,
-								stopDescend: function() {
-									exclude.push(target);
-								}
-							};
-
-						ext(target, model, config, jit);
-					});
-				});
-
-				//  work through all placeholders in DOMText nodes within (inclusive) the element
-				new Text(options.pattern).placeholders(element, function(text, key, initial) {
-					var ext = extension('text'),
-						jit = {
-							extension: 'text',
-							stopDescend: function() {
-								exclude.push(text);
+				providers
+					.map(function(p) {
+						return provider(p);
+					})
+					.forEach(function(provide) {
+						provide(options, element, function(target, opt) {
+							//  if an extension has indicated not to let Kontext invoke
+							//  extensions on its children, exit the loop
+							if (isDescendPrevented(exclude, target)) {
+								return;
 							}
-						},
-						delegated;
 
-					if (isDescendPrevented(exclude, text)) {
-						// return;
-					}
-					else if (options.greedy && !(delegated = getDelegate(model, key))) {
-						//  create the delegate function
-						delegated = delegate(initial, model, key);
+							//  traverse all the keys present in the attribute value,
+							//  for these represent individual extensions
+							eachKey(opt, function(key, config) {
+								var ext = extension(key),
+									jit = {
+										options: options,
+										extension: key,
+										stopDescend: function() {
+											exclude.push(target);
+										}
+									};
 
-						//  add the delegate function as getter/setter on the model
-						define(model, key, true, delegated, delegated);
-					}
-
-					ext(text, model, key, jit);
-
-					// var delegated;
-					//
-					// if (isDescendPrevented(exclude, text)) {
-					// 	return;
-					// }
-					// delegated = getDelegate(model, key);
-					//
-					// //  if there is a delegation, we provide the scope
-					// //  (only effective if no scope has been set)
-					// if (delegated) {
-					// 	delegated.scope(model, key);
-					//
-					// 	//  if there is no (false-ish) value, we set the initial value from the textNode
-					// 	//  (which may still be an empty string)
-					// 	if (!delegated()) {
-					// 		delegated(initial);
-					// 	}
-					// }
-					// else if (options.greedy) {
-					// 	//  create the delegate function
-					// 	delegated = delegate(initial, model, key);
-					//
-					// 	//  add the delegate function as getter/setter on the model
-					// 	define(model, key, true, delegated, delegated);
-					// }
-					//
-					// //  if Kontext created the delegate, we should register the element to the delegation
-					// if (delegated) {
-					// 	delegated.element(text);
-					// }
-				});
+								ext(target, model, config, jit);
+							});
+						});
+					});
 			});
 
 			return model;

@@ -1,6 +1,6 @@
-/*global Attribute: true, Emission: true, Observer: true, Settings: true, Text: true*/
+/*global Emission: true, Observer: true, Settings: true*/
 /*
- *       __    Kontext (version 1.5.0 - 2016-04-29)
+ *       __    Kontext (version 1.5.0 - 2016-04-30)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,19 +15,16 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Apr 29 2016 10:31:48 GMT+0200 (CEST)
-	 *    time: 8.85ms
-	 *    size: 40.83KB
+	 *    date: Sat Apr 30 2016 12:47:07 GMT+0200 (CEST)
+	 *    time: 2.89ms
+	 *    size: 29.66KB
 	 *  ---------------------------------------------------------------------
-	 *   included 6 files
-	 *     +1.95KB source/lib/settings
+	 *   included 3 files
+	 *     +1.97KB source/lib/settings
 	 *     +3.06KB source/lib/emission
 	 *     +2.15KB source/lib/observer
-	 *     +2.40KB source/lib/text
-	 *     +9.42KB source/lib/attribute
-	 *     +6.69KB source/lib/json-formatter
 	 *  ---------------------------------------------------------------------
-	 *   total: 66.49KB
+	 *   total: 36.83KB
 	 */
 
 	//  load dependencies
@@ -54,11 +51,13 @@
 		function merge(a, b) {
 			Object.keys(b)
 				.forEach(function(key) {
-					if (typeof b[key] === 'object' && b[key]) {
-						a[key] = merge(typeof a[key] === 'object' ? a[key] : b[key] instanceof RegExp ? b[key] : {}, b[key]);
+					var value = b[key];
+
+					if (key in a && b[key] && typeof b[key] === 'object' && !(value instanceof RegExp || value instanceof Array)) {
+						a[key] = merge(a[key], value);
 					}
 					else {
-						a[key] = b[key];
+						a[key] = value;
 					}
 				});
 
@@ -117,7 +116,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [533.49µs, 1.80KB]
+	//END INCLUDE: lib/settings [633.83µs, 1.82KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -243,7 +242,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [252.14µs, 2.88KB]
+	//END INCLUDE: lib/emission [264.79µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -339,468 +338,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [258.80µs, 1.99KB]
-	//BEGIN INCLUDE: lib/text
-	//  strict mode (already enabled)
-
-	/**
-	 *  Text node wrapper
-	 *  @name     Text
-	 *  @package  Kontext
-	 */
-	function Text(pattern) {  //  eslint-disable-line no-unused-vars
-		var text = this;
-
-		/**
-		 *  Obtain all textNodes residing within given element
-		 *  @name    textNodes
-		 *  @access  internal
-		 *  @param   DOMElement
-		 *  @return  Array  textNodes
-		 */
-		function textNodes(element) {
-			var result = [],
-				walker, node;
-
-			if (element.nodeType === 3) {
-				result.push(element);
-			}
-			else {
-				walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
-				while ((node = walker.nextNode())) {
-					result.push(node);
-				}
-			}
-
-			return result;
-		}
-
-		/**
-		 *  Split a DOMText node into placeholder and non-placeholder parts, returning an array of all DOMText nodes
-		 *  containing a placeholder
-		 *  @name   splitter
-		 *  @access internal
-		 *  @param  DOMText node
-		 *  @return array   DOMText nodes
-		 */
-		function splitter(node) {
-			var match = node.nodeValue.match(pattern),
-				content = match ? (match.index === 0 ? node : node.splitText(match.index)) : null,
-				remainder = match ? content.splitText(match[0].length) : null,
-				result = [];
-
-			if (content) {
-				result.push({
-					node: content,
-					key: match[2],
-					initial: match[3] || ''
-				});
-				content.original = content.nodeValue;
-			}
-
-			if (remainder) {
-				result = result.concat(splitter(remainder));
-			}
-
-			return result;
-		}
-
-		/**
-		 *  Obtain all placeholder DOMText nodes within given element
-		 *  @name    placeholders
-		 *  @access  public
-		 *  @param   DOMNode element
-		 *  @return  array   DOMText nodes
-		 */
-		function placeholders(element) {
-			var result = [];
-
-			//  traverse all textnodes and split them in order to obtain only the placeholder nodes
-			textNodes(element).forEach(function(node) {
-				result = result.concat(splitter(node));
-			});
-
-			return result;
-		}
-
-		/**
-		 *  Obtain all placeholder DOMText nodes withing given element and apply the callback to it
-		 *  @name    placeholders
-		 *  @access  public
-		 *  @param   DOMNode   element
-		 *  @param   function  callback
-		 *  @return  void
-		 */
-		text.placeholders = function(element, callback) {
-			if (element) {
-				placeholders(element).forEach(function(data) {
-					callback.apply(null, [data.node, data.key, data.initial]);
-				});
-			}
-		};
-	}
-
-	//END INCLUDE: lib/text [301.36µs, 2.24KB]
-	//BEGIN INCLUDE: lib/attribute
-	/*global JSONFormatter: true*/
-	//  strict mode (already enabled)
-
-	/**
-	 *  Attribute wrapper
-	 *  @name     Attribute
-	 *  @package  Kontext
-	 */
-	function Attribute() {  //  eslint-disable-line no-unused-vars
-		var attribute = this,
-			json;
-
-
-		//BEGIN INCLUDE: json-formatter
-		//  strict mode (already enabled)
-
-		/**
-		 *  Format a string containing (valid) js variables into proper JSON so it can be handled by JSON.parse
-		 *  @name       JSONFormatter
-		 *  @package    Kontext
-		 */
-		function JSONFormatter() {  //  eslint-disable-line no-unused-vars
-			//  Implement a Singleton pattern and allow JSONFormatter to be invoked without the `new` keyword
-			/* istanbul ignore next */
-			if (typeof JSONFormatter.prototype.__instance !== 'undefined' || !(this instanceof JSONFormatter)) {
-				return JSONFormatter.prototype.__instance || new JSONFormatter();
-			}
-
-			//  Maintain a reference to the first instance (which - if exists - is returned in the flow above)
-			JSONFormatter.prototype.__instance = this;
-
-			var formatter = this,
-				special = '\'":,{}[] ',
-				quotation = '"',
-				pattern = {
-					escape: /["\\\/\b\f\n\r\t]/,
-					noquote: /^(?:true|false|null|-?[0-9]+(?:\.[0-9]+)?)$/i,
-					trailer: /[,]+$/
-				};
-
-			/**
-			 *  Determine is a token is a special character
-			 *  @name    isSpecial
-			 *  @access  internal
-			 *  @param   string  token
-			 *  @return  bool  special
-			 */
-			function isSpecial(token) {
-				return special.indexOf(token) >= 0;
-			}
-
-			/**
-			 *  Add quotes if required
-			 *  @name    addQuotation
-			 *  @access  internal
-			 *  @param   string  token
-			 *  @param   bool    force
-			 *  @return  string  JSON-token
-			 */
-			function addQuotation(token, force) {
-				var quote = quotation;
-
-				//  if quotation is not enforced, we must skip application of quotes for certain tokens
-				if (!force && (isSpecial(token) || pattern.noquote.test(token))) {
-					quote = '';
-				}
-
-				return quote + token + quote;
-			}
-
-			/**
-			 *  Remove trailing commas from the result stack
-			 *  @name    removeTrailing
-			 *  @access  internal
-			 *  @param   Array  result
-			 *  @return  Array  result
-			 */
-			function removeTrailing(result) {
-				return pattern.trailer.test(result) ? removeTrailing(result.substr(0, result.length - 1)) : result;
-			}
-
-			/* istanbul ignore next */
-			/**
-			 *  Handle a quoted string, ensuring proper escaping for double quoted strings
-			 *  @name    escapeQuotedInput
-			 *  @access  internal
-			 *  @param   string  token
-			 *  @array   Array   list
-			 *  @return  Array   result
-			 */
-			function escapeQuotedInput(token, list) {
-				var result = [],
-					character;
-
-				//  token is the initial (opening) quotation character, we are not (yet) interested in this,
-				//  as we need to process the stuff in list, right until we find a matching token
-				while (list.length) {
-					character = list.shift();
-
-					//  reduce provided escaping
-					if (character[character.length - 1] === '\\') {
-						if (!pattern.escape.test(list[0])) {
-							//  remove the escape character
-							character = character.substr(0, character.length - 1);
-						}
-
-						//  add the result
-						result.push(character);
-
-						//  while we are at it, we may aswel move the (at least previously) escaped
-						//  character to the result
-						result.push(list.shift());
-						continue;
-					}
-					else if (character === token) {
-						//  with the escaping taken care of, we now know the string has ended
-						break;
-					}
-
-					result.push(character);
-				}
-
-				return addQuotation(result.join(''));
-			}
-
-			/**
-			 *  Nibble the next token from the list and handle it
-			 *  @name    nibble
-			 *  @access  internal
-			 *  @param   string  result
-			 *  @param   array   tokens
-			 *  @return  string  result
-			 *  @TODO    There is an issue with quotation symbols inside strings
-			 *           e.g. 'hello"world' becomes '"hello""world"' while it should become '"hello\"world"'
-			 */
-			function nibble(result, list) {
-				var token = list.shift();
-
-				switch (token) {
-
-					//  ignore whitespace outside of quoted patterns
-					case ' ':
-						break;
-
-					//  remove any trailing commas and whitespace
-					case '}':
-					case ']':
-						result = removeTrailing(result) + token;
-						break;
-
-					//  add/remove escaping
-					case '"':
-					case '\'':
-						result += escapeQuotedInput(token, list);
-						break;
-
-					//  determine if the value needs to be quoted (always true if the next item in the list is a separator)
-					default:
-						result += addQuotation(token, list[0] === ':');
-						break;
-				}
-
-				return result;
-			}
-
-			/**
-			 *  Compile the JSON-formatted string from a list of 'tokenized' data
-			 *  @name    compiler
-			 *  @access  internal
-			 *  @param   Array   list
-			 *  @return  string  JSON-formatted
-			 */
-			function compiler(list) {
-				var result = '';
-
-				while (list.length) {
-					result = nibble(result, list);
-				}
-
-				return result;
-			}
-
-			/**
-			 *  Tokenize the input, adding each special character to be its own item in the resulting array
-			 *  @name    tokenize
-			 *  @access  internal
-			 *  @param   string  input
-			 *  @result  Array   tokens
-			 */
-			function tokenize(input) {
-				var result = [],
-					i;
-
-				//  check each character in the string
-				for (i = 0; i < input.length; ++i) {
-					//  if there is not result or the current or previous input is special, we create a new result item
-					if (result.length === 0 || isSpecial(input[i]) || isSpecial(result[result.length - 1])) {
-						result.push(input[i]);
-					}
-
-					//  extend the previous item
-					else {
-						result[result.length - 1] += input[i];
-					}
-				}
-
-				return result;
-			}
-
-			/* istanbul ignore next */
-			/**
-			 *  Apply Object or Array notation (string.replace helper for an expression resulting in ':' or ',')
-			 *  @name    notation
-			 *  @access  internal
-			 *  @param   string  full match
-			 *  @param   string  matching symbol
-			 *  @return  string  wrapped
-			 */
-			function notation(match, symbol) {
-				var character = symbol === ':' ? '{}' : '[]',
-					position = match.indexOf(symbol),
-					string = (match.match(/"/g) || []).length === 2 && match.indexOf('"') < position && match.lastIndexOf('"') > position;
-
-				//  figure out if the notation should be added or may be skipped
-				return !string && match[0] !== character[0] ? character[0] + removeTrailing(match) + character[1] : match;
-			}
-
-			/**
-			 *  Prepare a string to become a JSON-representation
-			 *  @name    prepare
-			 *  @access  public
-			 *  @param   string  input
-			 *  @return  string  JSON-formatted
-			 */
-			formatter.prepare = function(input) {
-				/* istanbul ignore next */
-				if (typeof input !== 'string') {
-					return '';
-				}
-
-				//  tokenize the input and feed it to the compiler in one go
-				return compiler(tokenize(input))
-					.replace(/^.*?([:,]).*$/, notation)
-				;
-			};
-
-			/**
-			 *  Prepare a string and parse it using JSON.parse
-			 *  @name    parse
-			 *  @access  public
-			 *  @param   string  input
-			 *  @return  mixed   parsed
-			 */
-			formatter.parse = function(input) {
-				var prepared = formatter.prepare(input);
-
-				return prepared ? JSON.parse(prepared) : null;
-			};
-		}
-
-		//END INCLUDE: json-formatter [362.38µs, 6.40KB]
-		/**
-		 *  Initializer - setting up the defaults
-		 *  @name    init
-		 *  @access  internal
-		 *  @return  void
-		 */
-		function init() {
-			json = new JSONFormatter();
-		}
-
-		/**
-		 *  Obtain all nodes containing the data attribute residing within given element
-		 *  @name    attributes
-		 *  @access  internal
-		 *  @param   string  attribute name
-		 *  @param   object  DOMElement
-		 *  @return  Array  DOMElement
-		 */
-		function attributes(attr, element) {
-			var result = [],
-				list, i;
-
-			switch (element.nodeType) {
-				case 1:  //  DOMElement
-					if (element.hasAttribute(attr)) {
-						result.push(element);
-					}
-
-					/*falls through*/
-				case 9:   //  DOMDocument (DOMElement if fallen through)
-				case 11:  //  DocumentFragment
-					list = element.querySelectorAll('[' + attr + ']');
-					for (i = 0; i < list.length; ++i) {
-						result.push(list[i]);
-					}
-
-					break;
-			}
-
-			return result;
-		}
-
-		/**
-		 *  Verify whether the target resides in the element (regardless of its type)
-		 *  @name    contains
-		 *  @access  internal
-		 *  @param   DOMNode  element
-		 *  @param   DOMNode  target
-		 *  @return  bool  contains
-		 */
-		function contains(element, target) {
-			var i;
-
-			switch (element.nodeType) {
-				case 1:  //  DOMElement
-					return element.contains(target);
-
-				case 9:  //  DOMDocument
-					return element.body.contains(target);
-
-				case 11:  //  DocumentFragment
-					for (i = 0; i < element.childNodes.length; ++i) {
-						if (contains(element.childNodes[i], target)) {
-							return true;
-						}
-					}
-			}
-
-			return false;
-		}
-
-		/**
-		 *  Search for elements containing the specificed attribute within the given element,
-		 *  invoking the callback with the matching element and the JSON parsed contents
-		 *  @name    find
-		 *  @access  public
-		 *  @param   string     attribute
-		 *  @param   DOMElement element
-		 *  @param   function   callback
-		 *  @return  void
-		 */
-		attribute.find = function(name, element, callback) {
-			if (element) {
-				attributes(name, element)
-					.forEach(function(node) {
-						var options = contains(element, node) ? json.parse(node.getAttribute(name)) : null;
-
-						if (options) {
-							callback(node, options);
-						}
-					});
-			}
-		};
-
-		init();
-	}
-
-	//END INCLUDE: lib/attribute [4.91ms, 9.04KB]
+	//END INCLUDE: lib/observer [175.43µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -867,6 +405,7 @@
 			//  public settings (this is what is provided/changed when using the kontext.defaults method)
 			settings.public({
 				greedy: true,
+				providers: [],
 				abbreviateExtensions: true,
 				attribute: 'data-kontext',
 				pattern: /(\{(\$?[a-z_]+[\.-]?(?:[a-z0-9_]+[\.-]?)*)(?::([^\}]+))?\})/i
@@ -940,13 +479,13 @@
 
 		/**
 		 *  Obtain an extension which is only capable of logging an error
-		 *  @name    extensionError
+		 *  @name    errorTrigger
 		 *  @access  internal
 		 *  @param   string    message  ['%s' will be replaced with additional argument values]
 		 *  @param   string    replacement
 		 *  @return  function  handler
 		 */
-		function extensionError() {
+		function errorTrigger() {
 			var arg = castToArray(arguments),
 				error = arg.reduce(function(prev, current) {
 					return prev.replace('%s', current);
@@ -959,13 +498,13 @@
 
 		/**
 		 *  Find all extensions of which the first characters match given name
-		 *  @name    abbreviateExtension
+		 *  @name    abbreviation
 		 *  @access  internal
 		 *  @param   string    name
 		 *  @param   object    extensions
 		 *  @return  function  handler
 		 */
-		function abbreviateExtension(name, ext) {
+		function abbreviation(name, ext) {
 			var list = Object.keys(ext)
 					.filter(function(key) {
 						return name === key.substr(0, name.length);
@@ -974,14 +513,14 @@
 			//  if multiple extensions match, we do not try to find the intended one, but log
 			//  an error instead
 			if (list.length > 1) {
-				return extensionError('Multiple extensions match "%s": %s', name, list);
+				return errorTrigger('Multiple extensions match "%s": %s', name, list);
 			}
 
 			return list.length ? ext[list[0]] : null;
 		}
 
 		/**
-		 *  Obtain and/or register an extension to be defined in the data attribute
+		 *  Obtain and/or register an extension
 		 *  @name    extension
 		 *  @access  internal
 		 *  @param   string    name
@@ -1004,15 +543,44 @@
 			//  this should ensure Kontext to fully function and deliver more helpful error messages to
 			//  the developer
 			if (!(name in ext)) {
-				abbreviated = settings.public('abbreviateExtensions') ? abbreviateExtension(name, ext) : null;
+				abbreviated = settings.public('abbreviateExtensions') ? abbreviation(name, ext) : null;
 
-				return abbreviated || extensionError(
+				return abbreviated || errorTrigger(
 					'Unknown extension "%s"',
 					name
 				);
 			}
 
 			return ext[name];
+		}
+
+		/**
+		 *  Obtain and/or register a provider
+		 *  @name    provider
+		 *  @access  internal
+		 *  @param   string    name
+		 *  @param   function  handler  [optional, default undefined - return the provider]
+		 *  @return  function  handler
+		 */
+		function provider(name, handler) {
+			var prov = settings._('provider') || {},
+				available;
+
+			if (handler) {
+				prov[name] = handler;
+				settings._('provider', prov);
+				available = settings.public('providers');
+				if (available.indexOf(name) < 0) {
+					available.push(name);
+					settings.public('providers', available);
+				}
+			}
+
+			if (!(name in prov)) {
+				return errorTrigger('Unknown provider %s', name);
+			}
+
+			return prov[name];
 		}
 
 		/**
@@ -1223,17 +791,21 @@
 		 *  @return  model
 		 */
 		function prepare(model) {
-			var emitter;
+			var definer, emitter;
 
-			if (!contains(model, ['on', 'off', 'delegation'])) {
-				//  replace any key with a delegate
-				eachKey(model, function(key, value) {
-					var handle;
+			if (!contains(model, ['on', 'off', 'delegation', 'define'])) {
+				//  the model is not yet prepared
+				//  NOTE: this is an assumption based on the fact that one or more of
+				//        the expected methods are missing
 
-					if (!getDelegate(model, key)) {
-						handle = delegate(value, model, key);
+				//  create a function responsible for defining properties and registering
+				//  those to propagate updates
+				definer = function(key, initial) {
+					var handle = getDelegate(model, key);
 
-						//  add the delegated handle as both getter and setter on the model/key
+					if (!handle) {
+						handle = delegate(initial, model, key);
+
 						define(model, key, true, handle, handle);
 
 						//  a change emission on a property will trigger an update on the model
@@ -1241,6 +813,13 @@
 							emitter.trigger('update', [model, key, prior, current]);
 						});
 					}
+
+					return handle;
+				};
+
+				//  replace any key with a delegate
+				eachKey(model, function(key, value) {
+					definer(key, value);
 
 					//  if the value is an object, we prepare it aswel so we can actually work with
 					//  scoped properties
@@ -1256,8 +835,14 @@
 					}
 				});
 
-				//  add the emission methods
+				//  make the model emitable (adding the emission methods: on, off)
 				emitter = emitable(model);
+
+				//  add the 'define' method
+				//  NOTE:  this method is needed as with the introduction of providers,
+				//         all must in the same manner and there is the `greedy:true`
+				//         setting to support, which adds model properties found in templates
+				define(model, 'define', true, definer, false);
 
 				//  add the delegation method
 				define(model, 'delegation', true, function(key) {
@@ -1453,9 +1038,19 @@
 		 *  @access  public
 		 *  @param   string    name
 		 *  @param   function  handle
-		 *  @return  void
+		 *  @return  function  handle
 		 */
 		kontext.extension = extension;
+
+		/**
+		 *  Register providers
+		 *  @name    provider
+		 *  @access  public
+		 *  @param   string    name
+		 *  @param   function  handle
+		 *  @return  function  handle
+		 */
+		kontext.provider = provider;
 
 		/**
 		 *  Create a delegation value with an initial value
@@ -1482,6 +1077,7 @@
 				model = prepare(arg.shift()),
 				pop = arg.length && !contains(arg[arg.length - 1], ['nodeType', 'length'], 1),
 				options = settings.combine(pop ? arg.pop() : {}),
+				providers = options.providers,
 				exclude = [];
 
 			//  bind the model to each element provided
@@ -1489,57 +1085,34 @@
 				//  register the bond, so we can retrieve it later on
 				bindings(element, model);
 
-				//  work through all data-kontext (or configured override thereof) attributes
-				//  within (inclusive) given element
-				//  Attribute.find will do the filtering of unparsable/unavailable target
-				new Attribute().find(options.attribute, element, function(target, opt) {
-					if (isDescendPrevented(exclude, target)) {
-						return;
-					}
+				providers
+					.map(function(p) {
+						return provider(p);
+					})
+					.forEach(function(provide) {
+						provide(options, element, function(target, opt) {
+							//  if an extension has indicated not to let Kontext invoke
+							//  extensions on its children, exit the loop
+							if (isDescendPrevented(exclude, target)) {
+								return;
+							}
 
-					//  traverse all the keys present in the attribute value, for these represent
-					//  individual extensions
-					eachKey(opt, function(key, config) {
-						var ext = extension(key),
-							jit = {
-								extension: key,
-								stopDescend: function() {
-									exclude.push(target);
-								}
-							};
+							//  traverse all the keys present in the attribute value,
+							//  for these represent individual extensions
+							eachKey(opt, function(key, config) {
+								var ext = extension(key),
+									jit = {
+										options: options,
+										extension: key,
+										stopDescend: function() {
+											exclude.push(target);
+										}
+									};
 
-						ext(target, model, config, jit);
+								ext(target, model, config, jit);
+							});
+						});
 					});
-				});
-
-				//  work through all placeholders in DOMText nodes within (inclusive) within the element
-				new Text(options.pattern).placeholders(element, function(text, key, initial) {
-					var delegated = getDelegate(model, key);
-
-					//  if there is a delegation, we provide the scope
-					//  (only effective if no scope has been set)
-					if (delegated) {
-						delegated.scope(model, key);
-
-						//  if there is no (false-ish) value, we set the initial value from the textNode
-						//  (which may still be an empty string)
-						if (!delegated()) {
-							delegated(initial);
-						}
-					}
-					else if (options.greedy) {
-						//  create the delegate function
-						delegated = delegate(initial, model, key);
-
-						//  add the delegate function as getter/setter on the model
-						define(model, key, true, delegated, delegated);
-					}
-
-					//  if Kontext created the delegate, we should register the element to the delegation
-					if (delegated) {
-						delegated.element(text);
-					}
-				});
 			});
 
 			return model;
@@ -2055,7 +1628,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [563.40µs, 11.27KB]
+	//END INCLUDE: ../lib/condition [335.25µs, 11.27KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2245,10 +1818,11 @@ kontext.extension('each', function(element, model, config, options) {
 	 *  Obtain the cached item, creating it if it is not available yet
 	 *  @name    fetch
 	 *  @access  internal
-	 *  @param   mixed   value
-	 *  @return  Object  item
+	 *  @param   mixed     value
+	 *  @param   function  delegate
+	 *  @return  Object    item
 	 */
-	function fetch(value) {
+	function fetch(value, delegate) {
 		var filtered = cache.filter(function(o) {
 				return o.item === value;
 			}),
@@ -2269,7 +1843,7 @@ kontext.extension('each', function(element, model, config, options) {
 			//  as normal model members (which also means they become visible)
 			bind.$item   = value;
 			bind.$index  = 0;
-			bind.$parent = null;
+			bind.$parent = delegate();
 			bind.$model  = model;
 
 			result = {
@@ -2360,12 +1934,9 @@ kontext.extension('each', function(element, model, config, options) {
 		var output = [];
 
 		collection.forEach(function(value, index) {
-			var item = fetch(value);
+			var item = fetch(value, delegate);
 
 			item.model.$index = index;
-			if (!('$parent' in item.model && item.model.$parent)) {
-				item.model.$parent = delegate();
-			}
 
 			output = output.concat(item.nodes);
 		});
@@ -2991,7 +2562,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [331.91µs, 5.21KB]
+	//END INCLUDE: ../lib/template [221.08µs, 5.21KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -3066,19 +2637,601 @@ kontext.extension('html', function(element, model, key) {
  *  @syntax   <span data-kontext="text: foo">replaced</span>
  *            <span data-kontext="text: foo">replaced<strong> stuff</strong></span>
  */
-kontext.extension('text', function(element, model, key) {
-	'use strict';
+(function(kontext) {
+	/**
+	 *  Obtain the value of an object key, null if not found
+	 *  @name    objectKey
+	 *  @access  internal
+	 *  @param   Object  search
+	 *  @param   string  key
+	 *  @return  mixed   value  [undefined if not found]
+	 */
+	function objectKey(object, key) {
+		return object && typeof object === 'object' && key in object ? object[key] : undefined;
+	}
 
-	var text = element.firstChild && element.firstChild.nodeType === 3 ? element.firstChild : document.createTextNode(model[key]),
-		delegate = model.delegation(key);
+	/**
+	 *  Determine if the variable is a DOMText node
+	 *  @name    isText
+	 *  @access  internal
+	 *  @param   mixed  node
+	 *  @return  bool   is text
+	 */
+	function isText(node) {
+		return objectKey(node, 'nodeType') === 3;
+	}
 
-	if (delegate) {
-		//  ensure the existence of the text element
-		if (text.parentNode !== element && text !== element.firstChild) {
-			element.insertBefore(text, element.firstChild);
+	/**
+	 *  Obtain a DOMText element to associate with updates
+	 *  @name    ensureText
+	 *  @access  internal
+	 *  @param   DOMNode  element
+	 *  @return  DOMText  text
+	 *  @note    DOMText is:
+	 *           - DOMNode.firstChild, if it exists and is a DOMText instance
+	 *           - new DOMText, created as first child of DOMElement
+	 *           - provided directly  (since the introduction of Kontext providers)
+	 */
+	function ensureText(element) {
+		if (isText(element)) {
+			return element;
+		}
+		else if (isText(element.firstChild)) {
+			return element.firstChild;
 		}
 
-		//  add the element to the elements which push/receive updates by Kontext
-		delegate.element(text);
+		//  create a new (empty string) DOMText element and append it to the element
+		return element.insertBefore(document.createTextNode(''), element.firstChild);
 	}
-});
+
+	//  register the Text extension to kontext
+	kontext.extension('text', function(element, model, config, options) {
+		'use strict';
+
+		var key = objectKey(config, 'target') || config,
+			initial = objectKey(config, 'initial'),
+			delegate = key ? model.delegation(key) : null,
+			text;
+
+		if (options.options.greedy && !delegate) {
+			delegate = model.define(key, initial);
+		}
+
+		//  if a delegate is found, ensure a DOMText node
+		if (delegate) {
+			text = ensureText(element);
+
+			if (!delegate() && initial !== undefined) {
+				// console.log('B: delegate() is empty, setting to', JSON.stringify(initial));
+				delegate(initial);
+			}
+
+			//  add the element to the elements which push/receive updates by Kontext
+			delegate.element(text);
+		}
+	});
+})(kontext);
+/*global kontext: true, Attribute: true*/
+/**
+ *  Attribute node provider
+ *  @name     Attribute
+ *  @package  Kontext
+ */
+(function(kontext) {
+
+	/*
+	 *  BUILD INFO
+	 *  ---------------------------------------------------------------------
+	 *    date: Sat Apr 30 2016 12:47:07 GMT+0200 (CEST)
+	 *    time: 9.40ms
+	 *    size: 9.75KB
+	 *  ---------------------------------------------------------------------
+	 *   included 2 files
+	 *     +9.42KB source/provider/../lib/attribute
+	 *     +6.69KB source/provider/../lib/json-formatter
+	 *  ---------------------------------------------------------------------
+	 *   total: 25.86KB
+	 */
+
+	//  load dependencies
+
+	//BEGIN INCLUDE: ../lib/attribute
+	/*global JSONFormatter: true*/
+	//  strict mode (already enabled)
+
+	/**
+	 *  Attribute wrapper
+	 *  @name     Attribute
+	 *  @package  Kontext
+	 */
+	function Attribute() {  //  eslint-disable-line no-unused-vars
+		var attribute = this,
+			json;
+
+
+		//BEGIN INCLUDE: json-formatter
+		//  strict mode (already enabled)
+
+		/**
+		 *  Format a string containing (valid) js variables into proper JSON so it can be handled by JSON.parse
+		 *  @name       JSONFormatter
+		 *  @package    Kontext
+		 */
+		function JSONFormatter() {  //  eslint-disable-line no-unused-vars
+			//  Implement a Singleton pattern and allow JSONFormatter to be invoked without the `new` keyword
+			/* istanbul ignore next */
+			if (typeof JSONFormatter.prototype.__instance !== 'undefined' || !(this instanceof JSONFormatter)) {
+				return JSONFormatter.prototype.__instance || new JSONFormatter();
+			}
+
+			//  Maintain a reference to the first instance (which - if exists - is returned in the flow above)
+			JSONFormatter.prototype.__instance = this;
+
+			var formatter = this,
+				special = '\'":,{}[] ',
+				quotation = '"',
+				pattern = {
+					escape: /["\\\/\b\f\n\r\t]/,
+					noquote: /^(?:true|false|null|-?[0-9]+(?:\.[0-9]+)?)$/i,
+					trailer: /[,]+$/
+				};
+
+			/**
+			 *  Determine is a token is a special character
+			 *  @name    isSpecial
+			 *  @access  internal
+			 *  @param   string  token
+			 *  @return  bool  special
+			 */
+			function isSpecial(token) {
+				return special.indexOf(token) >= 0;
+			}
+
+			/**
+			 *  Add quotes if required
+			 *  @name    addQuotation
+			 *  @access  internal
+			 *  @param   string  token
+			 *  @param   bool    force
+			 *  @return  string  JSON-token
+			 */
+			function addQuotation(token, force) {
+				var quote = quotation;
+
+				//  if quotation is not enforced, we must skip application of quotes for certain tokens
+				if (!force && (isSpecial(token) || pattern.noquote.test(token))) {
+					quote = '';
+				}
+
+				return quote + token + quote;
+			}
+
+			/**
+			 *  Remove trailing commas from the result stack
+			 *  @name    removeTrailing
+			 *  @access  internal
+			 *  @param   Array  result
+			 *  @return  Array  result
+			 */
+			function removeTrailing(result) {
+				return pattern.trailer.test(result) ? removeTrailing(result.substr(0, result.length - 1)) : result;
+			}
+
+			/* istanbul ignore next */
+			/**
+			 *  Handle a quoted string, ensuring proper escaping for double quoted strings
+			 *  @name    escapeQuotedInput
+			 *  @access  internal
+			 *  @param   string  token
+			 *  @array   Array   list
+			 *  @return  Array   result
+			 */
+			function escapeQuotedInput(token, list) {
+				var result = [],
+					character;
+
+				//  token is the initial (opening) quotation character, we are not (yet) interested in this,
+				//  as we need to process the stuff in list, right until we find a matching token
+				while (list.length) {
+					character = list.shift();
+
+					//  reduce provided escaping
+					if (character[character.length - 1] === '\\') {
+						if (!pattern.escape.test(list[0])) {
+							//  remove the escape character
+							character = character.substr(0, character.length - 1);
+						}
+
+						//  add the result
+						result.push(character);
+
+						//  while we are at it, we may aswel move the (at least previously) escaped
+						//  character to the result
+						result.push(list.shift());
+						continue;
+					}
+					else if (character === token) {
+						//  with the escaping taken care of, we now know the string has ended
+						break;
+					}
+
+					result.push(character);
+				}
+
+				return addQuotation(result.join(''));
+			}
+
+			/**
+			 *  Nibble the next token from the list and handle it
+			 *  @name    nibble
+			 *  @access  internal
+			 *  @param   string  result
+			 *  @param   array   tokens
+			 *  @return  string  result
+			 *  @TODO    There is an issue with quotation symbols inside strings
+			 *           e.g. 'hello"world' becomes '"hello""world"' while it should become '"hello\"world"'
+			 */
+			function nibble(result, list) {
+				var token = list.shift();
+
+				switch (token) {
+
+					//  ignore whitespace outside of quoted patterns
+					case ' ':
+						break;
+
+					//  remove any trailing commas and whitespace
+					case '}':
+					case ']':
+						result = removeTrailing(result) + token;
+						break;
+
+					//  add/remove escaping
+					case '"':
+					case '\'':
+						result += escapeQuotedInput(token, list);
+						break;
+
+					//  determine if the value needs to be quoted (always true if the next item in the list is a separator)
+					default:
+						result += addQuotation(token, list[0] === ':');
+						break;
+				}
+
+				return result;
+			}
+
+			/**
+			 *  Compile the JSON-formatted string from a list of 'tokenized' data
+			 *  @name    compiler
+			 *  @access  internal
+			 *  @param   Array   list
+			 *  @return  string  JSON-formatted
+			 */
+			function compiler(list) {
+				var result = '';
+
+				while (list.length) {
+					result = nibble(result, list);
+				}
+
+				return result;
+			}
+
+			/**
+			 *  Tokenize the input, adding each special character to be its own item in the resulting array
+			 *  @name    tokenize
+			 *  @access  internal
+			 *  @param   string  input
+			 *  @result  Array   tokens
+			 */
+			function tokenize(input) {
+				var result = [],
+					i;
+
+				//  check each character in the string
+				for (i = 0; i < input.length; ++i) {
+					//  if there is not result or the current or previous input is special, we create a new result item
+					if (result.length === 0 || isSpecial(input[i]) || isSpecial(result[result.length - 1])) {
+						result.push(input[i]);
+					}
+
+					//  extend the previous item
+					else {
+						result[result.length - 1] += input[i];
+					}
+				}
+
+				return result;
+			}
+
+			/* istanbul ignore next */
+			/**
+			 *  Apply Object or Array notation (string.replace helper for an expression resulting in ':' or ',')
+			 *  @name    notation
+			 *  @access  internal
+			 *  @param   string  full match
+			 *  @param   string  matching symbol
+			 *  @return  string  wrapped
+			 */
+			function notation(match, symbol) {
+				var character = symbol === ':' ? '{}' : '[]',
+					position = match.indexOf(symbol),
+					string = (match.match(/"/g) || []).length === 2 && match.indexOf('"') < position && match.lastIndexOf('"') > position;
+
+				//  figure out if the notation should be added or may be skipped
+				return !string && match[0] !== character[0] ? character[0] + removeTrailing(match) + character[1] : match;
+			}
+
+			/**
+			 *  Prepare a string to become a JSON-representation
+			 *  @name    prepare
+			 *  @access  public
+			 *  @param   string  input
+			 *  @return  string  JSON-formatted
+			 */
+			formatter.prepare = function(input) {
+				/* istanbul ignore next */
+				if (typeof input !== 'string') {
+					return '';
+				}
+
+				//  tokenize the input and feed it to the compiler in one go
+				return compiler(tokenize(input))
+					.replace(/^.*?([:,]).*$/, notation)
+				;
+			};
+
+			/**
+			 *  Prepare a string and parse it using JSON.parse
+			 *  @name    parse
+			 *  @access  public
+			 *  @param   string  input
+			 *  @return  mixed   parsed
+			 */
+			formatter.parse = function(input) {
+				var prepared = formatter.prepare(input);
+
+				return prepared ? JSON.parse(prepared) : null;
+			};
+		}
+
+		//END INCLUDE: json-formatter [1.14ms, 6.40KB]
+		/**
+		 *  Initializer - setting up the defaults
+		 *  @name    init
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function init() {
+			json = new JSONFormatter();
+		}
+
+		/**
+		 *  Obtain all nodes containing the data attribute residing within given element
+		 *  @name    attributes
+		 *  @access  internal
+		 *  @param   string  attribute name
+		 *  @param   object  DOMElement
+		 *  @return  Array  DOMElement
+		 */
+		function attributes(attr, element) {
+			var result = [],
+				list, i;
+
+			switch (element.nodeType) {
+				case 1:  //  DOMElement
+					if (element.hasAttribute(attr)) {
+						result.push(element);
+					}
+
+					/*falls through*/
+				case 9:   //  DOMDocument (DOMElement if fallen through)
+				case 11:  //  DocumentFragment
+					list = element.querySelectorAll('[' + attr + ']');
+					for (i = 0; i < list.length; ++i) {
+						result.push(list[i]);
+					}
+
+					break;
+			}
+
+			return result;
+		}
+
+		/**
+		 *  Verify whether the target resides in the element (regardless of its type)
+		 *  @name    contains
+		 *  @access  internal
+		 *  @param   DOMNode  element
+		 *  @param   DOMNode  target
+		 *  @return  bool  contains
+		 */
+		function contains(element, target) {
+			var i;
+
+			switch (element.nodeType) {
+				case 1:  //  DOMElement
+					return element.contains(target);
+
+				case 9:  //  DOMDocument
+					return element.body.contains(target);
+
+				case 11:  //  DocumentFragment
+					for (i = 0; i < element.childNodes.length; ++i) {
+						if (contains(element.childNodes[i], target)) {
+							return true;
+						}
+					}
+			}
+
+			return false;
+		}
+
+		/**
+		 *  Search for elements containing the specificed attribute within the given element,
+		 *  invoking the callback with the matching element and the JSON parsed contents
+		 *  @name    find
+		 *  @access  public
+		 *  @param   string     attribute
+		 *  @param   DOMElement element
+		 *  @param   function   callback
+		 *  @return  void
+		 */
+		attribute.find = function(name, element, callback) {
+			if (element) {
+				attributes(name, element)
+					.forEach(function(node) {
+						var options = contains(element, node) ? json.parse(node.getAttribute(name)) : null;
+
+						if (options) {
+							callback(node, options);
+						}
+					});
+			}
+		};
+
+		init();
+	}
+
+	//END INCLUDE: ../lib/attribute [9.27ms, 9.04KB]
+	kontext.provider('attribute', function(settings, element, callback) {
+		new Attribute().find(settings.attribute, element, callback);
+	});
+
+})(kontext);
+/*global kontext: true, Text: true*/
+/**
+ *  Text node provider
+ *  @name     Text
+ *  @package  Kontext
+ */
+(function(kontext) {
+
+	/*
+	 *  BUILD INFO
+	 *  ---------------------------------------------------------------------
+	 *    date: Sat Apr 30 2016 12:47:07 GMT+0200 (CEST)
+	 *    time: 661.93µs
+	 *    size: 2.80KB
+	 *  ---------------------------------------------------------------------
+	 *   included 3 files
+	 *     +9.42KB source/provider/../lib/attribute
+	 *     +6.69KB source/provider/../lib/json-formatter
+	 *     +2.40KB source/provider/../lib/text
+	 *  ---------------------------------------------------------------------
+	 *   total: 21.32KB
+	 */
+
+	//  load dependencies
+
+	//BEGIN INCLUDE: ../lib/text
+	//  strict mode (already enabled)
+
+	/**
+	 *  Text node wrapper
+	 *  @name     Text
+	 *  @package  Kontext
+	 */
+	function Text(pattern) {  //  eslint-disable-line no-unused-vars
+		var text = this;
+
+		/**
+		 *  Obtain all textNodes residing within given element
+		 *  @name    textNodes
+		 *  @access  internal
+		 *  @param   DOMElement
+		 *  @return  Array  textNodes
+		 */
+		function textNodes(element) {
+			var result = [],
+				walker, node;
+
+			if (element.nodeType === 3) {
+				result.push(element);
+			}
+			else {
+				walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+				while ((node = walker.nextNode())) {
+					result.push(node);
+				}
+			}
+
+			return result;
+		}
+
+		/**
+		 *  Split a DOMText node into placeholder and non-placeholder parts, returning an array of all DOMText nodes
+		 *  containing a placeholder
+		 *  @name   splitter
+		 *  @access internal
+		 *  @param  DOMText node
+		 *  @return array   DOMText nodes
+		 */
+		function splitter(node) {
+			var match = node.nodeValue.match(pattern),
+				content = match ? (match.index === 0 ? node : node.splitText(match.index)) : null,
+				remainder = match ? content.splitText(match[0].length) : null,
+				result = [];
+
+			if (content) {
+				result.push({
+					node: content,
+					key: match[2],
+					initial: match[3] || ''
+				});
+				content.original = content.nodeValue;
+			}
+
+			if (remainder) {
+				result = result.concat(splitter(remainder));
+			}
+
+			return result;
+		}
+
+		/**
+		 *  Obtain all placeholder DOMText nodes within given element
+		 *  @name    placeholders
+		 *  @access  public
+		 *  @param   DOMNode element
+		 *  @return  array   DOMText nodes
+		 */
+		function placeholders(element) {
+			var result = [];
+
+			//  traverse all textnodes and split them in order to obtain only the placeholder nodes
+			textNodes(element).forEach(function(node) {
+				result = result.concat(splitter(node));
+			});
+
+			return result;
+		}
+
+		/**
+		 *  Obtain all placeholder DOMText nodes withing given element and apply the callback to it
+		 *  @name    placeholders
+		 *  @access  public
+		 *  @param   DOMNode   element
+		 *  @param   function  callback
+		 *  @return  void
+		 */
+		text.placeholders = function(element, callback) {
+			if (element) {
+				placeholders(element).forEach(function(data) {
+					callback.apply(null, [data.node, data.key, data.initial]);
+				});
+			}
+		};
+	}
+
+	//END INCLUDE: ../lib/text [471.61µs, 2.24KB]
+	kontext.provider('text', function(settings, element, callback) {
+
+		new Text(settings.pattern).placeholders(element, function(target, key, initial) {
+			callback(target, {text: {target: key, initial: initial}});
+		});
+
+	});
+
+})(kontext);

@@ -25,16 +25,13 @@ kontext:
 npm-test:
 	@npm test;
 
-provider-test:
-	@karma start --single-run --browsers PhantomJS karma-provider.conf.js;
-
 #  create a fresh distribution in the dist folder
 distribution:
 	@make clean authors kontext npm-test && \
 		mkdir -p dist && \
-		cat build/kontext.js `ls -1 build/extension/*.js | grep -v min` > \
+		cat build/kontext.js `ls -1 build/{provider,extension}/*.js | grep -v min` > \
 		dist/kontext-$(VERSION).js && \
 		cp dist/kontext-$(VERSION).js dist/kontext-latest.js && \
-		cat build/kontext.min.js build/extension/*.min.js > \
+		cat build/kontext.min.js build/{provider,extension}/*.min.js > \
 		dist/kontext-$(VERSION).min.js && \
 		cp dist/kontext-$(VERSION).min.js dist/kontext-latest.min.js;

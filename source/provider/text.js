@@ -1,9 +1,8 @@
-/*global kontext: true*/
+/*global kontext: true, Text: true*/
 /**
  *  Text node provider
  *  @name     Text
  *  @package  Kontext
- *  @syntax   <div data-kontext="attribute: {data-foo: foo, ...}">...</div>
  */
 (function(kontext) {
 
@@ -14,7 +13,9 @@
 
 	kontext.provider('text', function(settings, element, callback) {
 
-		console.log(settings, element, callback);
+		new Text(settings.pattern).placeholders(element, function(target, key, initial) {
+			callback(target, {text: {target: key, initial: initial}});
+		});
 
 	});
 

@@ -6,6 +6,9 @@
 - `each`-extension now properly populates the `$parent` with the actual array instead of the delegate function (which could not be resolved in HTML)
 - `each`-extension now adds a `$model` property to the (magic) bindings, so access to model properties/methods is now supported
 - `update`-events now properly provide the previous value
+- Models now have a `define(name, initial)` method, allowing to create getter/setter properties which operate the same as all other bound properties (including model `update` emissions)
+- Introduced `providers`, which can be registered separately and are responsible for finding all DOMNodes which need to be bound to an extension. Moved the internal Attribute and Text iterators to separate (external) providers.
+
 
 ### Extension: Options object
 The fourth argument to extensions is no longer `kontext`, but instead an object with the following properties:
@@ -14,13 +17,16 @@ The fourth argument to extensions is no longer `kontext`, but instead an object 
 
 The impact of this change is considered to be minimal, as it was a rather pointless argument since `kontext` must have been already known at that point in order to register the extension. This change is not considered to be _breaking_ and might not cause a major version bump, although a minor version _jump_ (from 1.5 to 1.7) is considered.
 
+### Providers
+By unifying the way `kontext.bind` finds the actual targets it needs to deal with, a lot of flexibility is introduced. Not only does this allow for smaller builds, it will also provide a very simple way to add other ways of binding models. For example, a provider to implement a mechanism using comments is now very easy and does no longer involve understanding all/most of Kontext.
+
 ### Fixes
 - Fixed [issue #8: `update` events do not provide the correct previous value](https://github.com/konfirm/kontext/issues/8)
 - Fixed issue with the binding of children of conditional elements
 
 ### Statistics
-- Full size: 81.1K (+16.1K), gzipped: 20.8K
-- Minified size: 18K (+3K), gzipped: 6.5K
+- Full size: 87.3K (+22.3K), gzipped: 22.3K (+5,4K)
+- Minified size: 19K (+4K), gzipped: 6.9K (+1.4K)
 
 
 ## 1.5.0

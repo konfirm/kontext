@@ -1,4 +1,4 @@
-/*global kontext: true*/
+/*global kontext: true, Attribute: true*/
 /**
  *  Attribute node provider
  *  @name     Attribute
@@ -12,9 +12,7 @@
 	//@include ../lib/attribute
 
 	kontext.provider('attribute', function(settings, element, callback) {
-
-		console.log(settings, element, callback);
-
+		new Attribute().find(settings.attribute, element, callback);
 	});
 
 })(kontext);
