@@ -14,7 +14,7 @@ describe('Kontext Provider Text', function() {
 
 		main.appendChild(document.createTextNode('hello {greet}'));
 		main.appendChild(document.createElement('div'))
-			.appendChild(document.createTextNode('a {foo:fool} walks into a {bar:trap}.'))
+			.appendChild(document.createTextNode('a {foo:fool} walks into a {bar:trap}.'));
 		main.appendChild(document.createTextNode('goodbye {target}!'));
 
 		provider(kontext.defaults(), main, function(target, options) {
