@@ -48,4 +48,78 @@ describe('Attribute', function() {
 			expect(config).toEqual({name: elm.nodeName.toLowerCase()});
 		});
 	});
+
+	it('does not trip over non-elements', function() {
+		expect(function() {
+			new Attribute().find('data-stuff', null, function() {});
+		}).not.toThrow(Error);
+	});
+
+	describe('prevents handling removed childNodes', function() {
+		var main, element, removal, collect;
+
+		beforeEach(function(done) {
+			main = document.createElement('main'),
+			element = main.appendChild(document.createElement('div')),
+			removal = main.appendChild(document.createElement('div')),
+			collect = [];
+
+			element.setAttribute('data-kontext', 'available: yes');
+			removal.setAttribute('data-kontext', 'available: no');
+
+			done();
+		});
+
+		afterEach(function(done) {
+			if (main.parentNode) {
+				main.parentNode.removeChild(main);
+			}
+
+			done();
+		});
+
+		function runner(node, conclusion) {
+			new Attribute().find('data-kontext', node, function(target, config) {
+				collect.push(target);
+
+				expect(target).toBe(element);
+				expect('available' in config).toBe(true);
+				expect(config.available).toBe('yes');
+
+				removal.parentNode.removeChild(removal);
+			});
+
+			conclusion();
+		}
+
+		it('elements', function() {
+			runner(main, function() {
+				expect(collect.length).toBe(1);
+				expect(collect.indexOf(element)).toBe(0);
+				expect(collect.indexOf(removal)).toBe(-1);
+			});
+		});
+
+		it('DOMDocumentFragment', function() {
+			var fragment = document.createDocumentFragment();
+
+			fragment.appendChild(main);
+
+			runner(fragment, function() {
+				expect(collect.length).toBe(1);
+				expect(collect.indexOf(element)).toBe(0);
+				expect(collect.indexOf(removal)).toBe(-1);
+			});
+		});
+
+		it('DOMDocument', function() {
+			document.body.appendChild(main);
+
+			runner(document, function() {
+				expect(collect.length).toBe(1);
+				expect(collect.indexOf(element)).toBe(0);
+				expect(collect.indexOf(removal)).toBe(-1);
+			});
+		});
+	});
 });

@@ -22,6 +22,14 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 			escape: /["\\\/\b\f\n\r\t]/,
 			noquote: /^(?:true|false|null|-?[0-9]+(?:\.[0-9]+)?)$/i,
 			trailer: /[,]+$/
+		},
+		escaped = {
+			'\b': '\\b',
+			'\f': '\\f',
+			'\n': '\\n',
+			'\r': '\\r',
+			'\t': '\\t',
+			'\v': '\\v'
 		};
 
 	/**
@@ -124,7 +132,7 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 
 		switch (token) {
 
-			//  ignore whitespace outside of quoted patterns
+			//  skip whitespace not part of string values
 			case ' ':
 				break;
 
@@ -182,11 +190,15 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 			//  if there is not result or the current or previous input is special, we create a new result item
 			if (result.length === 0 || isSpecial(input[i]) || isSpecial(result[result.length - 1])) {
 				result.push(input[i]);
+
+				while (i + 1 < input.length && /\s/.test(input[i + 1])) {
+					++i;
+				}
 			}
 
 			//  extend the previous item
 			else {
-				result[result.length - 1] += input[i];
+				result[result.length - 1] += escaped[input[i]] || input[i];
 			}
 		}
 

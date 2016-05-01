@@ -439,4 +439,26 @@ describe('Kontext Extension Each', function() {
 
 		done();
 	});
+
+	describe('does not trip over non-existant target', function() {
+		it('object config', function(done) {
+			element.setAttribute('data-kontext', 'each: {target: nope}');
+
+			expect(function() {
+				kontext.bind({}, element);
+			}).not.toThrow(Error);
+
+			done();
+		});
+
+		it('string config', function(done) {
+			element.setAttribute('data-kontext', 'each: nope');
+
+			expect(function() {
+				kontext.bind({}, element);
+			}).not.toThrow(Error);
+
+			done();
+		});
+	});
 });

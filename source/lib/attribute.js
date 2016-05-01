@@ -7,20 +7,9 @@
  *  @package  Kontext
  */
 function Attribute() {  //  eslint-disable-line no-unused-vars
-	var attribute = this,
-		json;
+	var attribute = this;
 
 	//@include json-formatter
-
-	/**
-	 *  Initializer - setting up the defaults
-	 *  @name    init
-	 *  @access  internal
-	 *  @return  void
-	 */
-	function init() {
-		json = new JSONFormatter();
-	}
 
 	/**
 	 *  Obtain all nodes containing the data attribute residing within given element
@@ -97,7 +86,11 @@ function Attribute() {  //  eslint-disable-line no-unused-vars
 		if (element) {
 			attributes(name, element)
 				.forEach(function(node) {
-					var options = contains(element, node) ? json.parse(node.getAttribute(name)) : null;
+					var options;
+
+					if (contains(element, node)) {
+						options = new JSONFormatter().parse(node.getAttribute(name));
+					}
 
 					if (options) {
 						callback(node, options);
@@ -105,6 +98,4 @@ function Attribute() {  //  eslint-disable-line no-unused-vars
 				});
 		}
 	};
-
-	init();
 }

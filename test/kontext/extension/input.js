@@ -215,7 +215,7 @@ describe('Kontext Extension Input', function() {
 			done();
 		});
 
-		it('adds default', function(done) {
+		it('adds string default', function(done) {
 			var element = document.createElement('select'),
 				model;
 
@@ -240,6 +240,40 @@ describe('Kontext Extension Input', function() {
 			});
 
 			model.selection = 'c';
+		});
+
+		it('changes referenced default', function(done) {
+			var element = document.createElement('select'),
+				model;
+
+			element.setAttribute('data-kontext', 'input: {value: selection, options: list, default: def}');
+			model = kontext.bind({
+				selection: null,
+				list: [
+					'a', 'b', 'c', 'd'
+				],
+				def: 'choose'
+			}, element);
+
+			model.on('update', function(m, k, o, n) {
+				expect(k).toBe('def'),
+				expect(o).toBe('choose');
+				expect(n).toBe('pick one');
+
+				setTimeout(function() {
+					expect(element.options[0].value).toBe('');
+					expect(element.options[0].innerText).toBe('pick one');
+
+					done();
+				}, 20);
+			});
+
+			setTimeout(function() {
+				expect(element.options[0].value).toBe('');
+				expect(element.options[0].innerText).toBe('choose');
+
+				model.def = 'pick one';
+			}, 20);
 		});
 
 		it('accepts objects options', function(done) {
