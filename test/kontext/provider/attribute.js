@@ -61,8 +61,8 @@ describe('Kontext Provider Attribute', function() {
 			});
 		});
 
-		it('empty elements', function(collect) {
-			runner(document.createElement('div'), function() {
+		it('empty elements', function() {
+			runner(document.createElement('div'), function(collect) {
 				expect(collect).toEqual([]);
 			});
 		});

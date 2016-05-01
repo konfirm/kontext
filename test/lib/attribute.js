@@ -101,22 +101,22 @@ describe('Attribute', function() {
 			});
 		});
 
-		it('DOMDocumentFragment', function(collect) {
+		it('DOMDocumentFragment', function() {
 			var fragment = document.createDocumentFragment();
 
 			fragment.appendChild(main);
 
-			runner(fragment, function() {
+			runner(fragment, function(collect) {
 				expect(collect.length).toBe(1);
 				expect(collect.indexOf(element)).toBe(0);
 				expect(collect.indexOf(removal)).toBe(-1);
 			});
 		});
 
-		it('DOMDocument', function(collect) {
+		it('DOMDocument', function() {
 			document.body.appendChild(main);
 
-			runner(document, function() {
+			runner(document, function(collect) {
 				expect(collect.length).toBe(1);
 				expect(collect.indexOf(element)).toBe(0);
 				expect(collect.indexOf(removal)).toBe(-1);
