@@ -8,6 +8,7 @@
 - `update`-events now properly provide the previous value
 - Models now have a `define(name, initial)` method, allowing to create getter/setter properties which operate the same as all other bound properties (including model `update` emissions)
 - Introduced `providers`, which can be registered separately and are responsible for finding all DOMNodes which need to be bound to an extension. Moved the internal Attribute and Text iterators to separate (external) providers.
+- The declarations in attributes are now more relaxed about whitespace
 
 
 ### Extension: Options object
@@ -20,13 +21,18 @@ The impact of this change is considered to be minimal, as it was a rather pointl
 ### Providers
 By unifying the way `kontext.bind` finds the actual targets it needs to deal with, a lot of flexibility is introduced. Not only does this allow for smaller builds, it will also provide a very simple way to add other ways of binding models. For example, a provider to implement a mechanism using comments is now very easy and does no longer involve understanding all/most of Kontext.
 
+### JSON-Declaration in attributes
+Previously the `data-kontext` attributes would trip over whitespace like newlines and tabs, this has now been resolved. There are some things to note about the new behavior:
+- Any none-space whitespace (`\n\r\t\v`) following a meaningful token (`'\'":,{}[] '`) will be truncated, e.g. `foo:      bar,    baz:    true`, will be parsed into `{foo: 'bar', baz: true}`
+- Any none-space whitespace (`\n\r\t\v`) preceding a meaningful token which in itself it not used as object key will be added to the value, e.g. `foo:   bar\n\n\t,  baz:   true` (notice the dangling comma), will be parsed into `{foo: 'bar\n\n\t', baz: true}`
+
 ### Fixes
 - Fixed [issue #8: `update` events do not provide the correct previous value](https://github.com/konfirm/kontext/issues/8)
 - Fixed issue with the binding of children of conditional elements
 
 ### Statistics
-- Full size: 87.3K (+22.3K), gzipped: 22.3K (+5,4K)
-- Minified size: 19K (+4K), gzipped: 6.9K (+1.4K)
+- Full size: 84.9K (+19.9K), gzipped: 21.7K (+4.8K)
+- Minified size: 18.7K (+3.6K), gzipped: 6.8K (+1.3K)
 
 
 ## 1.5.0

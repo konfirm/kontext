@@ -59,9 +59,9 @@ describe('Attribute', function() {
 		var main, element, removal;
 
 		beforeEach(function(done) {
-			main = document.createElement('main'),
-			element = main.appendChild(document.createElement('div')),
-			removal = main.appendChild(document.createElement('div')),
+			main = document.createElement('main');
+			element = main.appendChild(document.createElement('div'));
+			removal = main.appendChild(document.createElement('div'));
 
 			element.setAttribute('data-kontext', 'available: yes');
 			removal.setAttribute('data-kontext', 'available: no');
