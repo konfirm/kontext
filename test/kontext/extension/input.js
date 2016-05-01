@@ -256,7 +256,7 @@ describe('Kontext Extension Input', function() {
 			}, element);
 
 			model.on('update', function(m, k, o, n) {
-				expect(k).toBe('def'),
+				expect(k).toBe('def');
 				expect(o).toBe('choose');
 				expect(n).toBe('pick one');
 

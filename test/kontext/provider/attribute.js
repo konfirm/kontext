@@ -9,7 +9,7 @@ describe('Kontext Provider Attribute', function() {
 	});
 
 	describe('finds all placeholders', function() {
-		var main, collect, a, b;
+		var main, a, b;
 
 		beforeEach(function(done) {
 			main = document.createElement('main');
@@ -21,8 +21,6 @@ describe('Kontext Provider Attribute', function() {
 
 			b = main.appendChild(document.createElement('div'));
 			b.setAttribute('data-kontext', 'first: true, third: true, second: true');
-
-			collect = [];
 
 			done();
 		});
@@ -36,6 +34,8 @@ describe('Kontext Provider Attribute', function() {
 		});
 
 		function runner(node, conclusion) {
+			var collect = [];
+
 			provider(kontext.defaults(), node, function(target, options) {
 				expect(target.nodeType).toBe(1);
 
@@ -52,16 +52,16 @@ describe('Kontext Provider Attribute', function() {
 				collect.push(target);
 			});
 
-			conclusion();
+			conclusion(collect);
 		}
 
 		it('elements', function() {
-			runner(main, function() {
+			runner(main, function(collect) {
 				expect(collect).toEqual([main, a, b]);
 			});
 		});
 
-		it('empty elements', function() {
+		it('empty elements', function(collect) {
 			runner(document.createElement('div'), function() {
 				expect(collect).toEqual([]);
 			});
@@ -72,13 +72,13 @@ describe('Kontext Provider Attribute', function() {
 
 			fragment.appendChild(main);
 
-			runner(fragment, function() {
+			runner(fragment, function(collect) {
 				expect(collect).toEqual([main, a, b]);
 			});
 		});
 
 		it('empty DOMDocumentFragment', function() {
-			runner(document.createDocumentFragment(), function() {
+			runner(document.createDocumentFragment(), function(collect) {
 				expect(collect).toEqual([]);
 			});
 		});
@@ -86,13 +86,13 @@ describe('Kontext Provider Attribute', function() {
 		it('DOMDocument', function() {
 			document.body.appendChild(main);
 
-			runner(document, function() {
+			runner(document, function(collect) {
 				expect(collect).toEqual([main, a, b]);
 			});
 		});
 
 		it('empty DOMDocument', function() {
-			runner(document, function() {
+			runner(document, function(collect) {
 				expect(collect).toEqual([]);
 			});
 		});
@@ -148,13 +148,12 @@ describe('Kontext Provider Attribute', function() {
 	});
 
 	describe('prevents handling removed childNodes', function() {
-		var main, element, removal, collect;
+		var main, element, removal;
 
 		beforeEach(function(done) {
 			main = document.createElement('main'),
 			element = main.appendChild(document.createElement('div')),
 			removal = main.appendChild(document.createElement('div')),
-			collect = [];
 
 			element.setAttribute('data-kontext', 'available: yes');
 			removal.setAttribute('data-kontext', 'available: no');
@@ -171,6 +170,8 @@ describe('Kontext Provider Attribute', function() {
 		});
 
 		function runner(node, conclusion) {
+			var collect = [];
+
 			provider(kontext.defaults(), node, function(target, config) {
 				collect.push(target);
 
@@ -181,11 +182,11 @@ describe('Kontext Provider Attribute', function() {
 				removal.parentNode.removeChild(removal);
 			});
 
-			conclusion();
+			conclusion(collect);
 		}
 
 		it('elements', function() {
-			runner(main, function() {
+			runner(main, function(collect) {
 				expect(collect.length).toBe(1);
 				expect(collect.indexOf(element)).toBe(0);
 				expect(collect.indexOf(removal)).toBe(-1);
@@ -197,7 +198,7 @@ describe('Kontext Provider Attribute', function() {
 
 			fragment.appendChild(main);
 
-			runner(fragment, function() {
+			runner(fragment, function(collect) {
 				expect(collect.length).toBe(1);
 				expect(collect.indexOf(element)).toBe(0);
 				expect(collect.indexOf(removal)).toBe(-1);
@@ -207,7 +208,7 @@ describe('Kontext Provider Attribute', function() {
 		it('DOMDocument', function() {
 			document.body.appendChild(main);
 
-			runner(document, function() {
+			runner(document, function(collect) {
 				expect(collect.length).toBe(1);
 				expect(collect.indexOf(element)).toBe(0);
 				expect(collect.indexOf(removal)).toBe(-1);

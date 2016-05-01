@@ -56,13 +56,12 @@ describe('Attribute', function() {
 	});
 
 	describe('prevents handling removed childNodes', function() {
-		var main, element, removal, collect;
+		var main, element, removal;
 
 		beforeEach(function(done) {
 			main = document.createElement('main'),
 			element = main.appendChild(document.createElement('div')),
 			removal = main.appendChild(document.createElement('div')),
-			collect = [];
 
 			element.setAttribute('data-kontext', 'available: yes');
 			removal.setAttribute('data-kontext', 'available: no');
@@ -79,6 +78,8 @@ describe('Attribute', function() {
 		});
 
 		function runner(node, conclusion) {
+			var collect = [];
+
 			new Attribute().find('data-kontext', node, function(target, config) {
 				collect.push(target);
 
@@ -89,18 +90,18 @@ describe('Attribute', function() {
 				removal.parentNode.removeChild(removal);
 			});
 
-			conclusion();
+			conclusion(collect);
 		}
 
 		it('elements', function() {
-			runner(main, function() {
+			runner(main, function(collect) {
 				expect(collect.length).toBe(1);
 				expect(collect.indexOf(element)).toBe(0);
 				expect(collect.indexOf(removal)).toBe(-1);
 			});
 		});
 
-		it('DOMDocumentFragment', function() {
+		it('DOMDocumentFragment', function(collect) {
 			var fragment = document.createDocumentFragment();
 
 			fragment.appendChild(main);
@@ -112,7 +113,7 @@ describe('Attribute', function() {
 			});
 		});
 
-		it('DOMDocument', function() {
+		it('DOMDocument', function(collect) {
 			document.body.appendChild(main);
 
 			runner(document, function() {

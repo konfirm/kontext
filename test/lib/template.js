@@ -93,6 +93,6 @@ describe('Template', function() {
 						done();
 					});
 				});
-			})
+			});
 	});
 });
