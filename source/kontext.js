@@ -616,17 +616,18 @@
 		 *  Expand all DOMNode(List) in the provided list to individual and unique DOMNodes
 		 *  @name    expandNodeList
 		 *  @access  internal
-		 *  @param   mixed  key    [one of: string key, object, undefined]
-		 *  @param   mixed  value  [optional (ignored if key is an object), default undefined - no value]
-		 *  @return  mixed  value  [if a string key is provided, the value for the key, all options otherwise]
+		 *  @param   Array  list  [contents may be (Arrays of) string selector, DOMNode]
+		 *  @return  Array  DOMNode
 		 */
 		function expandNodeList(list) {
 			return !list.length ? [document.body] : list
 				.reduce(function(all, current) {
-					return all.concat(current.nodeName ? [current] : castToArray(current));
+					var list = current instanceof Array ? expandNodeList(current) : (typeof current === 'string' ? document.querySelectorAll(current) : current);
+
+					return list ? all.concat(list.nodeName ? [list] : castToArray(list)) : all;
 				}, [])
 				.filter(function(node, index, all) {
-					return all.indexOf(node) === index;
+					return node && all.indexOf(node) === index;
 				});
 		}
 
@@ -754,7 +755,8 @@
 		kontext.bind = function() {
 			var arg = castToArray(arguments),
 				model = prepare(arg.shift()),
-				pop = arg.length && !contains(arg[arg.length - 1], ['nodeType', 'length'], 1),
+				last = arg.length ? arg[arg.length - 1] : null,
+				pop = last && !(typeof last === 'string' || contains(last, ['nodeType', 'length'], 1)),
 				options = settings.combine(pop ? arg.pop() : {}),
 				providers = options.providers,
 				exclude = [];

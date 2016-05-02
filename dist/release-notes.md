@@ -9,6 +9,7 @@
 - Models now have a `define(name, initial)` method, allowing to create getter/setter properties which operate the same as all other bound properties (including model `update` emissions)
 - Introduced `providers`, which can be registered separately and are responsible for finding all DOMNodes which need to be bound to an extension. Moved the internal Attribute and Text iterators to separate (external) providers.
 - The declarations in attributes are now more relaxed about whitespace
+- `kontext.bind` now also accepts selector strings, which are always resolved from the document.
 
 
 ### Extension: Options object
@@ -16,7 +17,7 @@ The fourth argument to extensions is no longer `kontext`, but instead an object 
 	- (string) `extension`: The name of the extension as it was used in the `data-kontext` attribute
 	- (function) `stopDescend`: A method to invoke if Kontext should not apply the model to any children of the element (e.g. the extension will handle this itself, or nothing will be bound at all)
 
-The impact of this change is considered to be minimal, as it was a rather pointless argument since `kontext` must have been already known at that point in order to register the extension. This change is not considered to be _breaking_ and might not cause a major version bump, although a minor version _jump_ (from 1.5 to 1.7) is considered.
+The impact of this change is considered to be minimal, as it was a rather pointless argument since `kontext` must have been already known at that point in order to register the extension. This change is considered to be _breaking_ and will cause a major version increase, even though the impact is expected to be very low.
 
 ### Providers
 By unifying the way `kontext.bind` finds the actual targets it needs to deal with, a lot of flexibility is introduced. Not only does this allow for smaller builds, it will also provide a very simple way to add other ways of binding models. For example, a provider to implement a mechanism using comments is now very easy and does no longer involve understanding all/most of Kontext.
@@ -31,8 +32,8 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 - Fixed issue with the binding of children of conditional elements
 
 ### Statistics
-- Full size: 84.9K (+19.9K), gzipped: 21.7K (+4.8K)
-- Minified size: 18.7K (+3.6K), gzipped: 6.8K (+1.3K)
+- Full size: 85K (+20K), gzipped: 21.8K (+4.9K)
+- Minified size: 18.8K (+3.8K), gzipped: 6.9K (+1.4K)
 
 
 ## 1.5.0

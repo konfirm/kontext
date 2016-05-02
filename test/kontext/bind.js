@@ -88,6 +88,73 @@ describe('Kontext Bind', function() {
 		model.foo = 'clown';
 	});
 
+	describe('binds to elements matching a string selector', function() {
+		var model, element;
+
+		beforeEach(function(done) {
+			element = document.body.appendChild(document.createElement('div'));
+
+			['a', 'b', 'c']
+				.forEach(function(key) {
+					var child = element.appendChild(document.createElement('span'));
+
+					child.setAttribute('data-child', key);
+					child.setAttribute('data-kontext', 'text: name');
+					child.appendChild(document.createTextNode('-'));
+				});
+
+			model = {
+				name: 'child'
+			};
+
+			done();
+		});
+
+		afterEach(function(done) {
+			if (element && element.parentNode) {
+				element.parentNode.removeChild(element);
+			}
+
+			done();
+		});
+
+		['a', 'b', 'c']
+			.forEach(function(key, index) {
+				it('single selector - select one ([data-child=' + key + '])', function() {
+					var expectation = ['-', '-', '-'];
+
+					kontext.bind(model, '[data-child=' + key + ']');
+					expectation[index] = 'child';
+
+					expect(element.innerText).toBe(expectation.join(''));
+				});
+			});
+
+		it('selects all using multiple string arguments', function() {
+			kontext.bind(model, '[data-child=a]', '[data-child=b]', '[data-child=c]');
+
+			expect(element.innerText).toBe('childchildchild');
+		});
+
+		it('selects all using multiple string arguments', function() {
+			kontext.bind(model, '[data-child=a],[data-child=b]', '[data-child=c]');
+
+			expect(element.innerText).toBe('childchildchild');
+		});
+
+		it('selects all using array of strings + string', function() {
+			kontext.bind(model, ['[data-child=a]', '[data-child=b]'], '[data-child=c]');
+
+			expect(element.innerText).toBe('childchildchild');
+		});
+
+		it('selects all using multiple arrays of strings', function() {
+			kontext.bind(model, ['[data-child=a]', '[data-child=b]'], ['[data-child=c]', '[data-child=b]']);
+
+			expect(element.innerText).toBe('childchildchild');
+		});
+	});
+
 	describe('does not trip over empty attributes', function() {
 		it('explicitly empty', function() {
 			var container = document.createElement('div');
