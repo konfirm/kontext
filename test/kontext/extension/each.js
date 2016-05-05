@@ -236,6 +236,46 @@ describe('Kontext Extension Each', function() {
 		});
 	});
 
+	it('preserves and handles all other extensions defined on the {self:true} element', function(done) {
+		var parent = document.createElement('div'),
+			model;
+
+		while (element.firstChild) {
+			element.removeChild(element.firstChild);
+		}
+
+		element.setAttribute('data-kontext', 'text: $item, each: {target:list, self:true}');
+		parent.appendChild(element);
+
+		model = kontext.bind({list: []}, parent);
+
+		model.on('update', function() {
+			if (model.list.length === 1) {
+				expect(model.list[0]).toBe('world');
+				expect(parent.innerHTML).toBe('<div data-kontext="text: $item">world</div>');
+
+				model.list.unshift('hello');
+			}
+			else {
+				expect(model.list.length).toBe(2);
+				expect(model.list[0]).toBe('hello');
+				expect(model.list[1]).toBe('world');
+
+				//  we must give the `each` extension some time to redraw the contents as this is
+				//  done using a combination of requestAnimationFrame and setTimeout
+				setTimeout(function() {
+					expect(parent.innerHTML).toBe('<div data-kontext="text: $item">hello</div><div data-kontext="text: $item">world</div>');
+
+					done();
+				}, 100);
+			}
+		});
+
+		expect(parent.innerHTML).toBe('');
+
+		model.list.push('world');
+	});
+
 	it('works with nested arrays', function(done) {
 		var nest, model, list;
 

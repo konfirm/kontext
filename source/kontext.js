@@ -783,7 +783,7 @@
 							eachKey(opt, function(key, config) {
 								var ext = extension(key),
 									jit = {
-										options: options,
+										settings: options,
 										extension: key,
 										stopDescend: function() {
 											exclude.push(target);

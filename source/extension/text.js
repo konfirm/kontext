@@ -62,7 +62,7 @@
 			delegate = key ? model.delegation(key) : null,
 			text;
 
-		if (options.options.greedy && !delegate) {
+		if (options.settings.greedy && !delegate) {
 			delegate = model.define(key, initial);
 		}
 

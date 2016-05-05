@@ -1,6 +1,6 @@
 /*global Emission: true, Observer: true, Settings: true*/
 /*
- *       __    Kontext (version 1.5.0 - 2016-05-02)
+ *       __    Kontext (version 1.5.0 - 2016-05-05)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,9 +15,9 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Mon May 02 2016 13:50:18 GMT+0200 (CEST)
-	 *    time: 2.86ms
-	 *    size: 29.71KB
+	 *    date: Thu May 05 2016 14:49:30 GMT+0200 (CEST)
+	 *    time: 3.24ms
+	 *    size: 29.72KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
 	 *     +1.97KB source/lib/settings
@@ -116,7 +116,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [498.71µs, 1.82KB]
+	//END INCLUDE: lib/settings [648.98µs, 1.82KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -338,7 +338,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [102.62µs, 1.99KB]
+	//END INCLUDE: lib/observer [198.63µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -1104,7 +1104,7 @@
 							eachKey(opt, function(key, config) {
 								var ext = extension(key),
 									jit = {
-										options: options,
+										settings: options,
 										extension: key,
 										stopDescend: function() {
 											exclude.push(target);
@@ -1630,7 +1630,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [480.55µs, 11.27KB]
+	//END INCLUDE: ../lib/condition [564.80µs, 11.27KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -1755,7 +1755,7 @@ kontext.extension('each', function(element, model, config, options) {
 	var template = [],
 		cache = [],
 		self = 'self',
-		offset, state;
+		settings, offset, state;
 
 	/**
 	 *  Obtain the configured target delegate
@@ -1850,7 +1850,7 @@ kontext.extension('each', function(element, model, config, options) {
 
 			result = {
 				item: value,
-				model: kontext.bind(bind, nodeList),
+				model: kontext.bind(bind, nodeList, settings),
 				nodes: nodeList
 			};
 
@@ -1971,6 +1971,29 @@ kontext.extension('each', function(element, model, config, options) {
 	}
 
 	/**
+	 *  Attempt to remove just the 'each'-extension configuration
+	 *  @name    removeEachAttribute
+	 *  @access  internal
+	 *  @param   DOMElement  node
+	 *  @param   string      attribute name  [default 'data-kontext', could be overridden]
+	 *  @param   string      extension name  [default 'each', could be shortened/renamed]
+	 *  @return  void
+	 */
+	function removeEachAttribute(node, attribute, extension) {
+		var value = node.getAttribute(attribute),
+
+			//  the pattern _only_ tries to match the object configuration and assumes no nested objects
+			//  e.g.  each: {...}
+			pattern = new RegExp('([\'"])?(?:' + extension + ')\\1\\s*:\\s*\\{[^\\}]+\\}'),
+			remain = value
+				.replace(pattern, '')
+				.replace(/(?:,\s*)+/, ',')
+				.replace(/^[,\s]+|[,\s]+$/, '');
+
+		node.setAttribute(attribute, remain);
+	}
+
+	/**
 	 *  Initialize the extension
 	 *  @name    init
 	 *  @access  internal
@@ -1978,8 +2001,11 @@ kontext.extension('each', function(element, model, config, options) {
 	 */
 	function init() {
 		var delegate = target(config),
-			attribute = kontext.defaults().attribute,
 			marker = document.createTextNode('');
+
+		//  preserve the settings used to bind this extenstion
+		//  so it can be used to configure subsequent bindings
+		settings = options.settings;
 
 		//  tell Kontext not to descend into the children of our element
 		options.stopDescend();
@@ -1994,8 +2020,10 @@ kontext.extension('each', function(element, model, config, options) {
 				end: before(marker.cloneNode(), element)
 			};
 
-			//  always remove the kontext initializer attribute from the element
-			element.removeAttribute(attribute);
+			//  always remove the extension from the attribute
+			removeEachAttribute(element, settings.attribute, options.extension);
+
+			//  add the element to the template
 			template.push(element.parentNode.removeChild(element));
 		}
 		else {
@@ -2563,7 +2591,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [217.43µs, 5.12KB]
+	//END INCLUDE: ../lib/template [308.72µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2694,7 +2722,7 @@ kontext.extension('html', function(element, model, key) {
 			delegate = key ? model.delegation(key) : null,
 			text;
 
-		if (options.options.greedy && !delegate) {
+		if (options.settings.greedy && !delegate) {
 			delegate = model.define(key, initial);
 		}
 
@@ -2723,8 +2751,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Mon May 02 2016 13:50:18 GMT+0200 (CEST)
-	 *    time: 863.12µs
+	 *    date: Thu May 05 2016 14:49:30 GMT+0200 (CEST)
+	 *    time: 945.64µs
 	 *    size: 9.84KB
 	 *  ---------------------------------------------------------------------
 	 *   included 2 files
@@ -3008,7 +3036,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [340.88µs, 6.61KB]
+		//END INCLUDE: json-formatter [322.44µs, 6.61KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3098,7 +3126,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [743.82µs, 9.12KB]
+	//END INCLUDE: ../lib/attribute [800.48µs, 9.12KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	});
@@ -3115,8 +3143,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Mon May 02 2016 13:50:18 GMT+0200 (CEST)
-	 *    time: 495.64µs
+	 *    date: Thu May 05 2016 14:49:30 GMT+0200 (CEST)
+	 *    time: 518.83µs
 	 *    size: 2.80KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -3229,7 +3257,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [248.53µs, 2.24KB]
+	//END INCLUDE: ../lib/text [306.40µs, 2.24KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(target, key, initial) {

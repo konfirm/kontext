@@ -2,22 +2,34 @@
 
 ## _CURRENT MASTER_ (represented by `kontext-latest(.min).js` in the dist folder!)
 - Added `conditional`-extension (don't worry, abbreviations still work)
-- Fourth argument to extension invocation is now an options object, not kontext itself
-- `each`-extension now properly populates the `$parent` with the actual array instead of the delegate function (which could not be resolved in HTML)
-- `each`-extension now adds a `$model` property to the (magic) bindings, so access to model properties/methods is now supported
+- _BREAKING_: Fourth argument to extension invocation is now an options object, not kontext itself
+- Various changes to the `each-extension` (see the `Each`-extension section below)
 - `update`-events now properly provide the previous value
 - Models now have a `define(name, initial)` method, allowing to create getter/setter properties which operate the same as all other bound properties (including model `update` emissions)
 - Introduced `providers`, which can be registered separately and are responsible for finding all DOMNodes which need to be bound to an extension. Moved the internal Attribute and Text iterators to separate (external) providers.
 - The declarations in attributes are now more relaxed about whitespace
-- `kontext.bind` now also accepts selector strings, which are always resolved from the document.
+- `kontext.bind` now also accepts selector strings, which are always resolved from the document down (`document.querySelectorAll`).
 
+### Breaking changes
+As the Kontext versions adhere to the [semantic versioning](http://semver.org) principles, the major version updates whenever something in the (public) API changes which could/would break if it is being used.
 
-### Extension: Options object
+The impact of these breaking changes is considered to be very minimal and fixing should take no more than fifteen minutes (_if_ anyone is affected at all).
+
+#### Extensions: Options object (impact: low)
 The fourth argument to extensions is no longer `kontext`, but instead an object with the following properties:
 	- (string) `extension`: The name of the extension as it was used in the `data-kontext` attribute
 	- (function) `stopDescend`: A method to invoke if Kontext should not apply the model to any children of the element (e.g. the extension will handle this itself, or nothing will be bound at all)
 
-The impact of this change is considered to be minimal, as it was a rather pointless argument since `kontext` must have been already known at that point in order to register the extension. This change is considered to be _breaking_ and will cause a major version increase, even though the impact is expected to be very low.
+As the argument was rather redundant (`kontext` _must_ have been known in order to register the extension), there should be no problem moving to the new options object.
+
+#### '$parent'-property in `each`-items (impact: low)
+The `$parent`-property previously referred to the delegate function, it now refers to the array itself. This will affect any model which resolved the underlying array using `$parent()`, the fix is simple - remove the braces.
+
+### `Each`-extension
+The `each`-extension has received a lot of attention this release, as there are several changes and fixes.
+- The `$parent` property now refers to the array itself
+- The `$model` property has been added
+- When using the object declaration `{target: X, self: true}`, the `each`-configuration is now removed from the attribute, leaving others intact (this addresses [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4))
 
 ### Providers
 By unifying the way `kontext.bind` finds the actual targets it needs to deal with, a lot of flexibility is introduced. Not only does this allow for smaller builds, it will also provide a very simple way to add other ways of binding models. For example, a provider to implement a mechanism using comments is now very easy and does no longer involve understanding all/most of Kontext.
@@ -30,10 +42,11 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 ### Fixes
 - Fixed [issue #8: `update` events do not provide the correct previous value](https://github.com/konfirm/kontext/issues/8)
 - Fixed issue with the binding of children of conditional elements
+- Addressed [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4)
 
 ### Statistics
-- Full size: 85K (+20K), gzipped: 21.8K (+4.9K)
-- Minified size: 18.8K (+3.8K), gzipped: 6.9K (+1.4K)
+- Full size: 85.9K (+20.9K), gzipped: 22.1K (+5.2K)
+- Minified size: 19K (+3.9K), gzipped: 7K (+1.4K)
 
 
 ## 1.5.0

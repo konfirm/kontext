@@ -14,7 +14,7 @@ kontext.extension('each', function(element, model, config, options) {
 	var template = [],
 		cache = [],
 		self = 'self',
-		offset, state;
+		settings, offset, state;
 
 	/**
 	 *  Obtain the configured target delegate
@@ -109,7 +109,7 @@ kontext.extension('each', function(element, model, config, options) {
 
 			result = {
 				item: value,
-				model: kontext.bind(bind, nodeList),
+				model: kontext.bind(bind, nodeList, settings),
 				nodes: nodeList
 			};
 
@@ -230,6 +230,29 @@ kontext.extension('each', function(element, model, config, options) {
 	}
 
 	/**
+	 *  Attempt to remove just the 'each'-extension configuration
+	 *  @name    removeEachAttribute
+	 *  @access  internal
+	 *  @param   DOMElement  node
+	 *  @param   string      attribute name  [default 'data-kontext', could be overridden]
+	 *  @param   string      extension name  [default 'each', could be shortened/renamed]
+	 *  @return  void
+	 */
+	function removeEachAttribute(node, attribute, extension) {
+		var value = node.getAttribute(attribute),
+
+			//  the pattern _only_ tries to match the object configuration and assumes no nested objects
+			//  e.g.  each: {...}
+			pattern = new RegExp('([\'"])?(?:' + extension + ')\\1\\s*:\\s*\\{[^\\}]+\\}'),
+			remain = value
+				.replace(pattern, '')
+				.replace(/(?:,\s*)+/, ',')
+				.replace(/^[,\s]+|[,\s]+$/, '');
+
+		node.setAttribute(attribute, remain);
+	}
+
+	/**
 	 *  Initialize the extension
 	 *  @name    init
 	 *  @access  internal
@@ -237,8 +260,11 @@ kontext.extension('each', function(element, model, config, options) {
 	 */
 	function init() {
 		var delegate = target(config),
-			attribute = kontext.defaults().attribute,
 			marker = document.createTextNode('');
+
+		//  preserve the settings used to bind this extenstion
+		//  so it can be used to configure subsequent bindings
+		settings = options.settings;
 
 		//  tell Kontext not to descend into the children of our element
 		options.stopDescend();
@@ -253,8 +279,10 @@ kontext.extension('each', function(element, model, config, options) {
 				end: before(marker.cloneNode(), element)
 			};
 
-			//  always remove the kontext initializer attribute from the element
-			element.removeAttribute(attribute);
+			//  always remove the extension from the attribute
+			removeEachAttribute(element, settings.attribute, options.extension);
+
+			//  add the element to the template
 			template.push(element.parentNode.removeChild(element));
 		}
 		else {
