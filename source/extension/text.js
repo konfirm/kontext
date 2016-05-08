@@ -71,7 +71,6 @@
 			text = ensureText(element);
 
 			if (!delegate() && initial !== undefined) {
-				// console.log('B: delegate() is empty, setting to', JSON.stringify(initial));
 				delegate(initial);
 			}
 

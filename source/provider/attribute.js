@@ -13,6 +13,8 @@
 
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
+	}, {
+		attribute: 'data-kontext'
 	});
 
 })(kontext);
