@@ -84,7 +84,7 @@
 			//  public settings (this is what is provided/changed when using the kontext.defaults method)
 			settings.public({
 				greedy: true,
-				providers: [],
+				provider: {},
 				abbreviateExtensions: true,
 				attribute: 'data-kontext',
 				pattern: /(\{(\$?[a-z_]+[\.-]?(?:[a-z0-9_]+[\.-]?)*)(?::([^\}]+))?\})/i
@@ -241,25 +241,23 @@
 		 *  @param   function  handler  [optional, default undefined - return the provider]
 		 *  @return  function  handler
 		 */
-		function provider(name, handler) {
-			var prov = settings._('provider') || {},
-				available;
+		function provider(name, handler, config) {
+			var providers = settings.public('provider');
 
 			if (handler) {
-				prov[name] = handler;
-				settings._('provider', prov);
-				available = settings.public('providers');
-				if (available.indexOf(name) < 0) {
-					available.push(name);
-					settings.public('providers', available);
-				}
+				providers[name] = {
+					handler: handler,
+					config: config
+				};
+
+				settings.public('provider', providers);
 			}
 
-			if (!(name in prov)) {
+			if (!(name in providers)) {
 				return errorTrigger('Unknown provider %s', name);
 			}
 
-			return prov[name];
+			return providers[name];
 		}
 
 		/**
@@ -758,7 +756,6 @@
 				last = arg.length ? arg[arg.length - 1] : null,
 				pop = last && !(typeof last === 'string' || contains(last, ['nodeType', 'length'], 1)),
 				options = settings.combine(pop ? arg.pop() : {}),
-				providers = options.providers,
 				exclude = [];
 
 			//  bind the model to each element provided
@@ -766,12 +763,11 @@
 				//  register the bond, so we can retrieve it later on
 				bindings(element, model);
 
-				providers
-					.map(function(p) {
-						return provider(p);
-					})
-					.forEach(function(provide) {
-						provide(options, element, function(target, opt) {
+				eachKey(options.provider, function(name) {
+					var provide = provider(name);
+
+					if (provide && typeof provide.handler === 'function') {
+						provide.handler(options, element, function(target, opt) {
 							//  if an extension has indicated not to let Kontext invoke
 							//  extensions on its children, exit the loop
 							if (isDescendPrevented(exclude, target)) {
@@ -793,7 +789,8 @@
 								ext(target, model, config, jit);
 							});
 						});
-					});
+					}
+				});
 			});
 
 			return model;

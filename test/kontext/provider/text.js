@@ -5,7 +5,8 @@ describe('Kontext Provider Text', function() {
 	var provider = kontext.provider('text');
 
 	it('text provider exists', function() {
-		expect(typeof provider).toBe('function');
+		expect(typeof provider).toBe('object');
+		expect(typeof provider.handler).toBe('function');
 	});
 
 	it('finds all placeholders', function() {
@@ -17,7 +18,7 @@ describe('Kontext Provider Text', function() {
 			.appendChild(document.createTextNode('a {foo:fool} walks into a {bar:trap}.'));
 		main.appendChild(document.createTextNode('goodbye {target}!'));
 
-		provider(kontext.defaults(), main, function(target, options) {
+		provider.handler(kontext.defaults(), main, function(target, options) {
 			expect(target.nodeType).toBe(3);
 
 			expect('text' in options).toBe(true);

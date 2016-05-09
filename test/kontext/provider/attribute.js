@@ -5,7 +5,8 @@ describe('Kontext Provider Attribute', function() {
 	var provider = kontext.provider('attribute');
 
 	it('attribute provider exists', function() {
-		expect(typeof provider).toBe('function');
+		expect(typeof provider).toBe('object');
+		expect(typeof provider.handler).toBe('function');
 	});
 
 	describe('finds all placeholders', function() {
@@ -36,7 +37,7 @@ describe('Kontext Provider Attribute', function() {
 		function runner(node, conclusion) {
 			var collect = [];
 
-			provider(kontext.defaults(), node, function(target, options) {
+			provider.handler(kontext.defaults(), node, function(target, options) {
 				expect(target.nodeType).toBe(1);
 
 				if (target === main) {
@@ -103,7 +104,7 @@ describe('Kontext Provider Attribute', function() {
 
 		main.setAttribute('data-kontext', '  foo: {bar: baz},\n\t\t\t\t\r   last: false\n\n\n\t\t\t,\n\n\n\t\t\t\t    \t\n  \rfinal: "tru\\"e"  ,  ');
 
-		provider(kontext.defaults(), main, function(target, config) {
+		provider.handler(kontext.defaults(), main, function(target, config) {
 			expect('foo' in config).toBe(true);
 			expect('bar' in config.foo).toBe(true);
 			expect(config.foo.bar).toBe('baz');
@@ -122,7 +123,7 @@ describe('Kontext Provider Attribute', function() {
 	it('does not trip over non-elements', function() {
 		var collect = [];
 
-		provider(kontext.defaults(), null, function(target) {
+		provider.handler(kontext.defaults(), null, function(target) {
 			collect.push(target);
 		});
 
@@ -138,7 +139,7 @@ describe('Kontext Provider Attribute', function() {
 
 					main.setAttribute('data-kontext', '');
 
-					provider(kontext.defaults(), main, function(target, config) {
+					provider.handler(kontext.defaults(), main, function(target, config) {
 						collect.push(config);
 					});
 
@@ -172,7 +173,7 @@ describe('Kontext Provider Attribute', function() {
 		function runner(node, conclusion) {
 			var collect = [];
 
-			provider(kontext.defaults(), node, function(target, config) {
+			provider.handler(kontext.defaults(), node, function(target, config) {
 				collect.push(target);
 
 				expect(target).toBe(element);

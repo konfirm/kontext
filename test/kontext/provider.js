@@ -6,15 +6,15 @@ describe('Kontext Providers', function() {
 		it('has text', function() {
 			var defaults = kontext.defaults();
 
-			expect('providers' in defaults).toBe(true);
-			expect(defaults.providers.indexOf('text') >= 0).toBe(true);
+			expect('provider' in defaults).toBe(true);
+			expect('text' in defaults.provider).toBe(true);
 		});
 
 		it('has attribute', function() {
 			var defaults = kontext.defaults();
 
-			expect('providers' in defaults).toBe(true);
-			expect(defaults.providers.indexOf('attribute') >= 0).toBe(true);
+			expect('provider' in defaults).toBe(true);
+			expect('attribute' in defaults.provider).toBe(true);
 		});
 	});
 
