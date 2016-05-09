@@ -1,6 +1,6 @@
 /*global Emission: true, Observer: true, Settings: true*/
 /*
- *       __    Kontext (version 1.5.0 - 2016-05-05)
+ *       __    Kontext (version 1.5.0 - 2016-05-09)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,16 +15,16 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Thu May 05 2016 14:49:30 GMT+0200 (CEST)
-	 *    time: 3.24ms
-	 *    size: 29.72KB
+	 *    date: Mon May 09 2016 10:52:39 GMT+0200 (CEST)
+	 *    time: 3.10ms
+	 *    size: 31.65KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
-	 *     +1.97KB source/lib/settings
+	 *     +3.93KB source/lib/settings
 	 *     +3.06KB source/lib/emission
 	 *     +2.15KB source/lib/observer
 	 *  ---------------------------------------------------------------------
-	 *   total: 36.89KB
+	 *   total: 40.78KB
 	 */
 
 	//  load dependencies
@@ -41,6 +41,17 @@
 		var settings = this;
 
 		/**
+		 *  Determine if the provided value is an object that can be inherited (e.g. not null, Array, RegExp)
+		 *  @name    isInheritable
+		 *  @access  internal
+		 *  @param   mixed  target
+		 *  @return  bool   inheritable
+		 */
+		function isInheritable(obj) {
+			return obj && typeof obj === 'object' && !(obj instanceof RegExp || obj instanceof Array);
+		}
+
+		/**
 		 *  Merge two objects, adding/overruling values from b onto a
 		 *  @name    merge
 		 *  @access  internal
@@ -50,18 +61,64 @@
 		 */
 		function merge(a, b) {
 			Object.keys(b)
+				.filter(function(key) {
+					return b.hasOwnProperty(key);
+				})
 				.forEach(function(key) {
 					var value = b[key];
 
-					if (key in a && b[key] && typeof b[key] === 'object' && !(value instanceof RegExp || value instanceof Array)) {
-						a[key] = merge(a[key], value);
-					}
-					else {
-						a[key] = value;
-					}
+					a[key] = isInheritable(value) ? merge(isInheritable(a[key]) ? a[key] : {}, value) : value;
 				});
 
 			return a;
+		}
+
+		/**
+		 *  Traverse given path in the target and invoke the callback for each 'inheritable' target
+		 *  @name    scope
+		 *  @access  internal
+		 *  @param   Object    target
+		 *  @param   string    path
+		 *  @param   function  callback
+		 *  @return  void
+		 *  @note    the callback signature is (object currentTarget, string key, string pathSoFar),
+		 *           e.g. scope({my: {obj: true}}, 'my.obj', fn)
+		 *           will invoke (in order): fn({my: {obj: true}}, 'my', 'my')
+		 *                                   fn({obj: true}, 'obj', 'my.obj')
+		 */
+		function scope(target, path, callback) {
+			path.split('.')
+				.forEach(function(key, index, all) {
+					if (isInheritable(target)) {
+						callback(target, key, all.slice(0, index + 1).join('.'));
+						target = key in target ? target[key] : null;
+					}
+				});
+		}
+
+		/**
+		 *  Resolve any object key containing a (presumed) path (e.g. 'some.nesting') to its full
+		 *  object representation
+		 *  @name    expand
+		 *  @param   Object  source
+		 *  @return  Object  expanded
+		 */
+		function expand(source) {
+			var result = {};
+
+			Object.keys(source)
+				.forEach(function(path) {
+					scope(result, path, function(target, key, full) {
+						if (full === path) {
+							target[key] = isInheritable(source[path]) ? expand(source[path]) : source[path];
+						}
+						else if (!(key in target)) {
+							target[key] = {};
+						}
+					});
+				});
+
+			return result;
 		}
 
 		/**
@@ -76,12 +133,22 @@
 			var collection = {};
 
 			settings[name] = function(key, value) {
+				var override, resolved;
+
 				if (typeof key === 'string') {
 					if (arguments.length > 1) {
-						collection[key] = value;
+						override = {};
+						override[key] = value;
+						collection = merge(collection, expand(override));
 					}
 
-					return collection[key];
+					scope(collection, key, function(target, k, full) {
+						if (full === key) {
+							resolved = target[k];
+						}
+					});
+
+					return resolved;
 				}
 				else if (typeof key === 'object') {
 					merge(collection, key);
@@ -110,13 +177,13 @@
 		 *  @return  object  combined
 		 */
 		settings.combine = function(override) {
-			return merge(merge({}, settings.public()), override || {});
+			return merge(merge({}, settings.public()), expand(override || {}));
 		};
 
 		init();
 	}
 
-	//END INCLUDE: lib/settings [648.98µs, 1.82KB]
+	//END INCLUDE: lib/settings [552.08µs, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -242,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [256.18µs, 2.88KB]
+	//END INCLUDE: lib/emission [281.35µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -338,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [198.63µs, 1.99KB]
+	//END INCLUDE: lib/observer [203.27µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -405,10 +472,8 @@
 			//  public settings (this is what is provided/changed when using the kontext.defaults method)
 			settings.public({
 				greedy: true,
-				providers: [],
-				abbreviateExtensions: true,
-				attribute: 'data-kontext',
-				pattern: /(\{(\$?[a-z_]+[\.-]?(?:[a-z0-9_]+[\.-]?)*)(?::([^\}]+))?\})/i
+				provider: {},
+				abbreviateExtensions: true
 			});
 
 			//  register our own ready handler, ensuring to be the first in line
@@ -562,25 +627,23 @@
 		 *  @param   function  handler  [optional, default undefined - return the provider]
 		 *  @return  function  handler
 		 */
-		function provider(name, handler) {
-			var prov = settings._('provider') || {},
-				available;
+		function provider(name, handler, config) {
+			var providers = settings.public('provider');
 
 			if (handler) {
-				prov[name] = handler;
-				settings._('provider', prov);
-				available = settings.public('providers');
-				if (available.indexOf(name) < 0) {
-					available.push(name);
-					settings.public('providers', available);
-				}
+				providers[name] = {
+					handler: handler,
+					settings: config
+				};
+
+				settings.public('provider', providers);
 			}
 
-			if (!(name in prov)) {
+			if (!(name in providers)) {
 				return errorTrigger('Unknown provider %s', name);
 			}
 
-			return prov[name];
+			return providers[name];
 		}
 
 		/**
@@ -1079,7 +1142,6 @@
 				last = arg.length ? arg[arg.length - 1] : null,
 				pop = last && !(typeof last === 'string' || contains(last, ['nodeType', 'length'], 1)),
 				options = settings.combine(pop ? arg.pop() : {}),
-				providers = options.providers,
 				exclude = [];
 
 			//  bind the model to each element provided
@@ -1087,12 +1149,13 @@
 				//  register the bond, so we can retrieve it later on
 				bindings(element, model);
 
-				providers
-					.map(function(p) {
-						return provider(p);
-					})
-					.forEach(function(provide) {
-						provide(options, element, function(target, opt) {
+				eachKey(options.provider, function(name) {
+					var provide = name in options.provider ? options.provider[name] : null,
+						handler = provide && typeof provide.handler === 'function' ? provide.handler : null,
+						setting = provide && 'settings' in provide ? provide.settings : null;
+
+					if (handler) {
+						handler(setting, element, function(target, opt) {
 							//  if an extension has indicated not to let Kontext invoke
 							//  extensions on its children, exit the loop
 							if (isDescendPrevented(exclude, target)) {
@@ -1114,7 +1177,8 @@
 								ext(target, model, config, jit);
 							});
 						});
-					});
+					}
+				});
 			});
 
 			return model;
@@ -1630,7 +1694,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [564.80µs, 11.27KB]
+	//END INCLUDE: ../lib/condition [402.57µs, 11.27KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -1755,7 +1819,7 @@ kontext.extension('each', function(element, model, config, options) {
 	var template = [],
 		cache = [],
 		self = 'self',
-		settings, offset, state;
+		configuration, offset, state;
 
 	/**
 	 *  Obtain the configured target delegate
@@ -1850,7 +1914,7 @@ kontext.extension('each', function(element, model, config, options) {
 
 			result = {
 				item: value,
-				model: kontext.bind(bind, nodeList, settings),
+				model: kontext.bind(bind, nodeList, configuration),
 				nodes: nodeList
 			};
 
@@ -2001,11 +2065,14 @@ kontext.extension('each', function(element, model, config, options) {
 	 */
 	function init() {
 		var delegate = target(config),
-			marker = document.createTextNode('');
+			marker = document.createTextNode(''),
+			attributeSettings;
 
 		//  preserve the settings used to bind this extenstion
 		//  so it can be used to configure subsequent bindings
-		settings = options.settings;
+		configuration = options.settings;
+
+		attributeSettings = configuration.provider.attribute.settings;
 
 		//  tell Kontext not to descend into the children of our element
 		options.stopDescend();
@@ -2021,7 +2088,7 @@ kontext.extension('each', function(element, model, config, options) {
 			};
 
 			//  always remove the extension from the attribute
-			removeEachAttribute(element, settings.attribute, options.extension);
+			removeEachAttribute(element, attributeSettings.attribute, options.extension);
 
 			//  add the element to the template
 			template.push(element.parentNode.removeChild(element));
@@ -2591,7 +2658,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [308.72µs, 5.12KB]
+	//END INCLUDE: ../lib/template [334.21µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2731,7 +2798,6 @@ kontext.extension('html', function(element, model, key) {
 			text = ensureText(element);
 
 			if (!delegate() && initial !== undefined) {
-				// console.log('B: delegate() is empty, setting to', JSON.stringify(initial));
 				delegate(initial);
 			}
 
@@ -2751,15 +2817,15 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Thu May 05 2016 14:49:30 GMT+0200 (CEST)
-	 *    time: 945.64µs
-	 *    size: 9.84KB
+	 *    date: Mon May 09 2016 10:52:39 GMT+0200 (CEST)
+	 *    time: 825.57µs
+	 *    size: 9.87KB
 	 *  ---------------------------------------------------------------------
 	 *   included 2 files
 	 *     +9.51KB source/provider/../lib/attribute
 	 *     +6.91KB source/provider/../lib/json-formatter
 	 *  ---------------------------------------------------------------------
-	 *   total: 26.25KB
+	 *   total: 26.28KB
 	 */
 
 	//  load dependencies
@@ -3036,7 +3102,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [322.44µs, 6.61KB]
+		//END INCLUDE: json-formatter [275.79µs, 6.61KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3126,9 +3192,11 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [800.48µs, 9.12KB]
+	//END INCLUDE: ../lib/attribute [720.10µs, 9.12KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
+	}, {
+		attribute: 'data-kontext'
 	});
 
 })(kontext);
@@ -3143,16 +3211,16 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Thu May 05 2016 14:49:30 GMT+0200 (CEST)
-	 *    time: 518.83µs
-	 *    size: 2.80KB
+	 *    date: Mon May 09 2016 10:52:39 GMT+0200 (CEST)
+	 *    time: 491.54µs
+	 *    size: 2.88KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
 	 *     +9.51KB source/provider/../lib/attribute
 	 *     +6.91KB source/provider/../lib/json-formatter
 	 *     +2.40KB source/provider/../lib/text
 	 *  ---------------------------------------------------------------------
-	 *   total: 21.62KB
+	 *   total: 21.69KB
 	 */
 
 	//  load dependencies
@@ -3257,13 +3325,15 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [306.40µs, 2.24KB]
+	//END INCLUDE: ../lib/text [301.01µs, 2.24KB]
 	kontext.provider('text', function(settings, element, callback) {
 
-		new Text(settings.pattern).placeholders(element, function(target, key, initial) {
-			callback(target, {text: {target: key, initial: initial}});
+		new Text(settings.pattern).placeholders(element, function(node, key, initial) {
+			callback(node, {text: {target: key, initial: initial}});
 		});
 
+	}, {
+		pattern: /(\{(\$?[a-z_]+[\.-]?(?:[a-z0-9_]+[\.-]?)*)(?::([^\}]+))?\})/i
 	});
 
 })(kontext);

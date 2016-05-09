@@ -9,11 +9,19 @@
 - Introduced `providers`, which can be registered separately and are responsible for finding all DOMNodes which need to be bound to an extension. Moved the internal Attribute and Text iterators to separate (external) providers.
 - The declarations in attributes are now more relaxed about whitespace
 - `kontext.bind` now also accepts selector strings, which are always resolved from the document down (`document.querySelectorAll`).
+- Changing nested settings can now be shortened using a 'path' (this also applies to object properties)
 
 ### Breaking changes
 As the Kontext versions adhere to the [semantic versioning](http://semver.org) principles, the major version updates whenever something in the (public) API changes which could/would break if it is being used.
 
 The impact of these breaking changes is considered to be very minimal and fixing should take no more than fifteen minutes (_if_ anyone is affected at all).
+
+#### Default value overrides
+Both the `pattern` and `attribute` properties have been moved to a deeper nested object. Both properties now reside in the configuration of the provider which uses them.
+
+- `attribute` > `provider.attribute.settings.attribute`
+- `pattern` > `provider.text.settings.pattern`
+
 
 #### Extensions: Options object (impact: low)
 The fourth argument to extensions is no longer `kontext`, but instead an object with the following properties:
@@ -31,8 +39,20 @@ The `each`-extension has received a lot of attention this release, as there are 
 - The `$model` property has been added
 - When using the object declaration `{target: X, self: true}`, the `each`-configuration is now removed from the attribute, leaving others intact (this addresses [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4))
 
+### Settings
+When changing or overriding settings (using either `kontext.bind` options or directly settings `kontext.defaults`) now supports 'paths' as shorthand for complex nestings.
+
+For example `kontext.defaults('path.to.property': 'hello');` and `kontext.defaults({'path.to.property': 'hello'});` are both equivalent to writing `kontext.defaults({path: {to: {property: 'hello'}}})`;
+
 ### Providers
 By unifying the way `kontext.bind` finds the actual targets it needs to deal with, a lot of flexibility is introduced. Not only does this allow for smaller builds, it will also provide a very simple way to add other ways of binding models. For example, a provider to implement a mechanism using comments is now very easy and does no longer involve understanding all/most of Kontext.
+
+The downside to this flexibility is that all provider specific settings had to be moved into the providers, which make their configuration a little more work to overwrite.
+
+The following default settings have been moved:
+
+- `attribute` > `provider.attribute.settings.attribute`, the value itself remains unchanged (`data-kontext`)
+- `pattern` > `provider.text.settings.pattern`, the value itself remains unchanged (`/(\{(\$?[a-z_]+[\.-]?(?:[a-z0-9_]+[\.-]?)*)(?::([^\}]+))?\})/i`)
 
 ### JSON-Declaration in attributes
 Previously the `data-kontext` attributes would trip over whitespace like newlines and tabs, this has now been resolved. There are some things to note about the new behavior:
@@ -45,8 +65,8 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 - Addressed [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4)
 
 ### Statistics
-- Full size: 85.9K (+20.9K), gzipped: 22.1K (+5.2K)
-- Minified size: 19K (+3.9K), gzipped: 7K (+1.4K)
+- Full size: 88K (+23K), gzipped: 22.6K (+5.7K)
+- Minified size: 19.4K (+4.4K), gzipped: 7.1K (+1.5K)
 
 
 ## 1.5.0
