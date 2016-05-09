@@ -46,6 +46,17 @@ describe('Settings', function() {
 		expect(override.bar).toBe(settings.public('bar'));
 	});
 
+	it('allows for complex overrides with public settings', function() {
+		var override;
+
+		settings.public('obj', {foo: false, bar: {baz: 'one', qux: 'two'}});
+		override = settings.combine({obj: {bar: {baz: 'three', xyzzy: 'one'}}, hello: 'world', 'obj.bar.foo': 'test', 'obj.path.to.some.deeper.nesting': true});
+
+		expect(settings.public('obj')).toEqual({foo: false, bar: {baz: 'one', qux: 'two'}});
+		expect(override.obj).toEqual({foo: false, bar: {foo: 'test', baz: 'three', qux: 'two', xyzzy: 'one'}, path: {to: {some: {deeper: {nesting: true}}}}});
+		expect(override.hello).toBe('world');
+	});
+
 	it('combines defaults', function() {
 		var override = settings.combine();
 

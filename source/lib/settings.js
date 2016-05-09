@@ -9,6 +9,17 @@ function Settings() {  //  eslint-disable-line no-unused-vars
 	var settings = this;
 
 	/**
+	 *  Determine if the provided value is an object that can be inherited (e.g. not null, Array, RegExp)
+	 *  @name    isInheritable
+	 *  @access  internal
+	 *  @param   mixed  target
+	 *  @return  bool   inheritable
+	 */
+	function isInheritable(obj) {
+		return obj && typeof obj === 'object' && !(obj instanceof RegExp || obj instanceof Array);
+	}
+
+	/**
 	 *  Merge two objects, adding/overruling values from b onto a
 	 *  @name    merge
 	 *  @access  internal
@@ -18,18 +29,47 @@ function Settings() {  //  eslint-disable-line no-unused-vars
 	 */
 	function merge(a, b) {
 		Object.keys(b)
+			.filter(function(key) {
+				return b.hasOwnProperty(key);
+			})
 			.forEach(function(key) {
 				var value = b[key];
 
-				if (key in a && b[key] && typeof b[key] === 'object' && !(value instanceof RegExp || value instanceof Array)) {
-					a[key] = merge(a[key], value);
-				}
-				else {
-					a[key] = value;
-				}
+				a[key] = isInheritable(value) ? merge(isInheritable(a[key]) ? a[key] : {}, value) : value;
 			});
 
 		return a;
+	}
+
+	/**
+	 *  Resolve any object key containing a (presumed) path (e.g. 'some.nesting') to its full
+	 *  object representation
+	 *  @name    expand
+	 *  @param   Object  source
+	 *  @return  Object  expanded
+	 */
+	function expand(source) {
+		var result = {};
+
+		Object.keys(source)
+			.forEach(function(path) {
+				var target = result;
+
+				path.split('.')
+					.forEach(function(key, index, all) {
+						if (index === all.length - 1) {
+							target[key] = isInheritable(source[path]) ? expand(source[path]) : source[path];
+						}
+						else {
+							if (!(key in target)) {
+								target[key] = {};
+							}
+							target = target[key];
+						}
+					});
+			});
+
+		return result;
 	}
 
 	/**
@@ -78,7 +118,7 @@ function Settings() {  //  eslint-disable-line no-unused-vars
 	 *  @return  object  combined
 	 */
 	settings.combine = function(override) {
-		return merge(merge({}, settings.public()), override || {});
+		return merge(merge({}, settings.public()), expand(override || {}));
 	};
 
 	init();
