@@ -764,7 +764,7 @@
 				bindings(element, model);
 
 				eachKey(options.provider, function(name) {
-					var provide = provider(name);
+					var provide = name in options.provider ? options.provider[name] : null;
 
 					if (provide && typeof provide.handler === 'function') {
 						provide.handler(options, element, function(target, opt) {

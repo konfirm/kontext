@@ -42,6 +42,29 @@ function Settings() {  //  eslint-disable-line no-unused-vars
 	}
 
 	/**
+	 *  Traverse given path in the target and invoke the callback for each 'inheritable' target
+	 *  @name    scope
+	 *  @access  internal
+	 *  @param   Object    target
+	 *  @param   string    path
+	 *  @param   function  callback
+	 *  @return  void
+	 *  @note    the callback signature is (object currentTarget, string key, string pathSoFar),
+	 *           e.g. scope({my: {obj: true}}, 'my.obj', fn)
+	 *           will invoke (in order): fn({my: {obj: true}}, 'my', 'my')
+	 *                                   fn({obj: true}, 'obj', 'my.obj')
+	 */
+	function scope(target, path, callback) {
+		path.split('.')
+			.forEach(function(key, index, all) {
+				if (isInheritable(target)) {
+					callback(target, key, all.slice(0, index + 1).join('.'));
+					target = key in target ? target[key] : null;
+				}
+			});
+	}
+
+	/**
 	 *  Resolve any object key containing a (presumed) path (e.g. 'some.nesting') to its full
 	 *  object representation
 	 *  @name    expand
@@ -53,20 +76,14 @@ function Settings() {  //  eslint-disable-line no-unused-vars
 
 		Object.keys(source)
 			.forEach(function(path) {
-				var target = result;
-
-				path.split('.')
-					.forEach(function(key, index, all) {
-						if (index === all.length - 1) {
-							target[key] = isInheritable(source[path]) ? expand(source[path]) : source[path];
-						}
-						else {
-							if (!(key in target)) {
-								target[key] = {};
-							}
-							target = target[key];
-						}
-					});
+				scope(result, path, function(target, key, full) {
+					if (full === path) {
+						target[key] = isInheritable(source[path]) ? expand(source[path]) : source[path];
+					}
+					else if (!(key in target)) {
+						target[key] = {};
+					}
+				});
 			});
 
 		return result;
@@ -84,12 +101,22 @@ function Settings() {  //  eslint-disable-line no-unused-vars
 		var collection = {};
 
 		settings[name] = function(key, value) {
+			var override, resolved;
+
 			if (typeof key === 'string') {
 				if (arguments.length > 1) {
-					collection[key] = value;
+					override = {};
+					override[key] = value;
+					collection = merge(collection, expand(override));
 				}
 
-				return collection[key];
+				scope(collection, key, function(target, k, full) {
+					if (full === key) {
+						resolved = target[k];
+					}
+				});
+
+				return resolved;
 			}
 			else if (typeof key === 'object') {
 				merge(collection, key);
