@@ -44,7 +44,7 @@ describe('Kontext Providers', function() {
 
 				element = document.createElement('div');
 
-				node = element.appendChild(document.createElement('strong'))
+				node = element.appendChild(document.createElement('strong'));
 				node.setAttribute('data-kontext', 'text: a');
 
 				element.appendChild(document.createTextNode('{b}'));
@@ -127,7 +127,7 @@ describe('Kontext Providers', function() {
 
 				element = document.createElement('div');
 
-				node = element.appendChild(document.createElement('em'))
+				node = element.appendChild(document.createElement('em'));
 				node.setAttribute('data-kontext', 'text: b');
 
 				element.appendChild(document.createTextNode('{a}'));
@@ -191,5 +191,99 @@ describe('Kontext Providers', function() {
 				}, wait);
 			});
 		});
-	})
+	});
+
+	describe('providers can be added', function() {
+		var wait = 20,
+			main, model;
+
+		function custom(settings, element, callback) {
+			var list = element.querySelectorAll('kontext-custom'),
+				i;
+
+			for (i = 0; i < list.length; ++i) {
+				callback(list[i], {text: 'custom'});
+			}
+		}
+
+		beforeEach(function(done) {
+			model = {custom: 'custom works'};
+			main = document.createElement('main');
+
+			main.appendChild(document.createElement('kontext-custom'))
+				.appendChild(document.createTextNode('should be replaced'));
+
+			done();
+		});
+
+		afterEach(function(done) {
+			if (main.parentNode) {
+				main.parentNode.removeChild(main);
+			}
+			main = null;
+
+			done();
+		});
+
+		it('does not do anything by default', function(done) {
+			kontext.bind(model, main);
+
+			setTimeout(function() {
+				expect('custom' in kontext.defaults().provider).toBe(false);
+				expect(main.innerHTML).toBe('<kontext-custom>should be replaced</kontext-custom>');
+
+				done();
+			}, wait);
+		});
+
+		it('as option for kontext.bind', function(done) {
+			kontext.bind(model, main, {'provider.custom.handler': custom});
+
+
+			setTimeout(function() {
+				expect('custom' in kontext.defaults().provider).toBe(false);
+				expect(main.innerHTML).toBe('<kontext-custom>custom works</kontext-custom>');
+
+				done();
+			}, wait);
+		});
+
+		it('by registering as provider', function(done) {
+			kontext.provider('custom', custom);
+			kontext.bind(model, main);
+
+			setTimeout(function() {
+				expect('custom' in kontext.defaults().provider).toBe(true);
+				expect(main.innerHTML).toBe('<kontext-custom>custom works</kontext-custom>');
+
+				done();
+			}, wait);
+		});
+
+		it('does not do anything after reset', function(done) {
+			kontext.defaults('provider.custom', null);
+
+			kontext.bind(model, main);
+
+			setTimeout(function() {
+				expect('custom' in kontext.defaults().provider).toBe(true);
+				expect(kontext.defaults().provider.custom).toBe(null);
+				expect(main.innerHTML).toBe('<kontext-custom>should be replaced</kontext-custom>');
+
+				done();
+			}, wait);
+		});
+
+		it('by manipulating the defaults directly', function(done) {
+			kontext.defaults('provider.custom.handler', custom);
+			kontext.bind(model, main);
+
+			setTimeout(function() {
+				expect('custom' in kontext.defaults().provider).toBe(true);
+				expect(main.innerHTML).toBe('<kontext-custom>custom works</kontext-custom>');
+
+				done();
+			}, wait);
+		});
+	});
 });
