@@ -290,7 +290,7 @@ describe('Kontext Extension Each', function() {
 		element.setAttribute('data-foo', 'text: $item, bar: {target:list, self:true}');
 		parent.appendChild(element);
 
-		model = kontext.bind({list: []}, parent, {attribute: 'data-foo'});
+		model = kontext.bind({list: []}, parent, {'provider.attribute.settings.attribute': 'data-foo'});
 
 		model.on('update', function() {
 			if (model.list.length === 1) {

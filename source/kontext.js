@@ -85,9 +85,7 @@
 			settings.public({
 				greedy: true,
 				provider: {},
-				abbreviateExtensions: true,
-				attribute: 'data-kontext',
-				pattern: /(\{(\$?[a-z_]+[\.-]?(?:[a-z0-9_]+[\.-]?)*)(?::([^\}]+))?\})/i
+				abbreviateExtensions: true
 			});
 
 			//  register our own ready handler, ensuring to be the first in line
@@ -247,7 +245,7 @@
 			if (handler) {
 				providers[name] = {
 					handler: handler,
-					config: config
+					settings: config
 				};
 
 				settings.public('provider', providers);
@@ -764,10 +762,12 @@
 				bindings(element, model);
 
 				eachKey(options.provider, function(name) {
-					var provide = name in options.provider ? options.provider[name] : null;
+					var provide = name in options.provider ? options.provider[name] : null,
+						handler = provide && typeof provide.handler === 'function' ? provide.handler : null,
+						setting = provide && 'settings' in provide ? provide.settings : null;
 
-					if (provide && typeof provide.handler === 'function') {
-						provide.handler(options, element, function(target, opt) {
+					if (handler) {
+						handler(setting, element, function(target, opt) {
 							//  if an extension has indicated not to let Kontext invoke
 							//  extensions on its children, exit the loop
 							if (isDescendPrevented(exclude, target)) {

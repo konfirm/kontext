@@ -34,7 +34,10 @@ describe('Text', function() {
 		clean(done);
 	});
 
-	describe('Finds all placeholder', function() {
+	var defaults = kontext.defaults(),
+		textSettings = defaults.provider.text.settings;
+
+	describe('Finds all placeholders', function() {
 		it('in DOMElement nodes', function() {
 			var fixture = document.querySelector('.fixture'),
 				nodeList = [];
@@ -42,7 +45,7 @@ describe('Text', function() {
 			expect(typeof fixture).toBe('object');
 			expect(fixture.nodeType).toBe(1);
 
-			new Text(kontext.defaults().pattern).placeholders(fixture, function(text) {
+			new Text(textSettings.pattern).placeholders(fixture, function(text) {
 				nodeList.push(text);
 			});
 
@@ -61,7 +64,7 @@ describe('Text', function() {
 			var nodeList = [],
 				textNode = document.createTextNode('A {foo} walks into a {bar}');
 
-			new Text(kontext.defaults().pattern).placeholders(textNode, function(text) {
+			new Text(textSettings.pattern).placeholders(textNode, function(text) {
 				nodeList.push(text);
 			});
 
@@ -81,7 +84,7 @@ describe('Text', function() {
 		var node = document.createTextNode('A {foo} walks into a {bar}'),
 			result = [];
 
-		new Text(kontext.defaults().pattern).placeholders(node, function(text) {
+		new Text(textSettings.pattern).placeholders(node, function(text) {
 			result.push(text);
 		});
 

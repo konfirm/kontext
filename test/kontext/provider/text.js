@@ -7,6 +7,8 @@ describe('Kontext Provider Text', function() {
 	it('text provider exists', function() {
 		expect(typeof provider).toBe('object');
 		expect(typeof provider.handler).toBe('function');
+		expect(typeof provider.settings).toBe('object');
+		expect(provider.settings.pattern instanceof RegExp).toBe(true);
 	});
 
 	it('finds all placeholders', function() {
@@ -18,7 +20,7 @@ describe('Kontext Provider Text', function() {
 			.appendChild(document.createTextNode('a {foo:fool} walks into a {bar:trap}.'));
 		main.appendChild(document.createTextNode('goodbye {target}!'));
 
-		provider.handler(kontext.defaults(), main, function(target, options) {
+		provider.handler(provider.settings, main, function(target, options) {
 			expect(target.nodeType).toBe(3);
 
 			expect('text' in options).toBe(true);

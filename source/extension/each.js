@@ -14,7 +14,7 @@ kontext.extension('each', function(element, model, config, options) {
 	var template = [],
 		cache = [],
 		self = 'self',
-		settings, offset, state;
+		configuration, offset, state;
 
 	/**
 	 *  Obtain the configured target delegate
@@ -109,7 +109,7 @@ kontext.extension('each', function(element, model, config, options) {
 
 			result = {
 				item: value,
-				model: kontext.bind(bind, nodeList, settings),
+				model: kontext.bind(bind, nodeList, configuration),
 				nodes: nodeList
 			};
 
@@ -260,11 +260,14 @@ kontext.extension('each', function(element, model, config, options) {
 	 */
 	function init() {
 		var delegate = target(config),
-			marker = document.createTextNode('');
+			marker = document.createTextNode(''),
+			attributeSettings;
 
 		//  preserve the settings used to bind this extenstion
 		//  so it can be used to configure subsequent bindings
-		settings = options.settings;
+		configuration = options.settings;
+
+		attributeSettings = configuration.provider.attribute.settings;
 
 		//  tell Kontext not to descend into the children of our element
 		options.stopDescend();
@@ -280,7 +283,7 @@ kontext.extension('each', function(element, model, config, options) {
 			};
 
 			//  always remove the extension from the attribute
-			removeEachAttribute(element, settings.attribute, options.extension);
+			removeEachAttribute(element, attributeSettings.attribute, options.extension);
 
 			//  add the element to the template
 			template.push(element.parentNode.removeChild(element));

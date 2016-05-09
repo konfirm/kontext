@@ -33,11 +33,11 @@ describe('Kontext Providers', function() {
 					provider: {
 						attribute: {
 							handler: defaults.provider.attribute.handler,
-							config: defaults.provider.attribute.config
+							settings: defaults.provider.attribute.settings
 						},
 						text: {
 							handler: defaults.provider.text.handler,
-							config: defaults.provider.text.config
+							settings: defaults.provider.text.settings
 						}
 					}
 				};

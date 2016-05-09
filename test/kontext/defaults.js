@@ -6,7 +6,6 @@ describe('Kontext Defaults', function() {
 		var a = kontext.defaults();
 
 		expect(a.greedy).toBe(true);
-		expect(a.attribute).toBe('data-kontext');
 	});
 
 	it('defaults can be changed, reflected in all referenced defaults', function() {
