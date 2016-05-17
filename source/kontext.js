@@ -430,27 +430,22 @@
 		function getDelegate(model, key) {
 			var result = false,
 				property = key.split('.'),
+				last = property.pop(),
 				desc;
 
-			//  deal with scoped keys such as 'foo.bar', which needs to address the 'bar' property in the submodel
-			//  residing in model.foo
-			property.forEach(function(name, index, all) {
-				key = name in model ? name : null;
+			while (model && property.length) {
+				model = model && property[0] in model ? model[property.shift()] : null;
+			}
 
-				if (key && index < all.length - 1) {
-					model = model[key];
-				}
-			});
-
-			if (key && key in model) {
+			if (last && model && last in model) {
 				//  if a model key is an explicitly assigned delegate, we utilize it
-				if (isDelegate(model[key])) {
-					result = model[key];
+				if (isDelegate(model[last])) {
+					result = model[last];
 				}
 
 				//  otherwise we need to get the property descriptor first
 				else {
-					desc = Object.getOwnPropertyDescriptor(model, key);
+					desc = Object.getOwnPropertyDescriptor(model, last);
 					result = desc.get;
 				}
 			}
