@@ -10,11 +10,15 @@
 - The declarations in attributes are now more relaxed about whitespace
 - `kontext.bind` now also accepts selector strings, which are always resolved from the document down (`document.querySelectorAll`).
 - Changing nested settings can now be shortened using a 'path' (this also applies to object properties)
+- Variable scoping now always searches for the longest possible match
 
 ### Breaking changes
 As the Kontext versions adhere to the [semantic versioning](http://semver.org) principles, the major version updates whenever something in the (public) API changes which could/would break if it is being used.
 
 The impact of these breaking changes is considered to be very minimal and fixing should take no more than fifteen minutes (_if_ anyone is affected at all).
+
+#### Variable scoping
+The mechanics behind resolving the variable scope have been altered (slightly), instead of traversing each segment within a (scoped) key (left to right), it now searches for the longest match first (right to left). This behavior allows for models containing properties such as `{"seemingly.nested.key": "value"}` (as created dynamically if the `greedy` setting is `true`, which is the default).
 
 #### Default value overrides
 Both the `pattern` and `attribute` properties have been moved to a deeper nested object. Both properties now reside in the configuration of the provider which uses them.
@@ -65,8 +69,8 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 - Addressed [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4)
 
 ### Statistics
-- Full size: 87.8K (+22.8K), gzipped: 22.5K (+5.6K)
-- Minified size: 19.4K (+4.4K), gzipped: 7.1K (+1.5K)
+- Full size: 87.9K (+22.9K), gzipped: 22.6K (+5.7K)
+- Minified size: 19.5K (+4.5K), gzipped: 7.1K (+1.5K)
 
 
 ## 1.5.0

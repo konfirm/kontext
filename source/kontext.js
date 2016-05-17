@@ -123,7 +123,7 @@
 		 *  @return  Array  value  [if given value cannot be cast to an array, null is returned]
 		 */
 		function castToArray(cast) {
-			return cast && cast.length ? Array.prototype.slice.call(cast) : null;
+			return cast && cast.length ? Array.prototype.slice.call(cast) : [];
 		}
 
 		/**
@@ -429,24 +429,30 @@
 		 */
 		function getDelegate(model, key) {
 			var result = false,
-				property = key.split('.'),
-				last = property.pop(),
-				desc;
+				list, length, property, desc;
 
-			while (model && property.length) {
-				model = model && property[0] in model ? model[property.shift()] : null;
-			}
-
-			if (last && model && last in model) {
+			if (key in model) {
 				//  if a model key is an explicitly assigned delegate, we utilize it
-				if (isDelegate(model[last])) {
-					result = model[last];
+				if (isDelegate(model[key])) {
+					result = model[key];
 				}
 
 				//  otherwise we need to get the property descriptor first
 				else {
-					desc = Object.getOwnPropertyDescriptor(model, last);
+					desc = Object.getOwnPropertyDescriptor(model, key);
 					result = desc.get;
+				}
+			}
+			else {
+				list = key.split('.');
+				length = list.length - 1;
+
+				while (length > 0) {
+					property = list.slice(0, length).join('.');
+					if (property in model) {
+						return getDelegate(model[property], list.slice(length).join('.'));
+					}
+					--length;
 				}
 			}
 
@@ -745,7 +751,7 @@
 		 */
 		kontext.bind = function() {
 			var arg = castToArray(arguments),
-				model = prepare(arg.shift()),
+				model = prepare(arg.length ? arg.shift() : {}),
 				last = arg.length ? arg[arg.length - 1] : null,
 				pop = last && !(typeof last === 'string' || contains(last, ['nodeType', 'length'], 1)),
 				options = settings.combine(pop ? arg.pop() : {}),

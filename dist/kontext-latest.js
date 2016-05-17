@@ -15,16 +15,16 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue May 17 2016 10:07:15 GMT+0200 (CEST)
-	 *    time: 3.64ms
-	 *    size: 31.51KB
+	 *    date: Tue May 17 2016 12:53:32 GMT+0200 (CEST)
+	 *    time: 3.54ms
+	 *    size: 31.62KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
 	 *     +3.93KB source/lib/settings
 	 *     +3.06KB source/lib/emission
 	 *     +2.15KB source/lib/observer
 	 *  ---------------------------------------------------------------------
-	 *   total: 40.64KB
+	 *   total: 40.75KB
 	 */
 
 	//  load dependencies
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [776.92µs, 3.72KB]
+	//END INCLUDE: lib/settings [852.37µs, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [436.29µs, 2.88KB]
+	//END INCLUDE: lib/emission [326.41µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [376.55µs, 1.99KB]
+	//END INCLUDE: lib/observer [491.53µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -511,7 +511,7 @@
 		 *  @return  Array  value  [if given value cannot be cast to an array, null is returned]
 		 */
 		function castToArray(cast) {
-			return cast && cast.length ? Array.prototype.slice.call(cast) : null;
+			return cast && cast.length ? Array.prototype.slice.call(cast) : [];
 		}
 
 		/**
@@ -817,24 +817,30 @@
 		 */
 		function getDelegate(model, key) {
 			var result = false,
-				property = key.split('.'),
-				last = property.pop(),
-				desc;
+				list, length, property, desc;
 
-			while (model && property.length) {
-				model = model && property[0] in model ? model[property.shift()] : null;
-			}
-
-			if (last && model && last in model) {
+			if (key in model) {
 				//  if a model key is an explicitly assigned delegate, we utilize it
-				if (isDelegate(model[last])) {
-					result = model[last];
+				if (isDelegate(model[key])) {
+					result = model[key];
 				}
 
 				//  otherwise we need to get the property descriptor first
 				else {
-					desc = Object.getOwnPropertyDescriptor(model, last);
+					desc = Object.getOwnPropertyDescriptor(model, key);
 					result = desc.get;
+				}
+			}
+			else {
+				list = key.split('.');
+				length = list.length - 1;
+
+				while (length > 0) {
+					property = list.slice(0, length).join('.');
+					if (property in model) {
+						return getDelegate(model[property], list.slice(length).join('.'));
+					}
+					--length;
 				}
 			}
 
@@ -1133,7 +1139,7 @@
 		 */
 		kontext.bind = function() {
 			var arg = castToArray(arguments),
-				model = prepare(arg.shift()),
+				model = prepare(arg.length ? arg.shift() : {}),
 				last = arg.length ? arg[arg.length - 1] : null,
 				pop = last && !(typeof last === 'string' || contains(last, ['nodeType', 'length'], 1)),
 				options = settings.combine(pop ? arg.pop() : {}),
@@ -1689,7 +1695,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [821.67µs, 11.27KB]
+	//END INCLUDE: ../lib/condition [465.56µs, 11.27KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2653,7 +2659,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [625.28µs, 5.12KB]
+	//END INCLUDE: ../lib/template [455.20µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2812,8 +2818,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue May 17 2016 10:07:15 GMT+0200 (CEST)
-	 *    time: 1.47ms
+	 *    date: Tue May 17 2016 12:53:32 GMT+0200 (CEST)
+	 *    time: 1.50ms
 	 *    size: 9.87KB
 	 *  ---------------------------------------------------------------------
 	 *   included 2 files
@@ -3097,7 +3103,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [554.50µs, 6.61KB]
+		//END INCLUDE: json-formatter [555.05µs, 6.61KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3187,7 +3193,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [1.36ms, 9.12KB]
+	//END INCLUDE: ../lib/attribute [1.34ms, 9.12KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3206,8 +3212,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue May 17 2016 10:07:15 GMT+0200 (CEST)
-	 *    time: 471.45µs
+	 *    date: Tue May 17 2016 12:53:32 GMT+0200 (CEST)
+	 *    time: 440.29µs
 	 *    size: 2.88KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -3320,7 +3326,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [396.19µs, 2.24KB]
+	//END INCLUDE: ../lib/text [370.05µs, 2.24KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {

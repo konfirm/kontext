@@ -19,6 +19,15 @@ describe('Kontext Scope', function() {
 				'foo.bar.baz': {qux: {xyzzy: 'hello'}}
 			}
 		},
+		{
+			model: {'a.b.c.d': 'a.b.c.d', 'a.b': {'c.d': 'a.b - c.d', c: 'a.b - c'}},
+			expectation: {
+				'a.b.c.d': 'a.b.c.d',
+				'a.b.c': 'a.b - c',
+				'a.b': {'c.d': 'a.b - c.d', c: 'a.b - c'},
+				a: false
+			}
+		}
 	];
 
 	scopes.forEach(function(scope) {

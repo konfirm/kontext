@@ -46,6 +46,22 @@ describe('Kontext Bind', function() {
 		expect(kontext.bindings()[0]).toBe(d);
 	});
 
+	it('allows for argument-less binds', function() {
+		var text = document.body.appendChild(document.createTextNode('{blue:out of the}')),
+			model;
+
+ 		model = kontext.bind();
+
+		expect(typeof model.on).toBe('function');
+		expect(typeof model.off).toBe('function');
+		expect(typeof model.define).toBe('function');
+		expect(typeof model.delegation).toBe('function');
+		expect('blue' in model).toBe(true);
+		expect(model.blue).toBe('out of the');
+
+		document.body.removeChild(text);
+	});
+
 	it('binds arrays', function(done) {
 		var model = kontext.bind({
 				list: [
