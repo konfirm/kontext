@@ -328,7 +328,7 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 
 		//  Element
 
-		//  exists, test the existance of the field
+		//  exists, test the existence of the field
 		//  usage:  {field: {$exists: bool}}
 		//  short:  field
 		$exists: function(object, key, value) {

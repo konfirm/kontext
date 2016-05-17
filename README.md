@@ -12,7 +12,7 @@ Without going into much detail on CSP-headers on itself, most two-way binding li
 As said, these features are very, very powerful. They are what makes it possible to have bindings like: `text: 'hello ' + myWorld`. In short, using these features helps implement powerful features that allow the users to write complex statements in HTML attributes.
 
 ### Who is the competition?
-Honestly, Kontext does not really compete with the proven libraries below, as they all have a plethora of use-cases, and a friendly, active and - most important - a helpful community. All of them offer a far more feature-rich library.
+Honestly, Kontext does not really compete with the proven libraries below, as they have a plethora of use-cases, and friendly, active communities. They offer a far more feature-rich library.
 I know this does not seem to plead in favor of Kontext, I try to manage expectations early on.
 
 So, here's are couple of competitors:
@@ -274,6 +274,75 @@ There are three possible keys which trigger some kind of behavior within templat
 //  load the contents of an element with id 'bar' from the current document
 <div data-kontext="template: {selector: #bar}">replaced</div>
 ```
+
+#### Conditional
+Set up a condition which determines whether or not to display (and handle) the element. The supported conditions use the same syntax as the query conditions for MongoDB. It is a rather expressive way to indicate what to look for.
+
+Example use
+
+```html
+<div data-kontext="conditional: {$eq: {foo: 'bar'}}">
+	This does not show up if `foo` does not match 'bar'
+</div>
+```
+
+##### Comparison
+
+operator | description | usage | short | remark
+---------|-------------|-------|-------|--------
+ `$eq` | equal to | `{field: {$eq: mixed}}` | `{field: value}` | uses the `===` operator, only exact matches
+ `$gt` | greater than | `{field: {$gt: number}}` | | |
+ `$gte` | greater than or equal to | `{field: {$gte: number}}` | | |
+ `$lt` | less than | `{field: {$lt: number}}` | | |
+ `$lte` | less than or equal to | `{field: {$lte: number}}` | | |
+ `$ne` | not equal to | `{field: {$ne: mixed}}` | | uses the !== operator, only exact matches
+ `$in` | in (contains) | `{field: {$in: array}}` | | |
+ `$nin` | not in (does not contain) | `{field: {$nin: array}}` | | |
+
+
+##### Logical
+
+operator | description | usage | short | remark
+---------|-------------|-------|-------|--------
+ `$or` | does any condition match | `{$or: [<condition>, ...]}` | | |
+ `$and` | do all conditions match | `{$and: [<condition>, ...]}` | `[<condition>, ...]` | |
+ `$not` | do none of the conditions match | `{$not: [<condition>, ...]}` | | |
+ `$nor` | do neither of the conditions match | `{$nor: [<condition>, ...]}` | | |
+
+_NOTE_: besides the array of conditions, all of the logical operators also accept a single condition as argument, convenient for `$not` and `$nor`, slightly too expressive for `$and` and `$or`.
+
+
+##### Element
+
+operator | description | usage | short | remark
+---------|-------------|-------|-------|--------
+ `$exists` | test the existence of the field | `{field: {$exists: bool}}` | `field` | The shorthand only tests if the field _does_ exist
+ `$type` | does the field match the given type | `{field: {$type: string type}}` | | Valid types are: array, boolean, function, number, object, string (these may be abbreviated (e.g. boolean > bool, b))
+
+
+##### Evaluation
+
+operator | description | usage | short | remark
+---------|-------------|-------|-------|--------
+ `$mod` | modulo | `{field: {$mod: [int divisor, int remainder]}}` | `{field: {$mod: int divisor}}` | if the remainder is omitted, it is set to 0 (no remainder)
+ `$regex` | match the field value against a regular expression | `{field: {$regex: string pattern}}` | | enclosing characters are optional for simple patterns, though required if any flag is used
+
+
+##### Array
+
+operator | description | usage | short | remark
+---------|-------------|-------|-------|--------
+ `$all` | does the field match all conditions | `{field: {$all: [<condition>, ...]}}` | |
+ `$elemMatch` | does the field contain any value matching all conditions | `{field: {$elemMatch: {<condition>, ...}}}` | | | `$size` | is the field an array of specified size | `{field: {$size: number}}` | | | ##### Not implemented
+
+MongoDB has several convenient conditions, which are not implemented by the `conditional`-extension
+
+- `$text`
+- `$where`
+- `$geoWithin`
+- `$geoIntersects`
+- `$near`
+- `$nearSphere`
 
 
 

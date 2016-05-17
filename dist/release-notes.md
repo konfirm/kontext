@@ -42,7 +42,7 @@ The `each`-extension has received a lot of attention this release, as there are 
 ### Settings
 When changing or overriding settings (using either `kontext.bind` options or directly settings `kontext.defaults`) now supports 'paths' as shorthand for complex nestings.
 
-For example `kontext.defaults('path.to.property': 'hello');` and `kontext.defaults({'path.to.property': 'hello'});` are both equivalent to writing `kontext.defaults({path: {to: {property: 'hello'}}})`;
+For example `kontext.defaults('path.to.property', 'hello');` and `kontext.defaults({'path.to.property': 'hello'});` are both equivalent to writing `kontext.defaults({path: {to: {property: 'hello'}}})`;
 
 ### Providers
 By unifying the way `kontext.bind` finds the actual targets it needs to deal with, a lot of flexibility is introduced. Not only does this allow for smaller builds, it will also provide a very simple way to add other ways of binding models. For example, a provider to implement a mechanism using comments is now very easy and does no longer involve understanding all/most of Kontext.
@@ -65,7 +65,7 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 - Addressed [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4)
 
 ### Statistics
-- Full size: 88K (+23K), gzipped: 22.6K (+5.7K)
+- Full size: 87.8K (+22.8K), gzipped: 22.5K (+5.6K)
 - Minified size: 19.4K (+4.4K), gzipped: 7.1K (+1.5K)
 
 
