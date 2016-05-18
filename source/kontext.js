@@ -757,7 +757,7 @@
 				model = prepare(arg.length ? arg.shift() : {}),
 				last = arg.length ? arg[arg.length - 1] : null,
 				pop = last && !(typeof last === 'string' || contains(last, ['nodeType', 'length'], 1)),
-				options = settings.combine(pop ? arg.pop() : {}),
+				options = settings.combine(pop ? arg.pop() : false),
 				exclude = [];
 
 			//  bind the model to each element provided
