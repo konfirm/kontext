@@ -36,7 +36,7 @@ describe('Kontext Delegate', function() {
 				// call scope 'manually' (useless)
 				model.delegateFoo.scope(m, k);
 
-				model.delegateFoo('qux')
+				model.delegateFoo('qux');
 			}
 			else {
 				expect(o).toBe('baz');
@@ -76,7 +76,7 @@ describe('Kontext Delegate', function() {
 				expect(element.innerText).toBe('hello qux.qux');
 
 				done();
-			}, 20)
+			}, 20);
 		});
 
 		setTimeout(function() {
