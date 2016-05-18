@@ -449,7 +449,7 @@
 
 				while (length > 0) {
 					property = list.slice(0, length).join('.');
-					if (property in model) {
+					if (property in model && model[property]) {
 						return getDelegate(model[property], list.slice(length).join('.'));
 					}
 					--length;
