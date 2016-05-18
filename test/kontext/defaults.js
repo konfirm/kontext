@@ -29,4 +29,10 @@ describe('Kontext Defaults', function() {
 
 		expect(kontext.defaults().a.b).toEqual({c: 1, d: 2});
 	});
+
+	it('allow any key to be added', function() {
+		kontext.defaults('foo.bar.baz', 'qux');
+
+		expect(kontext.defaults().foo.bar.baz).toBe('qux');
+	});
 });

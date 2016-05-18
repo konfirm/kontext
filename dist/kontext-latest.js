@@ -15,16 +15,16 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Wed May 18 2016 15:19:22 GMT+0200 (CEST)
-	 *    time: 4.16ms
-	 *    size: 31.62KB
+	 *    date: Wed May 18 2016 20:30:00 GMT+0200 (CEST)
+	 *    time: 3.89ms
+	 *    size: 31.67KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
 	 *     +3.93KB source/lib/settings
 	 *     +3.06KB source/lib/emission
 	 *     +2.15KB source/lib/observer
 	 *  ---------------------------------------------------------------------
-	 *   total: 40.75KB
+	 *   total: 40.81KB
 	 */
 
 	//  load dependencies
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [909.10µs, 3.72KB]
+	//END INCLUDE: lib/settings [947.92µs, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [538.55µs, 2.88KB]
+	//END INCLUDE: lib/emission [378.61µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [435.95µs, 1.99KB]
+	//END INCLUDE: lib/observer [342.31µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -640,7 +640,7 @@
 			}
 
 			if (!(name in providers)) {
-				return errorTrigger('Unknown provider %s', name);
+				return errorTrigger('Unknown provider "%s"', name);
 			}
 
 			return providers[name];
@@ -871,12 +871,15 @@
 						handle = delegate(initial, model, key);
 
 						define(model, key, true, handle, handle);
-
-						//  a change emission on a property will trigger an update on the model
-						handle.on('update', function(m, k, prior, current) {
-							emitter.trigger('update', [model, key, prior, current]);
-						});
 					}
+					else {
+						handle.scope(model, key);
+					}
+
+					//  a change emission on a property will trigger an update on the model
+					handle.on('update', function(m, k, prior, current) {
+						emitter.trigger('update', [model, key, prior, current]);
+					});
 
 					return handle;
 				};
@@ -1142,7 +1145,7 @@
 				model = prepare(arg.length ? arg.shift() : {}),
 				last = arg.length ? arg[arg.length - 1] : null,
 				pop = last && !(typeof last === 'string' || contains(last, ['nodeType', 'length'], 1)),
-				options = settings.combine(pop ? arg.pop() : {}),
+				options = settings.combine(pop ? arg.pop() : false),
 				exclude = [];
 
 			//  bind the model to each element provided
@@ -1695,7 +1698,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [836.18µs, 11.27KB]
+	//END INCLUDE: ../lib/condition [556.93µs, 11.27KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2659,7 +2662,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [435.06µs, 5.12KB]
+	//END INCLUDE: ../lib/template [516.13µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2818,16 +2821,16 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Wed May 18 2016 15:19:22 GMT+0200 (CEST)
-	 *    time: 2.20ms
-	 *    size: 13.17KB
+	 *    date: Wed May 18 2016 20:30:00 GMT+0200 (CEST)
+	 *    time: 6.66ms
+	 *    size: 13.28KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
-	 *    +12.80KB source/provider/../lib/attribute
-	 *    +10.06KB source/provider/../lib/json-formatter
-	 *     +4.81KB source/provider/../lib/tokenizer
+	 *    +12.91KB source/provider/../lib/attribute
+	 *    +10.16KB source/provider/../lib/json-formatter
+	 *     +4.96KB source/provider/../lib/tokenizer
 	 *  ---------------------------------------------------------------------
-	 *   total: 40.84KB
+	 *   total: 41.30KB
 	 */
 
 	//  load dependencies
@@ -2862,64 +2865,39 @@ kontext.extension('html', function(element, model, key) {
 		 */
 		function Tokenizer(tokens) {
 			var tokenizer = this,
-				matcher;
+				keys = Object.keys(tokens);
 
 			/**
-			 *  Initialize the Tokenizer, preparing the tokens in a crafter matcher function
-			 *  @name    init
+			 *  Attempt to match one of the tokens to the input string at the given index
+			 *  @name    matcher
 			 *  @access  internal
-			 *  @return  void
+			 *  @param   string  text
+			 *  @param   number  index
+			 *  @return  Object  item  {type, token, index [end [, merge]]}  [null if not match was found]
 			 */
-			function init() {
-				var collect = {},
-					key;
+			function matcher(text, index) {
+				var candidate = keys.filter(function(key) {
+						return text.substr(index, key.length) === key;
+					}),
+					result = null,
+					token;
 
-				//  create fast lookups for every key, by using the keys' first character as object index
-				for (key in tokens) {
-					if (!(key[0] in collect)) {
-						collect[key[0]] = [];
-					}
+				if (candidate.length) {
+					token = candidate[0];
+					result = {
+						type: tokens[token].type,
+						token: token,
+						index: index
+					};
 
-					collect[key[0]].push(key);
-				}
-
-				//  prioritize the keys by length
-				for (key in collect) {
-					collect[key] = collect[key].sort(function(a, b) {
-						return a.length === b.length ? a < b ? -1 : +(a > b) : a.length > b.length ? -1 : +(a.length < b.length);
+					['end', 'merge'].forEach(function(key) {
+						if (key in tokens[token]) {
+							result[key] = tokens[token][key];
+						}
 					});
 				}
 
-				//  prepare the matcher function based on the prepared collect object
-				matcher = function(text, index) {
-					var result = null,
-						candidate;
-
-					if (text[index] in collect) {
-						candidate = collect[text[index]]
-							.filter(function(key) {
-								return text.substr(index, key.length) === key;
-							});
-
-						if (candidate.length) {
-							result = {
-								type: tokens[candidate[0]].type,
-								token: candidate[0],
-								index: index
-							};
-
-							if ('end' in tokens[candidate[0]]) {
-								result.end = tokens[candidate[0]].end;
-							}
-
-							if ('merge' in tokens[candidate[0]]) {
-								result.merge = tokens[candidate[0]].merge;
-							}
-						}
-					}
-
-					return result;
-				};
+				return result;
 			}
 
 			/**
@@ -2955,14 +2933,14 @@ kontext.extension('html', function(element, model, key) {
 
 			/**
 			 *  Should the item be trimmed
-			 *  @name    trimToken
+			 *  @name    tokenFilter
 			 *  @access  internal
 			 *  @param   Object  item
 			 *  @param   number  index
 			 *  @param   Array   all items
 			 *  @return  bool    trim
 			 */
-			function trimToken(item, index, all) {
+			function tokenFilter(item, index, all) {
 				var verdict = true;
 
 				switch (item.type) {
@@ -2979,6 +2957,26 @@ kontext.extension('html', function(element, model, key) {
 			}
 
 			/**
+			 *  Ensure the last item in the list is a 'text'-type item and return it
+			 *  @name    lastText
+			 *  @access  internal
+			 *  @param   Array   items
+			 *  @param   number  index
+			 *  @return  Object  item
+			 */
+			function lastText(list, index) {
+				if (!(list.length && list[list.length - 1].type === 'text')) {
+					list.push({
+						type: 'text',
+						data: '',
+						index: index
+					});
+				}
+
+				return list[list.length - 1];
+			}
+
+			/**
 			 *  Tokenize the given text from start until either the end or until given character is found
 			 *  @name    tokenize
 			 *  @access  internal
@@ -2991,7 +2989,7 @@ kontext.extension('html', function(element, model, key) {
 			function tokenize(text, start, until, greedy) {
 				var result = [],
 					index = start || 0,
-					match, sub, end, ends;
+					match, end, ends;
 
 				while (text && index < text.length) {
 					match = matcher(text, index);
@@ -3005,47 +3003,57 @@ kontext.extension('html', function(element, model, key) {
 							token: end,
 							index: index
 						});
+
+						//  break the loop (no return, as we want to filter it before returning)
 						break;
 					}
 					else if (!greedy && match) {
-						if ('end' in match && match.end !== true) {
-							//  TODO: a multicharacter token cannot be used as (greedy) self-closing value
-							//        this is fine as (to our knowledge) there are no such pattens required
-							sub = tokenize(text, shift(match), match.end || text[index], match.merge || false);
-							end = sub.pop();
-
-							result.push({
-								type: match.type,
-								token: match.token,
-								index: match.index,
-								nest: sub,
-								end: end
-							});
-
-							index = shift(end);
-						}
-						else {
-							result.push(match);
-
-							index = shift(match);
-						}
+						index = processMatch(text, index, match, result);
 					}
 					else {
-						if (!(result.length && result[result.length - 1].type === 'text')) {
-							result.push({
-								type: 'text',
-								data: '',
-								index: index
-							});
-						}
-
-						result[result.length - 1].data += text[index];
+						match = lastText(result, index);
+						match.data += text[index];
 						++index;
 					}
 				}
 
 				return result
-					.filter(trimToken);
+					.filter(tokenFilter);
+			}
+
+			/**
+			 *  Process a token match, resolving optional nesting and returning the index to jump to
+			 *  @name    processMatch
+			 *  @access  internal
+			 *  @param   string  text
+			 *  @param   number  index
+			 *  @param   Object  match
+			 *  @param   Array   list
+			 *  @return  number  index
+			 */
+			function processMatch(text, index, match, result) {
+				var nested, end;
+
+				if ('end' in match && match.end !== true) {
+					//  TODO: a multicharacter token cannot be used as (greedy) self-closing value
+					//        this is fine as (to our knowledge) there are no such pattens required
+					nested = tokenize(text, shift(match), match.end || text[index], match.merge || false);
+					end = nested.pop();
+
+					result.push({
+						type: match.type,
+						token: match.token,
+						index: match.index,
+						nest: nested,
+						end: end
+					});
+
+					return shift(end);
+				}
+
+				result.push(match);
+
+				return shift(match);
 			}
 
 			/**
@@ -3058,11 +3066,9 @@ kontext.extension('html', function(element, model, key) {
 			tokenizer.tokenize = function(text) {
 				return tokenize(text);
 			};
-
-			init();
 		}
 
-		//END INCLUDE: tokenizer [453.26µs, 4.74KB]
+		//END INCLUDE: tokenizer [425.71µs, 4.89KB]
 		/**
 		 *  JSON Formatter
 		 *  @name     JSONFormatter
@@ -3118,7 +3124,7 @@ kontext.extension('html', function(element, model, key) {
 					},
 					'\r': {
 						type: 'space'
-					},
+					}
 				});
 
 			/**
@@ -3153,11 +3159,9 @@ kontext.extension('html', function(element, model, key) {
 			 */
 			function flatten(list) {
 				return list
-					.reduce(function(result, item) {
-						var value = item.data || item.token;
-
-						return result.concat(value + ('nest' in item ? flatten(item.nest) + item.end.token : ''));
-					}, [])
+					.map(function(item) {
+						return item.data;
+					})
 					.join('');
 			}
 
@@ -3175,9 +3179,6 @@ kontext.extension('html', function(element, model, key) {
 							output = item.type === 'text' ? quote(item.data.trim(), next && next.type === 'key') : item.token;
 
 						if (item.type === 'space') {
-							output = '';
-						}
-						else if (item.type === 'comment') {
 							output = '';
 						}
 						else if ('nest' in item) {
@@ -3198,9 +3199,11 @@ kontext.extension('html', function(element, model, key) {
 			 */
 			function prepare(list) {
 				var prepared = list
-						.reduce(function(result, item, index, all) {
-							var prev = result.length ? result[result.length - 1] : null,
-								data;
+						.filter(function(item) {
+							return item.type !== 'comment';
+						})
+						.map(function(item) {
+							var data;
 
 							if (item.type === 'quote') {
 								data = [item.token, flatten(item.nest), item.end.data || item.end.token];
@@ -3210,6 +3213,11 @@ kontext.extension('html', function(element, model, key) {
 									data: data[0] === data[2] ? data[1] : data.join('')
 								};
 							}
+
+							return item;
+						})
+						.reduce(function(result, item) {
+							var prev = result.length ? result[result.length - 1] : null;
 
 							if (prev && prev.type === 'text' && item.type === 'text') {
 								prev.data += item.data;
@@ -3238,7 +3246,7 @@ kontext.extension('html', function(element, model, key) {
 					string = (match.match(/"/g) || []).length === 2 && match.indexOf('"') < position && match.lastIndexOf('"') > position;
 
 				//  figure out if the notation should be added or may be skipped
-				return !string && match[0] !== character[0] ? character[0] + match.replace(/,+$/g, '') + character[1] : match;
+				return !string && match[0] !== character[0] ? character[0] + match + character[1] : match;
 			}
 
 			/**
@@ -3256,7 +3264,8 @@ kontext.extension('html', function(element, model, key) {
 
 				//  tokenize the input and feed it to the compiler in one go
 				return prepare(tokenizer.tokenize(input))
-					.replace(/^.*?([:,]).*$/, notation);
+					.replace(/[,\s]+$/g, '')
+					.replace(/^(?:[^\[\{].*?)([:,]).*$/, notation);
 			};
 
 			/**
@@ -3273,7 +3282,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [1.49ms, 9.62KB]
+		//END INCLUDE: json-formatter [5.08ms, 9.71KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3363,7 +3372,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [2.07ms, 12.27KB]
+	//END INCLUDE: ../lib/attribute [6.53ms, 12.37KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3382,17 +3391,17 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Wed May 18 2016 15:19:22 GMT+0200 (CEST)
-	 *    time: 513.39µs
+	 *    date: Wed May 18 2016 20:30:00 GMT+0200 (CEST)
+	 *    time: 671.04µs
 	 *    size: 2.88KB
 	 *  ---------------------------------------------------------------------
 	 *   included 4 files
-	 *    +12.80KB source/provider/../lib/attribute
-	 *    +10.06KB source/provider/../lib/json-formatter
-	 *     +4.81KB source/provider/../lib/tokenizer
+	 *    +12.91KB source/provider/../lib/attribute
+	 *    +10.16KB source/provider/../lib/json-formatter
+	 *     +4.96KB source/provider/../lib/tokenizer
 	 *     +2.40KB source/provider/../lib/text
 	 *  ---------------------------------------------------------------------
-	 *   total: 32.95KB
+	 *   total: 33.30KB
 	 */
 
 	//  load dependencies
@@ -3497,7 +3506,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [429.45µs, 2.24KB]
+	//END INCLUDE: ../lib/text [562.03µs, 2.24KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {
