@@ -101,7 +101,7 @@ describe('Kontext Provider Attribute', function() {
 		});
 	});
 
-	it('allowes for whitespace (newlines,tabs) in attribute', function() {
+	it('allows for whitespace (newlines,tabs) in attribute', function() {
 		var main = document.createElement('main');
 
 		main.setAttribute('data-kontext', '  foo: {bar: baz},\n\t\t\t\t\r   last: false\n\n\n\t\t\t,\n\n\n\t\t\t\t    \t\n  \rfinal: "tru\\"e"  ,  ');
@@ -114,8 +114,8 @@ describe('Kontext Provider Attribute', function() {
 			expect('last' in config).toBe(true);
 
 			//  (not boolean, as there is whitespace before the 'end' comma)
-			expect(typeof config.last).toBe('string');
-			expect(/^false\s+$/.test(config.last)).toBe(true);
+			expect(typeof config.last).toBe('boolean');
+			expect(config.last).toBe(false);
 
 			expect('final' in config).toBe(true);
 			expect(config.final).toBe('tru"e');

@@ -1,211 +1,171 @@
 'use strict';
 
+//@buildinfo
+
+//  load dependencies
+//@include tokenizer
+
 /**
- *  Format a string containing (valid) js variables into proper JSON so it can be handled by JSON.parse
- *  @name       JSONFormatter
- *  @package    Kontext
+ *  JSON Formatter
+ *  @name     JSONFormatter
+ *  @package  Kontext
  */
-function JSONFormatter() {  //  eslint-disable-line no-unused-vars
-	//  Implement a Singleton pattern and allow JSONFormatter to be invoked without the `new` keyword
-	//if-included istanbul ignore next
-	if (typeof JSONFormatter.prototype.__instance !== 'undefined' || !(this instanceof JSONFormatter)) {
-		return JSONFormatter.prototype.__instance || new JSONFormatter();
-	}
+function JSONFormatter() {
+	var json = this,
+		noquote = /^(?:true|false|null|-?[0-9]+(?:\.[0-9]+)?)$/i,
+		tokenizer = new Tokenizer({
+			//  token markers using the same start/end token
+			//  these are _also_ very greedy as any other token will be absorbed inside these tokens
+			'"': {
+				type: 'quote',
+				end: null,
+				merge: true
+			},
+			'\'': {
+				type: 'quote',
+				end: null,
+				merge: true
+			},
 
-	//  Maintain a reference to the first instance (which - if exists - is returned in the flow above)
-	JSONFormatter.prototype.__instance = this;
-
-	var formatter = this,
-		special = '\'":,{}[] ',
-		quotation = '"',
-		pattern = {
-			escape: /["\\\/\b\f\n\r\t]/,
-			noquote: /^(?:true|false|null|-?[0-9]+(?:\.[0-9]+)?)$/i,
-			trailer: /[,]+$/
-		},
-		escaped = {
-			'\b': '\\b',
-			'\f': '\\f',
-			'\n': '\\n',
-			'\r': '\\r',
-			'\t': '\\t',
-			'\v': '\\v'
-		};
+			//  token markers with different start/end tokens
+			'/*': {
+				type: 'comment',
+				end: '*/',
+				merge: true
+			},
+			'{': {
+				type: 'object',
+				trim: true,
+				end: '}'
+			},
+			'[': {
+				type: 'array',
+				end: ']'
+			},
+			',': {
+				type: 'separator',
+				trim: true
+			},
+			':': {
+				type: 'key'
+			},
+			' ': {
+				type: 'space'
+			},
+			'\t': {
+				type: 'space'
+			},
+			'\n': {
+				type: 'space'
+			},
+			'\r': {
+				type: 'space'
+			},
+		});
 
 	/**
-	 *  Determine is a token is a special character
-	 *  @name    isSpecial
+	 *  Determine whether or not quoted are required and apply them if nessecary
+	 *  @name    quote
 	 *  @access  internal
-	 *  @param   string  token
-	 *  @return  bool  special
+	 *  @param   string  data
+	 *  @param   bool    force quotes
+	 *  @return  string  quoted
 	 */
-	function isSpecial(token) {
-		return special.indexOf(token) >= 0;
-	}
+	function quote(data, force) {
+		var symbol = !force && noquote.test(data) ? '' : '"',
+			quoted = data[0] === symbol && data[data.length - 1] === symbol;
 
-	/**
-	 *  Add quotes if required
-	 *  @name    addQuotation
-	 *  @access  internal
-	 *  @param   string  token
-	 *  @param   bool    force
-	 *  @return  string  JSON-token
-	 */
-	function addQuotation(token, force) {
-		var quote = quotation;
-
-		//  if quotation is not enforced, we must skip application of quotes for certain tokens
-		if (!force && (isSpecial(token) || pattern.noquote.test(token))) {
-			quote = '';
+		if (data && symbol && !quoted) {
+			return [
+				symbol,
+				data.replace(new RegExp('([^\\\\])' + symbol, 'g'), '$1\\' + symbol),
+				symbol
+			];
 		}
 
-		return quote + token + quote;
+		return data;
 	}
 
 	/**
-	 *  Remove trailing commas from the result stack
-	 *  @name    removeTrailing
+	 *  Reduce the nesting of the list to be a single string value
+	 *  @name    flatten
 	 *  @access  internal
-	 *  @param   Array  result
-	 *  @return  Array  result
+	 *  @param   Array   tokens
+	 *  @return  string  flat
 	 */
-	function removeTrailing(result) {
-		return pattern.trailer.test(result) ? removeTrailing(result.substr(0, result.length - 1)) : result;
+	function flatten(list) {
+		return list
+			.reduce(function(result, item) {
+				var value = item.data || item.token;
+
+				return result.concat(value + ('nest' in item ? flatten(item.nest) + item.end.token : ''));
+			}, [])
+			.join('');
 	}
 
-	//if-included istanbul ignore next
 	/**
-	 *  Handle a quoted string, ensuring proper escaping for double quoted strings
-	 *  @name    escapeQuotedInput
+	 *  Compile JSON from the token list
+	 *  @name    compile
 	 *  @access  internal
-	 *  @param   string  token
-	 *  @array   Array   list
-	 *  @return  Array   result
+	 *  @param   Array   tokens
+	 *  @return  string  json
 	 */
-	function escapeQuotedInput(token, list) {
-		var result = [],
-			character;
+	function compile(list) {
+		return list
+			.reduce(function(result, item, index, all) {
+				var next = index + 1 < all.length ? all[index + 1] : null,
+					output = item.type === 'text' ? quote(item.data.trim(), next && next.type === 'key') : item.token;
 
-		//  token is the initial (opening) quotation character, we are not (yet) interested in this,
-		//  as we need to process the stuff in list, right until we find a matching token
-		while (list.length) {
-			character = list.shift();
-
-			//  reduce provided escaping
-			if (character[character.length - 1] === '\\') {
-				if (!pattern.escape.test(list[0])) {
-					//  remove the escape character
-					character = character.substr(0, character.length - 1);
+				if (item.type === 'space') {
+					output = '';
+				}
+				else if (item.type === 'comment') {
+					output = '';
+				}
+				else if ('nest' in item) {
+					output = output.concat(prepare(item.nest)).concat(item.end.token);
 				}
 
-				//  add the result
-				result.push(character);
-
-				//  while we are at it, we may aswel move the (at least previously) escaped
-				//  character to the result
-				result.push(list.shift());
-				continue;
-			}
-			else if (character === token) {
-				//  with the escaping taken care of, we now know the string has ended
-				break;
-			}
-
-			result.push(character);
-		}
-
-		return addQuotation(result.join(''));
+				return result.concat(output);
+			}, [])
+			.join('');
 	}
 
 	/**
-	 *  Nibble the next token from the list and handle it
-	 *  @name    nibble
+	 *  Prepare a list of tokens to have adjecent text/quote elements merged
+	 *  @name    prepare
 	 *  @access  internal
-	 *  @param   string  result
-	 *  @param   array   tokens
-	 *  @return  string  result
-	 *  @TODO    There is an issue with quotation symbols inside strings
-	 *           e.g. 'hello"world' becomes '"hello""world"' while it should become '"hello\"world"'
+	 *  @param   Array   tokens
+	 *  @return  Array   reduced
 	 */
-	function nibble(result, list) {
-		var token = list.shift();
+	function prepare(list) {
+		var prepared = list
+				.reduce(function(result, item, index, all) {
+					var prev = result.length ? result[result.length - 1] : null,
+						data;
 
-		switch (token) {
+					if (item.type === 'quote') {
+						data = [item.token, flatten(item.nest), item.end.data || item.end.token];
 
-			//  skip whitespace not part of string values
-			case ' ':
-				break;
+						item = {
+							type: 'text',
+							data: data[0] === data[2] ? data[1] : data.join('')
+						};
+					}
 
-			//  remove any trailing commas and whitespace
-			case '}':
-			case ']':
-				result = removeTrailing(result) + token;
-				break;
+					if (prev && prev.type === 'text' && item.type === 'text') {
+						prev.data += item.data;
+					}
+					else {
+						result = result.concat(item);
+					}
 
-			//  add/remove escaping
-			case '"':
-			case '\'':
-				result += escapeQuotedInput(token, list);
-				break;
+					return result;
+				}, []);
 
-			//  determine if the value needs to be quoted (always true if the next item in the list is a separator)
-			default:
-				result += addQuotation(token, list[0] === ':');
-				break;
-		}
-
-		return result;
+		return compile(prepared);
 	}
 
-	/**
-	 *  Compile the JSON-formatted string from a list of 'tokenized' data
-	 *  @name    compiler
-	 *  @access  internal
-	 *  @param   Array   list
-	 *  @return  string  JSON-formatted
-	 */
-	function compiler(list) {
-		var result = '';
-
-		while (list.length) {
-			result = nibble(result, list);
-		}
-
-		return result;
-	}
-
-	/**
-	 *  Tokenize the input, adding each special character to be its own item in the resulting array
-	 *  @name    tokenize
-	 *  @access  internal
-	 *  @param   string  input
-	 *  @result  Array   tokens
-	 */
-	function tokenize(input) {
-		var result = [],
-			i;
-
-		//  check each character in the string
-		for (i = 0; i < input.length; ++i) {
-			//  if there is not result or the current or previous input is special, we create a new result item
-			if (result.length === 0 || isSpecial(input[i]) || isSpecial(result[result.length - 1])) {
-				result.push(input[i]);
-
-				while (i + 1 < input.length && /\s/.test(input[i + 1])) {
-					++i;
-				}
-			}
-
-			//  extend the previous item
-			else {
-				result[result.length - 1] += escaped[input[i]] || input[i];
-			}
-		}
-
-		return result;
-	}
-
-	//if-included istanbul ignore next
 	/**
 	 *  Apply Object or Array notation (string.replace helper for an expression resulting in ':' or ',')
 	 *  @name    notation
@@ -220,7 +180,7 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 			string = (match.match(/"/g) || []).length === 2 && match.indexOf('"') < position && match.lastIndexOf('"') > position;
 
 		//  figure out if the notation should be added or may be skipped
-		return !string && match[0] !== character[0] ? character[0] + removeTrailing(match) + character[1] : match;
+		return !string && match[0] !== character[0] ? character[0] + match.replace(/,+$/g, '') + character[1] : match;
 	}
 
 	/**
@@ -230,16 +190,15 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 	 *  @param   string  input
 	 *  @return  string  JSON-formatted
 	 */
-	formatter.prepare = function(input) {
+	json.prepare = function(input) {
 		//if-included istanbul ignore next
 		if (typeof input !== 'string') {
 			return '';
 		}
 
 		//  tokenize the input and feed it to the compiler in one go
-		return compiler(tokenize(input))
-			.replace(/^.*?([:,]).*$/, notation)
-		;
+		return prepare(tokenizer.tokenize(input))
+			.replace(/^.*?([:,]).*$/, notation);
 	};
 
 	/**
@@ -249,8 +208,8 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 	 *  @param   string  input
 	 *  @return  mixed   parsed
 	 */
-	formatter.parse = function(input) {
-		var prepared = formatter.prepare(input);
+	json.parse = function(input) {
+		var prepared = json.prepare(input);
 
 		return prepared ? JSON.parse(prepared) : null;
 	};

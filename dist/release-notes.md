@@ -11,6 +11,7 @@
 - `kontext.bind` now also accepts selector strings, which are always resolved from the document down (`document.querySelectorAll`).
 - Changing nested settings can now be shortened using a 'path' (this also applies to object properties)
 - Variable scoping now always searches for the longest possible match
+- The internal JSONFormatter used to interpret the attribute values as JSON has been replaced by a more robust/flexible version
 
 ### Breaking changes
 As the Kontext versions adhere to the [semantic versioning](http://semver.org) principles, the major version updates whenever something in the (public) API changes which could/would break if it is being used.
@@ -69,8 +70,8 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 - Addressed [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4)
 
 ### Statistics
-- Full size: 87.9K (+22.9K), gzipped: 22.6K (+5.7K)
-- Minified size: 19.5K (+4.5K), gzipped: 7.1K (+1.5K)
+- Full size: 91.4K (+26.3K), gzipped: 23.4K (+6.5K)
+- Minified size: 20.9K (+5.8K), gzipped: 7.6K (+2K)
 
 
 ## 1.5.0

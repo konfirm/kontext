@@ -1,6 +1,6 @@
 /*global Emission: true, Observer: true, Settings: true*/
 /*
- *       __    Kontext (version 1.5.0 - 2016-05-17)
+ *       __    Kontext (version 1.5.0 - 2016-05-18)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,8 +15,8 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue May 17 2016 12:53:32 GMT+0200 (CEST)
-	 *    time: 3.54ms
+	 *    date: Wed May 18 2016 15:19:22 GMT+0200 (CEST)
+	 *    time: 4.16ms
 	 *    size: 31.62KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [852.37µs, 3.72KB]
+	//END INCLUDE: lib/settings [909.10µs, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [326.41µs, 2.88KB]
+	//END INCLUDE: lib/emission [538.55µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [491.53µs, 1.99KB]
+	//END INCLUDE: lib/observer [435.95µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -1695,7 +1695,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [465.56µs, 11.27KB]
+	//END INCLUDE: ../lib/condition [836.18µs, 11.27KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2659,7 +2659,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [455.20µs, 5.12KB]
+	//END INCLUDE: ../lib/template [435.06µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2818,15 +2818,16 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue May 17 2016 12:53:32 GMT+0200 (CEST)
-	 *    time: 1.50ms
-	 *    size: 9.87KB
+	 *    date: Wed May 18 2016 15:19:22 GMT+0200 (CEST)
+	 *    time: 2.20ms
+	 *    size: 13.17KB
 	 *  ---------------------------------------------------------------------
-	 *   included 2 files
-	 *     +9.50KB source/provider/../lib/attribute
-	 *     +6.91KB source/provider/../lib/json-formatter
+	 *   included 3 files
+	 *    +12.80KB source/provider/../lib/attribute
+	 *    +10.06KB source/provider/../lib/json-formatter
+	 *     +4.81KB source/provider/../lib/tokenizer
 	 *  ---------------------------------------------------------------------
-	 *   total: 26.28KB
+	 *   total: 40.84KB
 	 */
 
 	//  load dependencies
@@ -2847,212 +2848,382 @@ kontext.extension('html', function(element, model, key) {
 		//BEGIN INCLUDE: json-formatter
 		//  strict mode (already enabled)
 
+		//@buildinfo
+
+		//  load dependencies
+
+		//BEGIN INCLUDE: tokenizer
+		//  strict mode (already enabled)
+
 		/**
-		 *  Format a string containing (valid) js variables into proper JSON so it can be handled by JSON.parse
-		 *  @name       JSONFormatter
-		 *  @package    Kontext
+		 *  String Tokenizer (pre-process strings based on special tokens)
+		 *  @name     Tokenizer
+		 *  @package  Kontext
 		 */
-		function JSONFormatter() {  //  eslint-disable-line no-unused-vars
-			//  Implement a Singleton pattern and allow JSONFormatter to be invoked without the `new` keyword
-			/* istanbul ignore next */
-			if (typeof JSONFormatter.prototype.__instance !== 'undefined' || !(this instanceof JSONFormatter)) {
-				return JSONFormatter.prototype.__instance || new JSONFormatter();
-			}
-
-			//  Maintain a reference to the first instance (which - if exists - is returned in the flow above)
-			JSONFormatter.prototype.__instance = this;
-
-			var formatter = this,
-				special = '\'":,{}[] ',
-				quotation = '"',
-				pattern = {
-					escape: /["\\\/\b\f\n\r\t]/,
-					noquote: /^(?:true|false|null|-?[0-9]+(?:\.[0-9]+)?)$/i,
-					trailer: /[,]+$/
-				},
-				escaped = {
-					'\b': '\\b',
-					'\f': '\\f',
-					'\n': '\\n',
-					'\r': '\\r',
-					'\t': '\\t',
-					'\v': '\\v'
-				};
+		function Tokenizer(tokens) {
+			var tokenizer = this,
+				matcher;
 
 			/**
-			 *  Determine is a token is a special character
-			 *  @name    isSpecial
+			 *  Initialize the Tokenizer, preparing the tokens in a crafter matcher function
+			 *  @name    init
 			 *  @access  internal
-			 *  @param   string  token
-			 *  @return  bool  special
+			 *  @return  void
 			 */
-			function isSpecial(token) {
-				return special.indexOf(token) >= 0;
-			}
+			function init() {
+				var collect = {},
+					key;
 
-			/**
-			 *  Add quotes if required
-			 *  @name    addQuotation
-			 *  @access  internal
-			 *  @param   string  token
-			 *  @param   bool    force
-			 *  @return  string  JSON-token
-			 */
-			function addQuotation(token, force) {
-				var quote = quotation;
+				//  create fast lookups for every key, by using the keys' first character as object index
+				for (key in tokens) {
+					if (!(key[0] in collect)) {
+						collect[key[0]] = [];
+					}
 
-				//  if quotation is not enforced, we must skip application of quotes for certain tokens
-				if (!force && (isSpecial(token) || pattern.noquote.test(token))) {
-					quote = '';
+					collect[key[0]].push(key);
 				}
 
-				return quote + token + quote;
-			}
+				//  prioritize the keys by length
+				for (key in collect) {
+					collect[key] = collect[key].sort(function(a, b) {
+						return a.length === b.length ? a < b ? -1 : +(a > b) : a.length > b.length ? -1 : +(a.length < b.length);
+					});
+				}
 
-			/**
-			 *  Remove trailing commas from the result stack
-			 *  @name    removeTrailing
-			 *  @access  internal
-			 *  @param   Array  result
-			 *  @return  Array  result
-			 */
-			function removeTrailing(result) {
-				return pattern.trailer.test(result) ? removeTrailing(result.substr(0, result.length - 1)) : result;
-			}
+				//  prepare the matcher function based on the prepared collect object
+				matcher = function(text, index) {
+					var result = null,
+						candidate;
 
-			/* istanbul ignore next */
-			/**
-			 *  Handle a quoted string, ensuring proper escaping for double quoted strings
-			 *  @name    escapeQuotedInput
-			 *  @access  internal
-			 *  @param   string  token
-			 *  @array   Array   list
-			 *  @return  Array   result
-			 */
-			function escapeQuotedInput(token, list) {
-				var result = [],
-					character;
+					if (text[index] in collect) {
+						candidate = collect[text[index]]
+							.filter(function(key) {
+								return text.substr(index, key.length) === key;
+							});
 
-				//  token is the initial (opening) quotation character, we are not (yet) interested in this,
-				//  as we need to process the stuff in list, right until we find a matching token
-				while (list.length) {
-					character = list.shift();
+						if (candidate.length) {
+							result = {
+								type: tokens[candidate[0]].type,
+								token: candidate[0],
+								index: index
+							};
 
-					//  reduce provided escaping
-					if (character[character.length - 1] === '\\') {
-						if (!pattern.escape.test(list[0])) {
-							//  remove the escape character
-							character = character.substr(0, character.length - 1);
+							if ('end' in tokens[candidate[0]]) {
+								result.end = tokens[candidate[0]].end;
+							}
+
+							if ('merge' in tokens[candidate[0]]) {
+								result.merge = tokens[candidate[0]].merge;
+							}
 						}
-
-						//  add the result
-						result.push(character);
-
-						//  while we are at it, we may aswel move the (at least previously) escaped
-						//  character to the result
-						result.push(list.shift());
-						continue;
-					}
-					else if (character === token) {
-						//  with the escaping taken care of, we now know the string has ended
-						break;
 					}
 
-					result.push(character);
-				}
-
-				return addQuotation(result.join(''));
+					return result;
+				};
 			}
 
 			/**
-			 *  Nibble the next token from the list and handle it
-			 *  @name    nibble
+			 *  Return the amount of bytes to 'jump' behind given item
+			 *  @name    shift
 			 *  @access  internal
-			 *  @param   string  result
-			 *  @param   array   tokens
-			 *  @return  string  result
-			 *  @TODO    There is an issue with quotation symbols inside strings
-			 *           e.g. 'hello"world' becomes '"hello""world"' while it should become '"hello\"world"'
+			 *  @param   Object  item
+			 *  @return  int     jump
 			 */
-			function nibble(result, list) {
-				var token = list.shift();
-
-				switch (token) {
-
-					//  skip whitespace not part of string values
-					case ' ':
-						break;
-
-					//  remove any trailing commas and whitespace
-					case '}':
-					case ']':
-						result = removeTrailing(result) + token;
-						break;
-
-					//  add/remove escaping
-					case '"':
-					case '\'':
-						result += escapeQuotedInput(token, list);
-						break;
-
-					//  determine if the value needs to be quoted (always true if the next item in the list is a separator)
-					default:
-						result += addQuotation(token, list[0] === ':');
-						break;
-				}
-
-				return result;
+			function shift(item) {
+				return item ? item.index + (item.data || item.token || '').length : 0;
 			}
 
 			/**
-			 *  Compile the JSON-formatted string from a list of 'tokenized' data
-			 *  @name    compiler
+			 *  Determine if the given item is trimmable
+			 *  (the tokens of both item and compare both carry 'trim: true')
+			 *  @name    trimmable
 			 *  @access  internal
-			 *  @param   Array   list
-			 *  @return  string  JSON-formatted
+			 *  @param   Object  item
+			 *  @param   Object  compare
+			 *  @param   bool    before
+			 *  @return  bool    trimmable
 			 */
-			function compiler(list) {
-				var result = '';
+			function trimmable(item, compare, before) {
+				var token = item && 'token' in item && item.token in tokens ? tokens[item.token] : null;
 
-				while (list.length) {
-					result = nibble(result, list);
+				if (token && (token.trim || false)) {
+					return before ? shift(item) === compare.index : item.index === shift(compare);
 				}
 
-				return result;
+				return false;
 			}
 
 			/**
-			 *  Tokenize the input, adding each special character to be its own item in the resulting array
+			 *  Should the item be trimmed
+			 *  @name    trimToken
+			 *  @access  internal
+			 *  @param   Object  item
+			 *  @param   number  index
+			 *  @param   Array   all items
+			 *  @return  bool    trim
+			 */
+			function trimToken(item, index, all) {
+				var verdict = true;
+
+				switch (item.type) {
+					case 'text':
+						verdict = !/^\s+$/.test(item.data);
+						break;
+
+					case 'space':
+						verdict = !(trimmable(all[index - 1], item, true) || trimmable(all[index + 1], item));
+						break;
+				}
+
+				return verdict;
+			}
+
+			/**
+			 *  Tokenize the given text from start until either the end or until given character is found
 			 *  @name    tokenize
 			 *  @access  internal
-			 *  @param   string  input
-			 *  @result  Array   tokens
+			 *  @param   string  text
+			 *  @param   number  start
+			 *  @param   string  until
+			 *  @param   bool    greedy
+			 *  @return  Array   tokens
 			 */
-			function tokenize(input) {
+			function tokenize(text, start, until, greedy) {
 				var result = [],
-					i;
+					index = start || 0,
+					match, sub, end, ends;
 
-				//  check each character in the string
-				for (i = 0; i < input.length; ++i) {
-					//  if there is not result or the current or previous input is special, we create a new result item
-					if (result.length === 0 || isSpecial(input[i]) || isSpecial(result[result.length - 1])) {
-						result.push(input[i]);
+				while (text && index < text.length) {
+					match = matcher(text, index);
+					ends  = until && (end = text.substr(index, until.length)) === until;
 
-						while (i + 1 < input.length && /\s/.test(input[i + 1])) {
-							++i;
+					//  if the current text matches the `until` value, we may have to skip
+					//  the termination, for it may be escaped
+					if (ends && !(index > 0 && text[index - 1] === '\\')) {
+						result.push({
+							type: match ? match.type : null,
+							token: end,
+							index: index
+						});
+						break;
+					}
+					else if (!greedy && match) {
+						if ('end' in match && match.end !== true) {
+							//  TODO: a multicharacter token cannot be used as (greedy) self-closing value
+							//        this is fine as (to our knowledge) there are no such pattens required
+							sub = tokenize(text, shift(match), match.end || text[index], match.merge || false);
+							end = sub.pop();
+
+							result.push({
+								type: match.type,
+								token: match.token,
+								index: match.index,
+								nest: sub,
+								end: end
+							});
+
+							index = shift(end);
+						}
+						else {
+							result.push(match);
+
+							index = shift(match);
 						}
 					}
-
-					//  extend the previous item
 					else {
-						result[result.length - 1] += escaped[input[i]] || input[i];
+						if (!(result.length && result[result.length - 1].type === 'text')) {
+							result.push({
+								type: 'text',
+								data: '',
+								index: index
+							});
+						}
+
+						result[result.length - 1].data += text[index];
+						++index;
 					}
 				}
 
-				return result;
+				return result
+					.filter(trimToken);
 			}
 
-			/* istanbul ignore next */
+			/**
+			 *  Tokenize given input text
+			 *  @name    tokenize
+			 *  @access  public
+			 *  @param   string
+			 *  @return  Array  tokens
+			 */
+			tokenizer.tokenize = function(text) {
+				return tokenize(text);
+			};
+
+			init();
+		}
+
+		//END INCLUDE: tokenizer [453.26µs, 4.74KB]
+		/**
+		 *  JSON Formatter
+		 *  @name     JSONFormatter
+		 *  @package  Kontext
+		 */
+		function JSONFormatter() {
+			var json = this,
+				noquote = /^(?:true|false|null|-?[0-9]+(?:\.[0-9]+)?)$/i,
+				tokenizer = new Tokenizer({
+					//  token markers using the same start/end token
+					//  these are _also_ very greedy as any other token will be absorbed inside these tokens
+					'"': {
+						type: 'quote',
+						end: null,
+						merge: true
+					},
+					'\'': {
+						type: 'quote',
+						end: null,
+						merge: true
+					},
+
+					//  token markers with different start/end tokens
+					'/*': {
+						type: 'comment',
+						end: '*/',
+						merge: true
+					},
+					'{': {
+						type: 'object',
+						trim: true,
+						end: '}'
+					},
+					'[': {
+						type: 'array',
+						end: ']'
+					},
+					',': {
+						type: 'separator',
+						trim: true
+					},
+					':': {
+						type: 'key'
+					},
+					' ': {
+						type: 'space'
+					},
+					'\t': {
+						type: 'space'
+					},
+					'\n': {
+						type: 'space'
+					},
+					'\r': {
+						type: 'space'
+					},
+				});
+
+			/**
+			 *  Determine whether or not quoted are required and apply them if nessecary
+			 *  @name    quote
+			 *  @access  internal
+			 *  @param   string  data
+			 *  @param   bool    force quotes
+			 *  @return  string  quoted
+			 */
+			function quote(data, force) {
+				var symbol = !force && noquote.test(data) ? '' : '"',
+					quoted = data[0] === symbol && data[data.length - 1] === symbol;
+
+				if (data && symbol && !quoted) {
+					return [
+						symbol,
+						data.replace(new RegExp('([^\\\\])' + symbol, 'g'), '$1\\' + symbol),
+						symbol
+					];
+				}
+
+				return data;
+			}
+
+			/**
+			 *  Reduce the nesting of the list to be a single string value
+			 *  @name    flatten
+			 *  @access  internal
+			 *  @param   Array   tokens
+			 *  @return  string  flat
+			 */
+			function flatten(list) {
+				return list
+					.reduce(function(result, item) {
+						var value = item.data || item.token;
+
+						return result.concat(value + ('nest' in item ? flatten(item.nest) + item.end.token : ''));
+					}, [])
+					.join('');
+			}
+
+			/**
+			 *  Compile JSON from the token list
+			 *  @name    compile
+			 *  @access  internal
+			 *  @param   Array   tokens
+			 *  @return  string  json
+			 */
+			function compile(list) {
+				return list
+					.reduce(function(result, item, index, all) {
+						var next = index + 1 < all.length ? all[index + 1] : null,
+							output = item.type === 'text' ? quote(item.data.trim(), next && next.type === 'key') : item.token;
+
+						if (item.type === 'space') {
+							output = '';
+						}
+						else if (item.type === 'comment') {
+							output = '';
+						}
+						else if ('nest' in item) {
+							output = output.concat(prepare(item.nest)).concat(item.end.token);
+						}
+
+						return result.concat(output);
+					}, [])
+					.join('');
+			}
+
+			/**
+			 *  Prepare a list of tokens to have adjecent text/quote elements merged
+			 *  @name    prepare
+			 *  @access  internal
+			 *  @param   Array   tokens
+			 *  @return  Array   reduced
+			 */
+			function prepare(list) {
+				var prepared = list
+						.reduce(function(result, item, index, all) {
+							var prev = result.length ? result[result.length - 1] : null,
+								data;
+
+							if (item.type === 'quote') {
+								data = [item.token, flatten(item.nest), item.end.data || item.end.token];
+
+								item = {
+									type: 'text',
+									data: data[0] === data[2] ? data[1] : data.join('')
+								};
+							}
+
+							if (prev && prev.type === 'text' && item.type === 'text') {
+								prev.data += item.data;
+							}
+							else {
+								result = result.concat(item);
+							}
+
+							return result;
+						}, []);
+
+				return compile(prepared);
+			}
+
 			/**
 			 *  Apply Object or Array notation (string.replace helper for an expression resulting in ':' or ',')
 			 *  @name    notation
@@ -3067,7 +3238,7 @@ kontext.extension('html', function(element, model, key) {
 					string = (match.match(/"/g) || []).length === 2 && match.indexOf('"') < position && match.lastIndexOf('"') > position;
 
 				//  figure out if the notation should be added or may be skipped
-				return !string && match[0] !== character[0] ? character[0] + removeTrailing(match) + character[1] : match;
+				return !string && match[0] !== character[0] ? character[0] + match.replace(/,+$/g, '') + character[1] : match;
 			}
 
 			/**
@@ -3077,16 +3248,15 @@ kontext.extension('html', function(element, model, key) {
 			 *  @param   string  input
 			 *  @return  string  JSON-formatted
 			 */
-			formatter.prepare = function(input) {
+			json.prepare = function(input) {
 				/* istanbul ignore next */
 				if (typeof input !== 'string') {
 					return '';
 				}
 
 				//  tokenize the input and feed it to the compiler in one go
-				return compiler(tokenize(input))
-					.replace(/^.*?([:,]).*$/, notation)
-				;
+				return prepare(tokenizer.tokenize(input))
+					.replace(/^.*?([:,]).*$/, notation);
 			};
 
 			/**
@@ -3096,14 +3266,14 @@ kontext.extension('html', function(element, model, key) {
 			 *  @param   string  input
 			 *  @return  mixed   parsed
 			 */
-			formatter.parse = function(input) {
-				var prepared = formatter.prepare(input);
+			json.parse = function(input) {
+				var prepared = json.prepare(input);
 
 				return prepared ? JSON.parse(prepared) : null;
 			};
 		}
 
-		//END INCLUDE: json-formatter [555.05µs, 6.61KB]
+		//END INCLUDE: json-formatter [1.49ms, 9.62KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3193,7 +3363,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [1.34ms, 9.12KB]
+	//END INCLUDE: ../lib/attribute [2.07ms, 12.27KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3212,16 +3382,17 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue May 17 2016 12:53:32 GMT+0200 (CEST)
-	 *    time: 440.29µs
+	 *    date: Wed May 18 2016 15:19:22 GMT+0200 (CEST)
+	 *    time: 513.39µs
 	 *    size: 2.88KB
 	 *  ---------------------------------------------------------------------
-	 *   included 3 files
-	 *     +9.50KB source/provider/../lib/attribute
-	 *     +6.91KB source/provider/../lib/json-formatter
+	 *   included 4 files
+	 *    +12.80KB source/provider/../lib/attribute
+	 *    +10.06KB source/provider/../lib/json-formatter
+	 *     +4.81KB source/provider/../lib/tokenizer
 	 *     +2.40KB source/provider/../lib/text
 	 *  ---------------------------------------------------------------------
-	 *   total: 21.69KB
+	 *   total: 32.95KB
 	 */
 
 	//  load dependencies
@@ -3326,7 +3497,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [370.05µs, 2.24KB]
+	//END INCLUDE: ../lib/text [429.45µs, 2.24KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {

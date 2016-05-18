@@ -2,12 +2,25 @@
 describe('JSONFormatter', function() {
 	'use strict';
 
-	it('is a singleton', function() {
-		expect(JSONFormatter()).toBe(JSONFormatter());  //  eslint-disable-line new-cap
-		expect(JSONFormatter()).toBe(new JSONFormatter());  //  eslint-disable-line new-cap
-		expect(new JSONFormatter()).toBe(JSONFormatter());  //  eslint-disable-line new-cap
-		expect(new JSONFormatter()).toBe(new JSONFormatter());
-	});
+	function series(description, list, debug) {
+		describe(description, function() {
+			var json = new JSONFormatter();
+
+			list.forEach(function(item) {
+				var title = 'interprets ' + JSON.stringify(item.data) + ' as ' + JSON.stringify(item.expect);
+
+				it(title, function(done) {
+					if (debug) {
+						console.log(JSON.stringify(json.ast(item.data), null, 2));
+					}
+					expect(json.prepare(item.data)).toBe(JSON.stringify(item.expect));
+					expect(json.parse(item.data)).toEqual(item.expect);
+
+					done();
+				});
+			});
+		});
+	}
 
 	it('ignores non-string values', function() {
 		var json = new JSONFormatter();
@@ -18,86 +31,83 @@ describe('JSONFormatter', function() {
 		});
 	});
 
-	it('parses proper JSON syntax', function() {
-		var json = new JSONFormatter();
+	describe('handles various notations', function() {
+		series('parses proper JSON syntax', [
+			{data: 'null', expect: null},
+			{data: 'true', expect: true},
+			{data: 'false', expect: false},
+			{data: 'hello', expect: 'hello'},
+			{data: '123', expect: 123},
+			{data: '123.45', expect: 123.45},
+			{data: '-123.45', expect: -123.45},
+			{data: '[1, 2, 3]', expect: [1, 2, 3]},
+			{
+				data: '{"int":1, "float": -1.23, "boolfalse": false, "booltrue": true, "string": "string", "array":[1, 2]}',
+				expect: {
+					int: 1,
+					float: -1.23,
+					boolfalse: false,
+					booltrue: true,
+					string: 'string',
+					array: [1, 2]
+				}
+			}
+		]);
 
-		expect(json.parse('hello')).toBe('hello');
+		series('does not required bracket to differ between array and objects', [
+			{data: 'hello, world', expect: ['hello', 'world']},
+			{data: 'hello: world', expect: {hello: 'world'}},
+			{data: 'foo: bar, baz: true', expect: {foo: 'bar', baz: true}},
+			{data: '1, 2, 3', expect: [1, 2, 3]},
+			{data: '1, 2,', expect: [1, 2]},
+			{data: 'hello: world,', expect: {hello: 'world'}},
+		]);
 
-		expect(json.parse('true')).toBe(true);
-		expect(json.parse('false')).toBe(false);
+		series('respects quoted values', [
+			{data: '"hello:world"', expect: 'hello:world'},
+			{data: '"hello,world"', expect: 'hello,world'},
+			{data: '"hello,\'world"', expect: 'hello,\'world'},
+			{data: '"hello,\'world\'"', expect: 'hello,\'world\''},
+		]);
 
-		expect(json.parse('123')).toBe(123);
-		expect(json.parse('123.45')).toBe(123.45);
+		series('trims keys and values', [
+			{data: '     hello     ', expect: 'hello'},
+			{data: '     hello     :     world     ', expect: {hello: 'world'}},
+			{data: '\t\t\thello:\n\t\tworld', expect: {hello: 'world'}},
+		]);
 
-		expect(json.parse('[1, 2, 3]')).toEqual([1, 2, 3]);
+		series('allows keywords and numbers to be used as object keys', [
+			{data: 'true:true', expect: {true: true}},
+			{data: 'false:false', expect: {false: false}},
+			{data: 'null:null', expect: {null: null}},
+			{data: '123:456', expect: {123: 456}},
+			{data: 'true: true, false: false', expect: {true: true,false: false}},
+		]);
 
-		expect(json.parse('{"int":1, "float": -1.23, "boolfalse": false, "booltrue": true, "string": "string", "array":[1, 2]}')).toEqual({
-			int: 1,
-			float: -1.23,
-			boolfalse: false,
-			booltrue: true,
-			string: 'string',
-			array: [1, 2]
-		});
-	});
+		series('escaped nested quotation marks', [
+			{data: 'hello"world', expect: 'hello\"world'}
+		]);
 
-	it('is relaxed about the outer wrapping', function() {
-		var json = new JSONFormatter();
+		series('removes comments from input', [
+			{data: 'hello/*world*/', expect: 'hello'},
+			{data: '/*hello*/world', expect: 'world'},
+			{data: 'a:b,c:d,/*e:f,*/g:h', expect: {a:'b', c: 'd', g: 'h'}},
+		]);
 
-		expect(json.parse('hello, world')).toEqual(['hello', 'world']);
-		expect(json.parse('hello: world')).toEqual({hello: 'world'});
-		expect(json.parse('foo: bar, baz: true')).toEqual({foo: 'bar', baz: true});
-	});
+		series('allows for dashes in keys and values', [
+			{data: 'foo-bar', expect: 'foo-bar'},
+			{data: 'foo-bar: sample-value', expect: {'foo-bar': 'sample-value'}},
+			{data: '"[foo-bar=sample-value]"', expect: '[foo-bar=sample-value]'},
+		]);
 
-	it('is relaxed about trailing commas', function() {
-		var json = new JSONFormatter();
-
-		expect(json.prepare('1, 2,')).toBe('[1,2]');
-		expect(json.parse('3, 4,')).toEqual([3,4]);
-
-		expect(json.prepare('hello: world,')).toBe('{"hello":"world"}');
-		expect(json.parse('hello: world,')).toEqual({hello: 'world'});
-	});
-
-	it('respects quoted values', function() {
-		var json = new JSONFormatter();
-
-		expect(json.prepare('"hello:world"')).toBe('"hello:world"');
-		expect(json.parse('"hello:world"')).toBe('hello:world');
-
-		expect(json.prepare('"hello,world"')).toBe('"hello,world"');
-		expect(json.parse('"hello,world"')).toBe('hello,world');
-
-		expect(json.prepare('"hello,\'world"')).toBe('"hello,\'world"');
-		expect(json.parse('"hello,\'world"')).toBe('hello,\'world');
-
-		expect(json.prepare('"hello,\'world\'"')).toBe('"hello,\'world\'"');
-		expect(json.parse('"hello,\'world\'"')).toBe('hello,\'world\'');
-	});
-
-	it('trims keys and values', function() {
-		var json = new JSONFormatter();
-
-		expect(json.parse('    hello    ')).toEqual('hello');
-		expect(json.parse('    hello    :    world    ')).toEqual({hello: 'world'});
-	});
-
-	it('allows keywords and numbers to be used as object keys', function() {
-		var json = new JSONFormatter();
-
-		expect(json.prepare('true:true')).toBe('{"true":true}');
-		expect(json.parse('true:true')).toEqual({true: true});
-
-		expect(json.prepare('false:false')).toBe('{"false":false}');
-		expect(json.parse('false:false')).toEqual({false: false});
-
-		expect(json.prepare('null:null')).toBe('{"null":null}');
-		expect(json.parse('null:null')).toEqual({null: null});
-
-		expect(json.prepare('123:456')).toBe('{"123":456}');
-		expect(json.parse('123:456')).toEqual({123: 456});
-
-		expect(json.prepare('true: true, false: false')).toBe('{"true":true,"false":false}');
-		expect(json.parse('true: true, false: false')).toEqual({true: true,false: false});
+		series('extension use cases', [
+			{
+				data: 'template: {path: /base/test/data/template.html, selector: \'[data-template=inner-attr]\'}',
+				expect: {template: {
+					path: '/base/test/data/template.html',
+					selector: '[data-template=inner-attr]'
+				}}
+			}
+		]);
 	});
 });
