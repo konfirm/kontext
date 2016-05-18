@@ -11,7 +11,7 @@ describe('Kontext Provider Attribute', function() {
 		expect(provider.settings.attribute).toBe('data-kontext');
 	});
 
-	describe('finds all placeholders', function() {
+	describe('finds all attributes', function() {
 		var main, a, b;
 
 		beforeEach(function(done) {
@@ -102,7 +102,8 @@ describe('Kontext Provider Attribute', function() {
 	});
 
 	it('allows for whitespace (newlines,tabs) in attribute', function() {
-		var main = document.createElement('main');
+		var main = document.createElement('main'),
+			handled = false;
 
 		main.setAttribute('data-kontext', '  foo: {bar: baz},\n\t\t\t\t\r   last: false\n\n\n\t\t\t,\n\n\n\t\t\t\t    \t\n  \rfinal: "tru\\"e"  ,  ');
 
@@ -119,6 +120,48 @@ describe('Kontext Provider Attribute', function() {
 
 			expect('final' in config).toBe(true);
 			expect(config.final).toBe('tru"e');
+
+			handled = true;
+		});
+
+		expect(handled).toBe(true);
+	});
+
+	describe('provides json for various markup notations', function() {
+		var list = [
+				//  caution with escaped characters
+				{data: 'foo: "bar\'baz"', expect: {foo: 'bar\'baz'}},
+				{data: 'foo: "bar\\"baz"', expect: {foo: 'bar"baz'}},
+				{data: 'foo"bar', expect: 'foo"bar'},
+
+				//  true json notation
+				{data: '{"foo": "bar"}', expect: {foo: 'bar'}},
+				{data: '["foo", "bar", 1.2]', expect: ['foo', 'bar', 1.2]},
+				{data: '[{foo: bar}, 1.2]', expect: [{foo: 'bar'}, 1.2]},
+				{data: '"foo: bar"', expect: 'foo: bar'},
+
+				//  lazy json notation
+				{data: '1, 2, 3.4, -5.7, foo, 8', expect: [1, 2, 3.4, -5.7, 'foo', 8]},
+				{data: 'foo:bar,baz:qux', expect: {foo: 'bar', baz: 'qux'}},
+				{data: '1', expect: 1},
+				{data: '1,2', expect: [1,2]}
+			];
+
+		list.forEach(function(item) {
+			it('handles data-kontext="' + item.data + '"', function() {
+				var main = document.createElement('main'),
+					handled;
+
+				main.setAttribute('data-kontext', item.data);
+
+				provider.handler(provider.settings, main, function(target, config) {
+					expect(config).toEqual(item.expect);
+
+					handled = true;
+				});
+
+				expect(handled).toBe(true);
+			});
 		});
 	});
 

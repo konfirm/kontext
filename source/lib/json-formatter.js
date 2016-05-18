@@ -60,7 +60,7 @@ function JSONFormatter() {
 			},
 			'\r': {
 				type: 'space'
-			},
+			}
 		});
 
 	/**
@@ -95,11 +95,9 @@ function JSONFormatter() {
 	 */
 	function flatten(list) {
 		return list
-			.reduce(function(result, item) {
-				var value = item.data || item.token;
-
-				return result.concat(value + ('nest' in item ? flatten(item.nest) + item.end.token : ''));
-			}, [])
+			.map(function(item) {
+				return item.data;
+			})
 			.join('');
 	}
 
@@ -117,9 +115,6 @@ function JSONFormatter() {
 					output = item.type === 'text' ? quote(item.data.trim(), next && next.type === 'key') : item.token;
 
 				if (item.type === 'space') {
-					output = '';
-				}
-				else if (item.type === 'comment') {
 					output = '';
 				}
 				else if ('nest' in item) {
@@ -140,9 +135,11 @@ function JSONFormatter() {
 	 */
 	function prepare(list) {
 		var prepared = list
-				.reduce(function(result, item, index, all) {
-					var prev = result.length ? result[result.length - 1] : null,
-						data;
+				.filter(function(item) {
+					return item.type !== 'comment';
+				})
+				.map(function(item) {
+					var data;
 
 					if (item.type === 'quote') {
 						data = [item.token, flatten(item.nest), item.end.data || item.end.token];
@@ -152,6 +149,11 @@ function JSONFormatter() {
 							data: data[0] === data[2] ? data[1] : data.join('')
 						};
 					}
+
+					return item;
+				})
+				.reduce(function(result, item) {
+					var prev = result.length ? result[result.length - 1] : null;
 
 					if (prev && prev.type === 'text' && item.type === 'text') {
 						prev.data += item.data;
@@ -180,7 +182,7 @@ function JSONFormatter() {
 			string = (match.match(/"/g) || []).length === 2 && match.indexOf('"') < position && match.lastIndexOf('"') > position;
 
 		//  figure out if the notation should be added or may be skipped
-		return !string && match[0] !== character[0] ? character[0] + match.replace(/,+$/g, '') + character[1] : match;
+		return !string && match[0] !== character[0] ? character[0] + match + character[1] : match;
 	}
 
 	/**
@@ -198,7 +200,8 @@ function JSONFormatter() {
 
 		//  tokenize the input and feed it to the compiler in one go
 		return prepare(tokenizer.tokenize(input))
-			.replace(/^.*?([:,]).*$/, notation);
+			.replace(/[,\s]+$/g, '')
+			.replace(/^(?:[^\[\{].*?)([:,]).*$/, notation);
 	};
 
 	/**
