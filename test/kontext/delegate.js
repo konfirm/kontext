@@ -14,7 +14,7 @@ describe('Kontext Delegate', function() {
 		expect(desc.get).toBe(desc.set);
 	});
 
-	it('accepts explicit delegates and sets the scope to the model/key if not done already', function() {
+	it('accepts explicit delegates and sets the scope to the model/key if not done already', function(done) {
 		var element = document.createElement('div'),
 			model;
 
@@ -23,9 +23,19 @@ describe('Kontext Delegate', function() {
 			delegateFoo: kontext.delegate('bar')
 		}, element);
 
-		model.delegateFoo('baz');
+		model.on('update', function(m, k, o, n) {
+			expect(m).toBe(model);
+			expect(k).toBe('delegateFoo');
 
-		expect(model.delegateFoo()).toBe('baz');
+			expect(o).toBe('bar');
+			expect(n).toBe('baz');
+
+			expect(model.delegateFoo()).toBe('baz');
+
+			done();
+		});
+
+		model.delegateFoo('baz');
 	});
 
 	it('provides `delegation` method on models', function() {

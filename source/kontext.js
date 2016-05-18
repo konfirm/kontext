@@ -483,12 +483,15 @@
 						handle = delegate(initial, model, key);
 
 						define(model, key, true, handle, handle);
-
-						//  a change emission on a property will trigger an update on the model
-						handle.on('update', function(m, k, prior, current) {
-							emitter.trigger('update', [model, key, prior, current]);
-						});
 					}
+					else {
+						handle.scope(model, key);
+					}
+
+					//  a change emission on a property will trigger an update on the model
+					handle.on('update', function(m, k, prior, current) {
+						emitter.trigger('update', [model, key, prior, current]);
+					});
 
 					return handle;
 				};
