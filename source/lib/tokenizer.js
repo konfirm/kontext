@@ -7,64 +7,39 @@
  */
 function Tokenizer(tokens) {
 	var tokenizer = this,
-		matcher;
+		keys = Object.keys(tokens);
 
 	/**
-	 *  Initialize the Tokenizer, preparing the tokens in a crafter matcher function
-	 *  @name    init
+	 *  Attempt to match one of the tokens to the input string at the given index
+	 *  @name    matcher
 	 *  @access  internal
-	 *  @return  void
+	 *  @param   string  text
+	 *  @param   number  index
+	 *  @return  Object  item  {type, token, index [end [, merge]]}  [null if not match was found]
 	 */
-	function init() {
-		var collect = {},
-			key;
+	function matcher(text, index) {
+		var candidate = keys.filter(function(key) {
+				return text.substr(index, key.length) === key;
+			}),
+			result = null,
+			token;
 
-		//  create fast lookups for every key, by using the keys' first character as object index
-		for (key in tokens) {
-			if (!(key[0] in collect)) {
-				collect[key[0]] = [];
-			}
+		if (candidate.length) {
+			token = candidate[0];
+			result = {
+				type: tokens[token].type,
+				token: token,
+				index: index
+			};
 
-			collect[key[0]].push(key);
-		}
-
-		//  prioritize the keys by length
-		for (key in collect) {
-			collect[key] = collect[key].sort(function(a, b) {
-				return a.length === b.length ? a < b ? -1 : +(a > b) : a.length > b.length ? -1 : +(a.length < b.length);
+			['end', 'merge'].forEach(function(key) {
+				if (key in tokens[token]) {
+					result[key] = tokens[token][key];
+				}
 			});
 		}
 
-		//  prepare the matcher function based on the prepared collect object
-		matcher = function(text, index) {
-			var result = null,
-				candidate;
-
-			if (text[index] in collect) {
-				candidate = collect[text[index]]
-					.filter(function(key) {
-						return text.substr(index, key.length) === key;
-					});
-
-				if (candidate.length) {
-					result = {
-						type: tokens[candidate[0]].type,
-						token: candidate[0],
-						index: index
-					};
-
-					if ('end' in tokens[candidate[0]]) {
-						result.end = tokens[candidate[0]].end;
-					}
-
-					if ('merge' in tokens[candidate[0]]) {
-						result.merge = tokens[candidate[0]].merge;
-					}
-				}
-			}
-
-			return result;
-		};
+		return result;
 	}
 
 	/**
@@ -100,14 +75,14 @@ function Tokenizer(tokens) {
 
 	/**
 	 *  Should the item be trimmed
-	 *  @name    trimToken
+	 *  @name    tokenFilter
 	 *  @access  internal
 	 *  @param   Object  item
 	 *  @param   number  index
 	 *  @param   Array   all items
 	 *  @return  bool    trim
 	 */
-	function trimToken(item, index, all) {
+	function tokenFilter(item, index, all) {
 		var verdict = true;
 
 		switch (item.type) {
@@ -124,6 +99,26 @@ function Tokenizer(tokens) {
 	}
 
 	/**
+	 *  Ensure the last item in the list is a 'text'-type item and return it
+	 *  @name    lastText
+	 *  @access  internal
+	 *  @param   Array   items
+	 *  @param   number  index
+	 *  @return  Object  item
+	 */
+	function lastText(list, index) {
+		if (!(list.length && list[list.length - 1].type === 'text')) {
+			list.push({
+				type: 'text',
+				data: '',
+				index: index
+			});
+		}
+
+		return list[list.length - 1];
+	}
+
+	/**
 	 *  Tokenize the given text from start until either the end or until given character is found
 	 *  @name    tokenize
 	 *  @access  internal
@@ -136,7 +131,7 @@ function Tokenizer(tokens) {
 	function tokenize(text, start, until, greedy) {
 		var result = [],
 			index = start || 0,
-			match, sub, end, ends;
+			match, end, ends;
 
 		while (text && index < text.length) {
 			match = matcher(text, index);
@@ -150,47 +145,57 @@ function Tokenizer(tokens) {
 					token: end,
 					index: index
 				});
+
+				//  break the loop (no return, as we want to filter it before returning)
 				break;
 			}
 			else if (!greedy && match) {
-				if ('end' in match && match.end !== true) {
-					//  TODO: a multicharacter token cannot be used as (greedy) self-closing value
-					//        this is fine as (to our knowledge) there are no such pattens required
-					sub = tokenize(text, shift(match), match.end || text[index], match.merge || false);
-					end = sub.pop();
-
-					result.push({
-						type: match.type,
-						token: match.token,
-						index: match.index,
-						nest: sub,
-						end: end
-					});
-
-					index = shift(end);
-				}
-				else {
-					result.push(match);
-
-					index = shift(match);
-				}
+				index = processMatch(text, index, match, result);
 			}
 			else {
-				if (!(result.length && result[result.length - 1].type === 'text')) {
-					result.push({
-						type: 'text',
-						data: '',
-						index: index
-					});
-				}
-
-				result[result.length - 1].data += text[index];
+				match = lastText(result, index);
+				match.data += text[index];
 				++index;
 			}
 		}
 
 		return result
-			.filter(trimToken);
+			.filter(tokenFilter);
+	}
+
+	/**
+	 *  Process a token match, resolving optional nesting and returning the index to jump to
+	 *  @name    processMatch
+	 *  @access  internal
+	 *  @param   string  text
+	 *  @param   number  index
+	 *  @param   Object  match
+	 *  @param   Array   list
+	 *  @return  number  index
+	 */
+	function processMatch(text, index, match, result) {
+		var nested, end;
+
+		if ('end' in match && match.end !== true) {
+			//  TODO: a multicharacter token cannot be used as (greedy) self-closing value
+			//        this is fine as (to our knowledge) there are no such pattens required
+			nested = tokenize(text, shift(match), match.end || text[index], match.merge || false);
+			end = nested.pop();
+
+			result.push({
+				type: match.type,
+				token: match.token,
+				index: match.index,
+				nest: nested,
+				end: end
+			});
+
+			return shift(end);
+		}
+
+		result.push(match);
+
+		return shift(match);
 	}
 
 	/**
@@ -203,6 +208,4 @@ function Tokenizer(tokens) {
 	tokenizer.tokenize = function(text) {
 		return tokenize(text);
 	};
-
-	init();
 }
