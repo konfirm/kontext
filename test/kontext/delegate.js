@@ -16,26 +16,74 @@ describe('Kontext Delegate', function() {
 
 	it('accepts explicit delegates and sets the scope to the model/key if not done already', function(done) {
 		var element = document.createElement('div'),
-			model;
+			model = {
+				delegateFoo: kontext.delegate('bar')
+			};
 
 		element.appendChild(document.createTextNode('Hello {delegateFoo}!'));
-		model = kontext.bind({
-			delegateFoo: kontext.delegate('bar')
-		}, element);
+		model = kontext.bind(model, element);
 
 		model.on('update', function(m, k, o, n) {
 			expect(m).toBe(model);
 			expect(k).toBe('delegateFoo');
 
-			expect(o).toBe('bar');
-			expect(n).toBe('baz');
+			if (o === 'bar') {
+				expect(n).toBe('baz');
 
-			expect(model.delegateFoo()).toBe('baz');
+				expect(model.delegateFoo()).toBe('baz');
+				expect(typeof model.delegateFoo).toBe('function');
 
-			done();
+				// call scope 'manually' (useless)
+				model.delegateFoo.scope(m, k);
+
+				model.delegateFoo('qux')
+			}
+			else {
+				expect(o).toBe('baz');
+				expect(n).toBe('qux');
+
+				expect(model.delegateFoo()).toBe('qux');
+
+				done();
+			}
 		});
 
 		model.delegateFoo('baz');
+	});
+
+	it('allows adding elements to explicit delegates, and these are synced with the current value', function(done) {
+		var element = document.createElement('div'),
+			model = {
+				delegateFoo: kontext.delegate('bar')
+			};
+
+		element.appendChild(document.createTextNode('hello {delegateFoo}.'));
+
+		kontext.bind(model, element);
+
+		expect(typeof model.delegateFoo.element).toBe('function');
+		model.delegateFoo.element(element.appendChild(document.createTextNode('lolwut')));
+
+		expect(model.delegateFoo.element().length).toBe(2);
+
+		model.on('update', function(m, k, o, n) {
+			expect(m).toBe(model);
+			expect(k).toBe('delegateFoo');
+			expect(o).toBe('bar');
+			expect(n).toBe('qux');
+
+			setTimeout(function() {
+				expect(element.innerText).toBe('hello qux.qux');
+
+				done();
+			}, 20)
+		});
+
+		setTimeout(function() {
+			expect(element.innerText).toBe('hello bar.bar');
+
+			model.delegateFoo('qux');
+		}, 20);
 	});
 
 	it('provides `delegation` method on models', function() {

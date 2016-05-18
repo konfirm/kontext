@@ -18,6 +18,18 @@ describe('Kontext Providers', function() {
 		});
 	});
 
+	it('informs about unknown providers', function() {
+		var unknown = kontext.provider('unknown');
+
+		spyOn(console, 'error');
+
+		unknown();
+
+		expect(console.error).toHaveBeenCalled();
+		expect(console.error).toHaveBeenCalledWith('Kontext: Unknown provider "unknown"');
+	});
+
+
 	describe('providers can be disabled', function() {
 		var wait = 40;
 

@@ -252,7 +252,7 @@
 			}
 
 			if (!(name in providers)) {
-				return errorTrigger('Unknown provider %s', name);
+				return errorTrigger('Unknown provider "%s"', name);
 			}
 
 			return providers[name];
