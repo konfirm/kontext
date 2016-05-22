@@ -74,7 +74,7 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 
 ### Statistics
 - Full size: 92.8K (+27.8K), gzipped: 23.8K (+6.9K)
-- Minified size: 20.9K (+5.9K), gzipped: 7.6K (+2K)
+- Minified size: 20.9K (+5.8K), gzipped: 7.6K (+2K)
 
 
 ## 1.5.0
