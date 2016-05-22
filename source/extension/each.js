@@ -76,6 +76,27 @@ kontext.extension('each', function(element, model, config, options) {
 	}
 
 	/**
+	 *  Decorate a property onto an object (which may or may not be a model already)
+	 *  @name    decorate
+	 *  @access  internal
+	 *  @param   Object  object
+	 *  @param   string  property
+	 *  @param   mixed   value
+	 *  @return  void
+	 *  @note    This method does not change any pre-existing property
+	 */
+	function decorate(object, property, value) {
+		if (!(property in object)) {
+			if (typeof object.define === 'function') {
+				object.define(property, value);
+			}
+			else {
+				object[property] = value;
+			}
+		}
+	}
+
+	/**
 	 *  Obtain the cached item, creating it if it is not available yet
 	 *  @name    fetch
 	 *  @access  internal
@@ -89,11 +110,16 @@ kontext.extension('each', function(element, model, config, options) {
 			}),
 
 			result = filtered.length ? filtered[0] : null,
-			nodeList, bind;
+			nodeList, fragment, bind;
 
 		if (!result) {
+			fragment = document.createDocumentFragment();
 			nodeList = template.map(function(node) {
-				return node.cloneNode(true);
+				//  append a fresh clone to the fragment and return the clone itself
+				//  The appending is done to ensure the cloned node does have a parentNode
+				//  which enables extensions to be work (mostly as normal) even before `each`
+				//  has actually appended the elements to the real document
+				return fragment.appendChild(node.cloneNode(true));
 			});
 
 			//  ensure we will be binding an object
@@ -102,10 +128,10 @@ kontext.extension('each', function(element, model, config, options) {
 			//  prepare the custom properties provided by the each extension
 			//  by providing them during the binding, we make sure they are treated
 			//  as normal model members (which also means they become visible)
-			bind.$item   = value;
-			bind.$index  = 0;
-			bind.$parent = delegate();
-			bind.$model  = model;
+			decorate(bind, '$index', 0);
+			decorate(bind, '$item', value);
+			decorate(bind, '$parent', delegate());
+			decorate(bind, '$model', model);
 
 			result = {
 				item: value,

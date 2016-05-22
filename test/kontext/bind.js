@@ -71,18 +71,16 @@ describe('Kontext Bind', function() {
 			count = 0;
 
 		model.on('update', function(mod, key) {
-			if (key === 'list') {
-				++count;
+			++count;
 
-				expect(mod[key].length).toBe(2);
-				expect(mod[key][1].hello).toBe(count === 2 ? 'planet' : 'universe');
+			expect(model.list.length).toBe(2);
+			expect(model.list[1].hello).toBe(count === 2 ? 'planet' : 'universe');
 
-				if (count === 1) {
-					mod[key][1].hello = 'planet';
-				}
-				else {
-					done();
-				}
+			if (count === 1) {
+				model.list[1].hello = 'planet';
+			}
+			else {
+				done();
 			}
 		});
 

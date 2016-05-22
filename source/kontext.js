@@ -460,6 +460,20 @@
 		}
 
 		/**
+		 *  Determine if the object is 'prepared' (a potential model) by checking known model properties
+		 *  @name    prepared
+		 *  @access  internal
+		 *  @param   model
+		 *  @return  bool  prepared
+		 */
+		function prepared(model) {
+			//  the model is certainly not yet prepared if it does not have all of the expected methods
+			//  on the other hand, any object which happens to have these properties will also be seen
+			//  as a model.
+			return contains(model, ['on', 'off', 'delegation', 'define']);
+		}
+
+		/**
 		 *  Prepare models so all properties become delegates (if not already) and it becomes an emitable
 		 *  @name    prepare
 		 *  @access  internal
@@ -469,11 +483,7 @@
 		function prepare(model) {
 			var definer, emitter;
 
-			if (!contains(model, ['on', 'off', 'delegation', 'define'])) {
-				//  the model is not yet prepared
-				//  NOTE: this is an assumption based on the fact that one or more of
-				//        the expected methods are missing
-
+			if (!prepared(model)) {
 				//  create a function responsible for defining properties and registering
 				//  those to propagate updates
 				definer = function(key, initial) {
@@ -489,8 +499,8 @@
 					}
 
 					//  a change emission on a property will trigger an update on the model
-					handle.on('update', function(m, k, prior, current) {
-						emitter.trigger('update', [model, key, prior, current]);
+					handle.on('update', function(mod, property, prior, current) {
+						emitter.trigger('update', [mod, property, prior, current]);
 					});
 
 					return handle;
@@ -556,13 +566,13 @@
 				}
 			});
 
-			//  iterator over every item in the list and ensure it is a model on its own
+			//  iterate over every item in the list and ensure it is a model on its own
 			list.forEach(function(item, index) {
-				if (typeof list[index] === 'object') {
-					list[index] = prepare(item, config.model, config.key);
-					list[index].on('update', function() {
-						config.emission.trigger('update', [config.model, config.key, config.value]);
-					});
+				if (typeof item === 'object' && !prepared(item)) {
+					prepare(item, config.model, config.key)
+						.on('update', function(model, key, value) {
+							config.emission.trigger('update', [model, key, value]);
+						});
 				}
 			});
 		}

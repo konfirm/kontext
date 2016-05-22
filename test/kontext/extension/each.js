@@ -30,17 +30,19 @@ describe('Kontext Extension Each', function() {
 			element.setAttribute('data-kontext', 'each: list');
 			model = kontext.bind({list: []}, element);
 
-			model.on('update', function(mod, key) {
-				expect(element.childNodes.length).toBe(mod[key].length);
+			model.on('update', function(mod, key, value) {
+				if (key === 'list') {
+					expect(element.childNodes.length).toBe(mod[key].length);
 
-				if (mod[key].length < 5) {
-					mod[key].push({
-						a: 'a' + mod[key].length,
-						b: 'b' + mod[key].length
-					});
-				}
-				else {
-					done();
+					if (mod[key].length < 5) {
+						mod[key].push({
+							a: 'a' + mod[key].length,
+							b: 'b' + mod[key].length
+						});
+					}
+					else {
+						done();
+					}
 				}
 			});
 
@@ -125,19 +127,21 @@ describe('Kontext Extension Each', function() {
 			model.on('update', function(mod, key) {
 				var i, v;
 
-				if (mod[key].length < 5) {
-					mod[key].push('a' + mod[key].length);
-				}
-				else {
-					setTimeout(function() {
-						expect(node.childNodes.length).toBe(mod[key].length);
-						for (i = 0; i < node.childNodes.length; ++i) {
-							v = (i > 0 ? 'a' + i + ' @ ' : 'initial @ ') + i;
-							expect(node.childNodes[i].innerHTML).toBe(v);
-						}
+				if (key === 'list') {
+					if (mod[key].length < 5) {
+						mod[key].push('a' + mod[key].length);
+					}
+					else {
+						setTimeout(function() {
+							expect(node.childNodes.length).toBe(mod[key].length);
+							for (i = 0; i < node.childNodes.length; ++i) {
+								v = (i > 0 ? 'a' + i + ' @ ' : 'initial @ ') + i;
+								expect(node.childNodes[i].innerHTML).toBe(v);
+							}
 
-						done();
-					}, 100);
+							done();
+						}, 100);
+					}
 				}
 			});
 
@@ -159,19 +163,21 @@ describe('Kontext Extension Each', function() {
 			model.on('update', function(mod, key) {
 				var i, v;
 
-				if (mod[key].length < 5) {
-					mod[key].push('a' + mod[key].length);
-				}
-				else {
-					setTimeout(function() {
-						expect(node.childNodes.length).toBe(mod[key].length);
-						for (i = 0; i < node.childNodes.length; ++i) {
-							v = (i > 0 ? 'a' + i : 'initial');
-							expect(node.childNodes[i].innerHTML).toBe(v);
-						}
+				if (key === 'list') {
+					if (mod[key].length < 5) {
+						mod[key].push('a' + mod[key].length);
+					}
+					else {
+						setTimeout(function() {
+							expect(node.childNodes.length).toBe(mod[key].length);
+							for (i = 0; i < node.childNodes.length; ++i) {
+								v = (i > 0 ? 'a' + i : 'initial');
+								expect(node.childNodes[i].innerHTML).toBe(v);
+							}
 
-						done();
-					}, 100);
+							done();
+						}, 100);
+					}
 				}
 			});
 
@@ -194,34 +200,36 @@ describe('Kontext Extension Each', function() {
 			var length = parent.childNodes.length,
 				i, v;
 
-			expect(length).toBe(2 + mod[key].length);
-			for (i = 0; i < length; ++i) {
-				if (i === 0 || i === length - 1) {
-					expect(parent.childNodes[i].nodeType).toBe(3);
+			if (key === 'list') {
+				expect(length).toBe(2 + mod[key].length);
+				for (i = 0; i < length; ++i) {
+					if (i === 0 || i === length - 1) {
+						expect(parent.childNodes[i].nodeType).toBe(3);
+					}
+					else {
+						v = mod[key][i - 1];
+
+						expect(parent.childNodes[i].nodeType).toBe(1);
+						expect(parent.childNodes[i].firstChild.nodeName).toBe('STRONG');
+						expect(parent.childNodes[i].innerHTML).toBe(
+							'<strong>' + v.a + ' and ' + v.b + '</strong>'
+						);
+					}
+				}
+
+				if (mod[key].length < 5) {
+					mod[key].splice(2, 0, {
+						a: 'a' + mod[key].length,
+						b: 'b' + mod[key].length
+					});
+				}
+				else if (end) {
+					done();
 				}
 				else {
-					v = mod[key][i - 1];
-
-					expect(parent.childNodes[i].nodeType).toBe(1);
-					expect(parent.childNodes[i].firstChild.nodeName).toBe('STRONG');
-					expect(parent.childNodes[i].innerHTML).toBe(
-						'<strong>' + v.a + ' and ' + v.b + '</strong>'
-					);
+					end = true;
+					mod[key].splice(2, 2);
 				}
-			}
-
-			if (mod[key].length < 5) {
-				mod[key].splice(2, 0, {
-					a: 'a' + mod[key].length,
-					b: 'b' + mod[key].length
-				});
-			}
-			else if (end) {
-				done();
-			}
-			else {
-				end = true;
-				mod[key].splice(2, 2);
 			}
 		});
 
@@ -249,25 +257,27 @@ describe('Kontext Extension Each', function() {
 
 		model = kontext.bind({list: []}, parent);
 
-		model.on('update', function() {
-			if (model.list.length === 1) {
-				expect(model.list[0]).toBe('world');
-				expect(parent.innerHTML).toBe('<div data-kontext="text: $item">world</div>');
+		model.on('update', function(mod, key) {
+			if (key === 'list') {
+				if (model.list.length === 1) {
+					expect(model.list[0]).toBe('world');
+					expect(parent.innerHTML).toBe('<div data-kontext="text: $item">world</div>');
 
-				model.list.unshift('hello');
-			}
-			else {
-				expect(model.list.length).toBe(2);
-				expect(model.list[0]).toBe('hello');
-				expect(model.list[1]).toBe('world');
+					model.list.unshift('hello');
+				}
+				else {
+					expect(model.list.length).toBe(2);
+					expect(model.list[0]).toBe('hello');
+					expect(model.list[1]).toBe('world');
 
-				//  we must give the `each` extension some time to redraw the contents as this is
-				//  done using a combination of requestAnimationFrame and setTimeout
-				setTimeout(function() {
-					expect(parent.innerHTML).toBe('<div data-kontext="text: $item">hello</div><div data-kontext="text: $item">world</div>');
+					//  we must give the `each` extension some time to redraw the contents as this is
+					//  done using a combination of requestAnimationFrame and setTimeout
+					setTimeout(function() {
+						expect(parent.innerHTML).toBe('<div data-kontext="text: $item">hello</div><div data-kontext="text: $item">world</div>');
 
-					done();
-				}, 100);
+						done();
+					}, 100);
+				}
 			}
 		});
 
@@ -292,25 +302,27 @@ describe('Kontext Extension Each', function() {
 
 		model = kontext.bind({list: []}, parent, {'provider.attribute.settings.attribute': 'data-foo'});
 
-		model.on('update', function() {
-			if (model.list.length === 1) {
-				expect(model.list[0]).toBe('world');
-				expect(parent.innerHTML).toBe('<div data-foo="text: $item">world</div>');
+		model.on('update', function(mod, key) {
+			if (key === 'list') {
+				if (model.list.length === 1) {
+					expect(model.list[0]).toBe('world');
+					expect(parent.innerHTML).toBe('<div data-foo="text: $item">world</div>');
 
-				model.list.unshift('hello');
-			}
-			else {
-				expect(model.list.length).toBe(2);
-				expect(model.list[0]).toBe('hello');
-				expect(model.list[1]).toBe('world');
+					model.list.unshift('hello');
+				}
+				else {
+					expect(model.list.length).toBe(2);
+					expect(model.list[0]).toBe('hello');
+					expect(model.list[1]).toBe('world');
 
-				//  we must give the `each` extension some time to redraw the contents as this is
-				//  done using a combination of requestAnimationFrame and setTimeout
-				setTimeout(function() {
-					expect(parent.innerHTML).toBe('<div data-foo="text: $item">hello</div><div data-foo="text: $item">world</div>');
+					//  we must give the `each` extension some time to redraw the contents as this is
+					//  done using a combination of requestAnimationFrame and setTimeout
+					setTimeout(function() {
+						expect(parent.innerHTML).toBe('<div data-foo="text: $item">hello</div><div data-foo="text: $item">world</div>');
 
-					done();
-				}, 100);
+						done();
+					}, 100);
+				}
 			}
 		});
 
@@ -352,18 +364,20 @@ describe('Kontext Extension Each', function() {
 		expect(list[2].firstChild.nodeValue).toBe('b.1');
 		expect(list[3].firstChild.nodeValue).toBe('b.2');
 
-		model.on('update', function() {
+		model.on('update', function(mod, key) {
 			var child;
 
-			child = element.querySelectorAll('h3');
-			expect(child.length).toBe(3);
-			expect(child[2].firstChild.nodeValue).toBe('c');
+			if (key === 'list') {
+				child = element.querySelectorAll('h3');
+				expect(child.length).toBe(3);
+				expect(child[2].firstChild.nodeValue).toBe('c');
 
-			child = element.querySelectorAll('span[data-kontext]');
-			expect(child.length).toBe(5);
-			expect(child[4].firstChild.nodeValue).toBe('check');
+				child = element.querySelectorAll('span[data-kontext]');
+				expect(child.length).toBe(5);
+				expect(child[4].firstChild.nodeValue).toBe('check');
 
-			done();
+				done();
+			}
 		});
 
 		model.list.push({name: 'c', child: [{name: 'check'}]});
@@ -376,16 +390,18 @@ describe('Kontext Extension Each', function() {
 		model = kontext.bind({list: []}, element);
 
 		model.on('update', function(mod, key) {
-			expect(element.childNodes.length).toBe(mod[key].length);
+			if (key === 'list') {
+				expect(element.childNodes.length).toBe(mod[key].length);
 
-			if (mod[key].length < 5) {
-				mod[key].push({
-					a: 'a' + mod[key].length,
-					b: 'b' + mod[key].length
-				});
-			}
-			else {
-				done();
+				if (mod[key].length < 5) {
+					mod[key].push({
+						a: 'a' + mod[key].length,
+						b: 'b' + mod[key].length
+					});
+				}
+				else {
+					done();
+				}
 			}
 		});
 
@@ -409,18 +425,21 @@ describe('Kontext Extension Each', function() {
 		}, element);
 
 		model.on('update', function(mod, key) {
-			var expectation = model.list.filter(model.even);
+			var expectation;
 
-			expect(element.childNodes.length).toBe(expectation.length);
+			if (key === 'list') {
+				expectation = model.list.filter(model.even);
+				expect(element.childNodes.length).toBe(expectation.length);
 
-			if (mod[key].length < 5) {
-				mod[key].push({
-					a: 'a' + mod[key].length,
-					b: 'b' + mod[key].length
-				});
-			}
-			else {
-				done();
+				if (mod[key].length < 5) {
+					mod[key].push({
+						a: 'a' + mod[key].length,
+						b: 'b' + mod[key].length
+					});
+				}
+				else {
+					done();
+				}
 			}
 		});
 
@@ -448,18 +467,21 @@ describe('Kontext Extension Each', function() {
 		}, element);
 
 		model.on('update', function(mod, key) {
-			var expectation = model.list.filter(model.even).filter(window.skipFirst);
+			var expectation;
 
-			expect(element.childNodes.length).toBe(expectation.length);
+			if (key === 'list') {
+				expectation = model.list.filter(model.even).filter(window.skipFirst)
+				expect(element.childNodes.length).toBe(expectation.length);
 
-			if (mod[key].length < 5) {
-				mod[key].push({
-					a: 'a' + mod[key].length,
-					b: 'b' + mod[key].length
-				});
-			}
-			else {
-				done();
+				if (mod[key].length < 5) {
+					mod[key].push({
+						a: 'a' + mod[key].length,
+						b: 'b' + mod[key].length
+					});
+				}
+				else {
+					done();
+				}
 			}
 		});
 

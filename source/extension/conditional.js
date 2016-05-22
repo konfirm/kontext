@@ -41,18 +41,22 @@
 			}
 		}
 
-		//  tell Kontext not to traverse into the children of our element
+		//  tell Kontext not to traverse into the children of the element
 		options.stopDescend();
 
 		if (element.parentNode) {
 			//  create the anchor node, consisting of an empty text node
 			anchor = element.parentNode.insertBefore(document.createTextNode(''), element);
 
-			kontext.bind(model, element.childNodes);
+			//  if there are no childNodes, we don't need to bind the model to them
+			if (element.firstChild) {
+				kontext.bind(model, element.childNodes);
+			}
 		}
 
-		model.on('update', update);
-		update();
+		//  let all model updates flow through the update function
+		//  as it is returned by `on`, we can invoke it immediately
+		model.on('update', update)();
 	}
 
 	/**
