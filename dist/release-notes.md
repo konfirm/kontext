@@ -1,8 +1,9 @@
 # Release notes
 
 ## _CURRENT MASTER_ (represented by `kontext-latest(.min).js` in the dist folder!)
-- Added `conditional`-extension (don't worry, abbreviations still work)
 - _BREAKING_: Fourth argument to extension invocation is now an options object, not kontext itself
+- _BREAKING_: When re-dispatching (bubbling) an `update`-emission now refers fully to the actual change
+- Added `conditional`-extension (don't worry, abbreviations still work)
 - Various changes to the `each-extension` (see the `Each`-extension section below)
 - `update`-events now properly provide the previous value
 - Models now have a `define(name, initial)` method, allowing to create getter/setter properties which operate the same as all other bound properties (including model `update` emissions)
@@ -27,6 +28,8 @@ Both the `pattern` and `attribute` properties have been moved to a deeper nested
 - `attribute` > `provider.attribute.settings.attribute`
 - `pattern` > `provider.text.settings.pattern`
 
+#### `Update`-emissions
+Whenever a model inside an array changes, the array will receive a re-dispatched event aswel, the arguments of this emission have been changed. Previously the model and key (first two arguments) would refer to the array and its model itself, this is now fully focussed on the actual change, meaning the model and key will now refer to the actual model/key which are changed. The other arguments (previous/current value) have been kept the same as these already reflected the actual change.
 
 #### Extensions: Options object (impact: low)
 The fourth argument to extensions is no longer `kontext`, but instead an object with the following properties:
@@ -70,8 +73,8 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 - Addressed [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4)
 
 ### Statistics
-- Full size: 91.5K (+26.5K), gzipped: 23.4K (+6.5K)
-- Minified size: 20.7K (+5.7K), gzipped: 7.5K (+2K)
+- Full size: 92.8K (+27.8K), gzipped: 23.8K (+6.9K)
+- Minified size: 20.9K (+5.9K), gzipped: 7.6K (+2K)
 
 
 ## 1.5.0

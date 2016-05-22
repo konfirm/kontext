@@ -1,6 +1,6 @@
 /*global Emission: true, Observer: true, Settings: true*/
 /*
- *       __    Kontext (version 1.5.0 - 2016-05-18)
+ *       __    Kontext (version 1.5.0 - 2016-05-22)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,16 +15,16 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Wed May 18 2016 22:56:19 GMT+0200 (CEST)
-	 *    time: 3.65ms
-	 *    size: 31.69KB
+	 *    date: Sun May 22 2016 19:38:11 GMT+0200 (CEST)
+	 *    time: 3.97ms
+	 *    size: 32.01KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
 	 *     +3.93KB source/lib/settings
 	 *     +3.06KB source/lib/emission
 	 *     +2.15KB source/lib/observer
 	 *  ---------------------------------------------------------------------
-	 *   total: 40.82KB
+	 *   total: 41.14KB
 	 */
 
 	//  load dependencies
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [852.42µs, 3.72KB]
+	//END INCLUDE: lib/settings [1.10ms, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [374.48µs, 2.88KB]
+	//END INCLUDE: lib/emission [377.09µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [314.09µs, 1.99KB]
+	//END INCLUDE: lib/observer [377.44µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -681,15 +681,13 @@
 		 *  @return  void
 		 */
 		function update(list, config) {
-			var nodeValue = '' + config.value;
+			var value = [config.value].join('');
 
-			list
-				.filter(function(element) {
-					return nodeValue !== element.nodeValue;
-				})
-				.forEach(function(element) {
-					element.nodeValue = nodeValue;
-				});
+			list.forEach(function(element) {
+				if (value !== element.nodeValue) {
+					element.nodeValue = value;
+				}
+			});
 		}
 
 
@@ -769,7 +767,7 @@
 			result.element = function() {
 				var append = castToArray(arguments);
 
-				if (append) {
+				if (append.length) {
 					append.forEach(function(node) {
 						//  add observers to monitor changes
 						observer.monitor(node, result);
@@ -819,32 +817,48 @@
 			var result = false,
 				list, length, property, desc;
 
-			if (key in model) {
-				//  if a model key is an explicitly assigned delegate, we utilize it
-				if (isDelegate(model[key])) {
-					result = model[key];
-				}
-
-				//  otherwise we need to get the property descriptor first
-				else {
-					desc = Object.getOwnPropertyDescriptor(model, key);
-					result = desc.get;
-				}
-			}
-			else {
-				list = key.split('.');
-				length = list.length - 1;
-
-				while (length > 0) {
-					property = list.slice(0, length).join('.');
-					if (property in model && model[property]) {
-						return getDelegate(model[property], list.slice(length).join('.'));
+			if (model && typeof model === 'object') {
+				if (key in model) {
+					//  if a model key is an explicitly assigned delegate, we utilize it
+					if (isDelegate(model[key])) {
+						result = model[key];
 					}
-					--length;
+
+					//  otherwise we need to get the property descriptor first
+					else {
+						desc = Object.getOwnPropertyDescriptor(model, key);
+						result = desc.get;
+					}
+				}
+				else {
+					list = key.split('.');
+					length = list.length - 1;
+
+					while (length > 0) {
+						property = list.slice(0, length).join('.');
+						if (property in model) {
+							return getDelegate(model[property], list.slice(length).join('.'));
+						}
+						--length;
+					}
 				}
 			}
 
 			return result;
+		}
+
+		/**
+		 *  Determine if the object is 'prepared' (a potential model) by checking known model properties
+		 *  @name    prepared
+		 *  @access  internal
+		 *  @param   model
+		 *  @return  bool  prepared
+		 */
+		function prepared(model) {
+			//  the model is certainly not yet prepared if it does not have all of the expected methods
+			//  on the other hand, any object which happens to have these properties will also be seen
+			//  as a model.
+			return contains(model, ['on', 'off', 'delegation', 'define']);
 		}
 
 		/**
@@ -857,11 +871,7 @@
 		function prepare(model) {
 			var definer, emitter;
 
-			if (!contains(model, ['on', 'off', 'delegation', 'define'])) {
-				//  the model is not yet prepared
-				//  NOTE: this is an assumption based on the fact that one or more of
-				//        the expected methods are missing
-
+			if (!prepared(model)) {
 				//  create a function responsible for defining properties and registering
 				//  those to propagate updates
 				definer = function(key, initial) {
@@ -877,8 +887,8 @@
 					}
 
 					//  a change emission on a property will trigger an update on the model
-					handle.on('update', function(m, k, prior, current) {
-						emitter.trigger('update', [model, key, prior, current]);
+					handle.on('update', function(mod, property, prior, current) {
+						emitter.trigger('update', [mod, property, prior, current]);
 					});
 
 					return handle;
@@ -944,13 +954,13 @@
 				}
 			});
 
-			//  iterator over every item in the list and ensure it is a model on its own
+			//  iterate over every item in the list and ensure it is a model on its own
 			list.forEach(function(item, index) {
-				if (typeof list[index] === 'object') {
-					list[index] = prepare(item, config.model, config.key);
-					list[index].on('update', function() {
-						config.emission.trigger('update', [config.model, config.key, config.value]);
-					});
+				if (typeof item === 'object' && !prepared(item)) {
+					prepare(item, config.model, config.key)
+						.on('update', function(model, key, value) {
+							config.emission.trigger('update', [model, key, value]);
+						});
 				}
 			});
 		}
@@ -1698,7 +1708,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [567.45µs, 11.27KB]
+	//END INCLUDE: ../lib/condition [612.26µs, 11.27KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -1731,7 +1741,7 @@ kontext.extension('attribute', function(element, model, config) {
 			}
 		}
 
-		//  tell Kontext not to traverse into the children of our element
+		//  tell Kontext not to traverse into the children of the element
 		options.stopDescend();
 
 		if (element.parentNode) {
@@ -1741,8 +1751,9 @@ kontext.extension('attribute', function(element, model, config) {
 			kontext.bind(model, element.childNodes);
 		}
 
-		model.on('update', update);
-		update();
+		//  let all model updates flow through the update function
+		//  as it is returned by `on`, we can invoke it immediately
+		model.on('update', update)();
 	}
 
 	/**
@@ -1885,6 +1896,27 @@ kontext.extension('each', function(element, model, config, options) {
 	}
 
 	/**
+	 *  Decorate a property onto an object (which may or may not be a model already)
+	 *  @name    decorate
+	 *  @access  internal
+	 *  @param   Object  object
+	 *  @param   string  property
+	 *  @param   mixed   value
+	 *  @return  void
+	 *  @note    This method does not change any pre-existing property
+	 */
+	function decorate(object, property, value) {
+		if (!(property in object)) {
+			if (typeof object.define === 'function') {
+				object.define(property, value);
+			}
+			else {
+				object[property] = value;
+			}
+		}
+	}
+
+	/**
 	 *  Obtain the cached item, creating it if it is not available yet
 	 *  @name    fetch
 	 *  @access  internal
@@ -1898,11 +1930,16 @@ kontext.extension('each', function(element, model, config, options) {
 			}),
 
 			result = filtered.length ? filtered[0] : null,
-			nodeList, bind;
+			nodeList, fragment, bind;
 
 		if (!result) {
+			fragment = document.createDocumentFragment();
 			nodeList = template.map(function(node) {
-				return node.cloneNode(true);
+				//  append a fresh clone to the fragment and return the clone itself
+				//  The appending is done to ensure the cloned node does have a parentNode
+				//  which enables extensions to be work (mostly as normal) even before `each`
+				//  has actually appended the elements to the real document
+				return fragment.appendChild(node.cloneNode(true));
 			});
 
 			//  ensure we will be binding an object
@@ -1911,10 +1948,10 @@ kontext.extension('each', function(element, model, config, options) {
 			//  prepare the custom properties provided by the each extension
 			//  by providing them during the binding, we make sure they are treated
 			//  as normal model members (which also means they become visible)
-			bind.$item   = value;
-			bind.$index  = 0;
-			bind.$parent = delegate();
-			bind.$model  = model;
+			decorate(bind, '$index', 0);
+			decorate(bind, '$item', value);
+			decorate(bind, '$parent', delegate());
+			decorate(bind, '$model', model);
 
 			result = {
 				item: value,
@@ -2001,22 +2038,15 @@ kontext.extension('each', function(element, model, config, options) {
 	 *  @return  void
 	 */
 	function redraw(collection, delegate) {
-		var output = [];
+		var redrawFunction = offset ? redrawElementSiblings : redrawElementChildren;
 
-		collection.forEach(function(value, index) {
+		redrawFunction(collection.reduce(function(result, value, index) {
 			var item = fetch(value, delegate);
 
 			item.model.$index = index;
 
-			output = output.concat(item.nodes);
-		});
-
-		if (offset) {
-			redrawElementSiblings(output);
-		}
-		else {
-			redrawElementChildren(output);
-		}
+			return result.concat(item.nodes);
+		}, []));
 	}
 
 	/**
@@ -2662,7 +2692,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [621.62µs, 5.12KB]
+	//END INCLUDE: ../lib/template [606.47µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2790,23 +2820,20 @@ kontext.extension('html', function(element, model, key) {
 
 		var key = objectKey(config, 'target') || config,
 			initial = objectKey(config, 'initial'),
-			delegate = key ? model.delegation(key) : null,
-			text;
+			delegate = key ? model.delegation(key) : null;
 
 		if (options.settings.greedy && !delegate) {
-			delegate = model.define(key, initial);
+			delegate = model.define(key, initial || '');
 		}
 
 		//  if a delegate is found, ensure a DOMText node
 		if (delegate) {
-			text = ensureText(element);
-
 			if (!delegate() && initial !== undefined) {
 				delegate(initial);
 			}
 
 			//  add the element to the elements which push/receive updates by Kontext
-			delegate.element(text);
+			delegate.element(ensureText(element));
 		}
 	});
 })(kontext);
@@ -2821,8 +2848,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Wed May 18 2016 22:56:19 GMT+0200 (CEST)
-	 *    time: 3.65ms
+	 *    date: Sun May 22 2016 19:38:11 GMT+0200 (CEST)
+	 *    time: 2.27ms
 	 *    size: 13.28KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -3068,7 +3095,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: tokenizer [562.59µs, 4.89KB]
+		//END INCLUDE: tokenizer [528.37µs, 4.89KB]
 		/**
 		 *  JSON Formatter
 		 *  @name     JSONFormatter
@@ -3282,7 +3309,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [1.46ms, 9.71KB]
+		//END INCLUDE: json-formatter [1.48ms, 9.71KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3372,7 +3399,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [3.43ms, 12.37KB]
+	//END INCLUDE: ../lib/attribute [2.15ms, 12.37KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3391,17 +3418,17 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Wed May 18 2016 22:56:19 GMT+0200 (CEST)
-	 *    time: 746.96µs
-	 *    size: 2.88KB
+	 *    date: Sun May 22 2016 19:38:11 GMT+0200 (CEST)
+	 *    time: 417.35µs
+	 *    size: 2.86KB
 	 *  ---------------------------------------------------------------------
 	 *   included 4 files
 	 *    +12.91KB source/provider/../lib/attribute
 	 *    +10.16KB source/provider/../lib/json-formatter
 	 *     +4.96KB source/provider/../lib/tokenizer
-	 *     +2.40KB source/provider/../lib/text
+	 *     +2.39KB source/provider/../lib/text
 	 *  ---------------------------------------------------------------------
-	 *   total: 33.30KB
+	 *   total: 33.27KB
 	 */
 
 	//  load dependencies
@@ -3459,9 +3486,8 @@ kontext.extension('html', function(element, model, key) {
 				result.push({
 					node: content,
 					key: match[2],
-					initial: match[3] || ''
+					initial: match[3]
 				});
-				content.original = content.nodeValue;
 			}
 
 			if (remainder) {
@@ -3500,13 +3526,14 @@ kontext.extension('html', function(element, model, key) {
 		text.placeholders = function(element, callback) {
 			if (element) {
 				placeholders(element).forEach(function(data) {
+					data.node.nodeValue = '';
 					callback.apply(null, [data.node, data.key, data.initial]);
 				});
 			}
 		};
 	}
 
-	//END INCLUDE: ../lib/text [631.92µs, 2.24KB]
+	//END INCLUDE: ../lib/text [332.54µs, 2.23KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {
