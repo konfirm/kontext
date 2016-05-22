@@ -192,22 +192,15 @@ kontext.extension('each', function(element, model, config, options) {
 	 *  @return  void
 	 */
 	function redraw(collection, delegate) {
-		var output = [];
+		var redrawFunction = offset ? redrawElementSiblings : redrawElementChildren;
 
-		collection.forEach(function(value, index) {
+		redrawFunction(collection.reduce(function(result, value, index) {
 			var item = fetch(value, delegate);
 
 			item.model.$index = index;
 
-			output = output.concat(item.nodes);
-		});
-
-		if (offset) {
-			redrawElementSiblings(output);
-		}
-		else {
-			redrawElementChildren(output);
-		}
+			return result.concat(item.nodes);
+		}, []));
 	}
 
 	/**

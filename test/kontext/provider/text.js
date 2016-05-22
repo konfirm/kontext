@@ -35,7 +35,7 @@ describe('Kontext Provider Text', function() {
 				expect(options.text.initial).toBe('trap');
 			}
 			else {
-				expect(options.text.initial).toBe('');
+				expect(options.text.initial).toBe(undefined);
 			}
 
 			collect.push(options.text.target);

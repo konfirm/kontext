@@ -59,23 +59,20 @@
 
 		var key = objectKey(config, 'target') || config,
 			initial = objectKey(config, 'initial'),
-			delegate = key ? model.delegation(key) : null,
-			text;
+			delegate = key ? model.delegation(key) : null;
 
 		if (options.settings.greedy && !delegate) {
-			delegate = model.define(key, initial);
+			delegate = model.define(key, initial || '');
 		}
 
 		//  if a delegate is found, ensure a DOMText node
 		if (delegate) {
-			text = ensureText(element);
-
 			if (!delegate() && initial !== undefined) {
 				delegate(initial);
 			}
 
 			//  add the element to the elements which push/receive updates by Kontext
-			delegate.element(text);
+			delegate.element(ensureText(element));
 		}
 	});
 })(kontext);

@@ -293,15 +293,13 @@
 		 *  @return  void
 		 */
 		function update(list, config) {
-			var nodeValue = '' + config.value;
+			var value = [config.value].join('');
 
-			list
-				.filter(function(element) {
-					return nodeValue !== element.nodeValue;
-				})
-				.forEach(function(element) {
-					element.nodeValue = nodeValue;
-				});
+			list.forEach(function(element) {
+				if (value !== element.nodeValue) {
+					element.nodeValue = value;
+				}
+			});
 		}
 
 
@@ -381,7 +379,7 @@
 			result.element = function() {
 				var append = castToArray(arguments);
 
-				if (append) {
+				if (append.length) {
 					append.forEach(function(node) {
 						//  add observers to monitor changes
 						observer.monitor(node, result);
@@ -431,28 +429,30 @@
 			var result = false,
 				list, length, property, desc;
 
-			if (key in model) {
-				//  if a model key is an explicitly assigned delegate, we utilize it
-				if (isDelegate(model[key])) {
-					result = model[key];
-				}
-
-				//  otherwise we need to get the property descriptor first
-				else {
-					desc = Object.getOwnPropertyDescriptor(model, key);
-					result = desc.get;
-				}
-			}
-			else {
-				list = key.split('.');
-				length = list.length - 1;
-
-				while (length > 0) {
-					property = list.slice(0, length).join('.');
-					if (property in model && model[property]) {
-						return getDelegate(model[property], list.slice(length).join('.'));
+			if (model && typeof model === 'object') {
+				if (key in model) {
+					//  if a model key is an explicitly assigned delegate, we utilize it
+					if (isDelegate(model[key])) {
+						result = model[key];
 					}
-					--length;
+
+					//  otherwise we need to get the property descriptor first
+					else {
+						desc = Object.getOwnPropertyDescriptor(model, key);
+						result = desc.get;
+					}
+				}
+				else {
+					list = key.split('.');
+					length = list.length - 1;
+
+					while (length > 0) {
+						property = list.slice(0, length).join('.');
+						if (property in model) {
+							return getDelegate(model[property], list.slice(length).join('.'));
+						}
+						--length;
+					}
 				}
 			}
 

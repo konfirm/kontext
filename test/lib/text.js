@@ -40,77 +40,101 @@ describe('Text', function() {
 	describe('Finds all placeholders', function() {
 		it('in DOMElement nodes', function() {
 			var fixture = document.querySelector('.fixture'),
+				keys = ['title', 'foo', 'bar'],
 				nodeList = [];
 
 			expect(typeof fixture).toBe('object');
 			expect(fixture.nodeType).toBe(1);
 
-			new Text(textSettings.pattern).placeholders(fixture, function(text) {
-				nodeList.push(text);
+			new Text(textSettings.pattern).placeholders(fixture, function(text, key, initial) {
+				nodeList.push({text:text, key:key, initial:initial});
 			});
 
 			expect(nodeList.length).toBe(3);
 
-			nodeList.forEach(function(text) {
-				var data = text.data;
-
-				expect(text.nodeType).toBe(3);
-				expect(data[0]).toBe('{');
-				expect(data[data.length - 1]).toBe('}');
+			nodeList.forEach(function(item, index) {
+				expect(item.text.nodeType).toBe(3);
+				expect(item.text.data).toBe('');
+				expect(item.key).toBe(keys[index]);
+				expect(item.initial).toBe(undefined);
 			});
 		});
 
 		it('in DOMText nodes', function() {
-			var nodeList = [],
-				textNode = document.createTextNode('A {foo} walks into a {bar}');
+			var textNode = document.createTextNode('A {foo} walks into a {bar}'),
+				keys = ['foo', 'bar'],
+				nodeList = [];
 
-			new Text(textSettings.pattern).placeholders(textNode, function(text) {
-				nodeList.push(text);
+			new Text(textSettings.pattern).placeholders(textNode, function(text, key, initial) {
+				nodeList.push({text:text, key:key, initial:initial});
 			});
 
 			expect(nodeList.length).toBe(2);
 
-			nodeList.forEach(function(text) {
-				var data = text.data;
-
-				expect(text.nodeType).toBe(3);
-				expect(data[0]).toBe('{');
-				expect(data[data.length - 1]).toBe('}');
+			nodeList.forEach(function(item, index) {
+				expect(item.text.nodeType).toBe(3);
+				expect(item.text.data).toBe('');
+				expect(item.key).toBe(keys[index]);
+				expect(item.initial).toBe(undefined);
 			});
 		});
 	});
 
 	it('finds the provided element itself, if it is text', function() {
 		var node = document.createTextNode('A {foo} walks into a {bar}'),
-			result = [];
+			keys = ['foo', 'bar'],
+			nodeList = [];
 
-		new Text(textSettings.pattern).placeholders(node, function(text) {
-			result.push(text);
+		new Text(textSettings.pattern).placeholders(node, function(text, key, initial) {
+			nodeList.push({text:text, key:key, initial:initial});
 		});
 
-		expect(result.length).toBe(2);
+		expect(nodeList.length).toBe(2);
 
-		expect(result[0].nodeType).toBe(3);
-		expect(result[0].data).toBe('{foo}');
+		nodeList.forEach(function(item, index) {
+			expect(item.text.nodeType).toBe(3);
+			expect(item.text.data).toBe('');
+			expect(item.key).toBe(keys[index]);
+			expect(item.initial).toBe(undefined);
+		});
+	});
 
-		expect(result[1].nodeType).toBe(3);
-		expect(result[1].data).toBe('{bar}');
+	it('finds the initial value, if any', function() {
+		var node = document.createTextNode('A {foo:fool} walks into a {bar}'),
+			keys = ['foo', 'bar'],
+			initial = ['fool', undefined],
+			nodeList = [];
+
+		new Text(textSettings.pattern).placeholders(node, function(text, key, initial) {
+			nodeList.push({text:text, key:key, initial:initial});
+		});
+
+		expect(nodeList.length).toBe(2);
+
+		nodeList.forEach(function(item, index) {
+			expect(item.text.nodeType).toBe(3);
+			expect(item.text.data).toBe('');
+			expect(item.key).toBe(keys[index]);
+			expect(item.initial).toBe(initial[index]);
+		});
 	});
 
 	it('allows custom matching patterns', function() {
 		var node = document.createTextNode('A <%foo%> walks into a <%bar%>'),
-			result = [];
+			keys = ['foo', 'bar'],
+			nodeList = [];
 
-		new Text(/(<%(.*?)%>)/).placeholders(node, function(text) {
-			result.push(text);
+		new Text(/(<%(.*?)%>)/).placeholders(node, function(text, key, initial) {
+			nodeList.push({text:text, key:key, initial:initial});
 		});
 
-		expect(result.length).toBe(2);
+		expect(nodeList.length).toBe(2);
 
-		expect(result[0].nodeType).toBe(3);
-		expect(result[0].data).toBe('<%foo%>');
-
-		expect(result[1].nodeType).toBe(3);
-		expect(result[1].data).toBe('<%bar%>');
+		nodeList.forEach(function(item, index) {
+			expect(item.text.nodeType).toBe(3);
+			expect(item.text.data).toBe('');
+			expect(item.key).toBe(keys[index]);
+			expect(item.initial).toBe(undefined);
+		});
 	});
 });

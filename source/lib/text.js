@@ -50,9 +50,8 @@ function Text(pattern) {  //  eslint-disable-line no-unused-vars
 			result.push({
 				node: content,
 				key: match[2],
-				initial: match[3] || ''
+				initial: match[3]
 			});
-			content.original = content.nodeValue;
 		}
 
 		if (remainder) {
@@ -91,6 +90,7 @@ function Text(pattern) {  //  eslint-disable-line no-unused-vars
 	text.placeholders = function(element, callback) {
 		if (element) {
 			placeholders(element).forEach(function(data) {
+				data.node.nodeValue = '';
 				callback.apply(null, [data.node, data.key, data.initial]);
 			});
 		}
