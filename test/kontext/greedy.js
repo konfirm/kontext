@@ -35,7 +35,7 @@ describe('Kontext Greedy', function() {
 		expect(model.bar).toBe('');
 
 		expect('baz' in model).toBe(true);
-		expect(model.baz).toBe(null);
+		expect(model.baz).toBe('');
 
 		done();
 	});
@@ -46,7 +46,7 @@ describe('Kontext Greedy', function() {
 		expect('foo' in model).toBe(true);
 		expect('bar' in model).toBe(true);
 		expect('baz' in model).toBe(true);
-		expect(model.baz).toBe(null);
+		expect(model.baz).toBe('');
 
 		done();
 	});
@@ -57,7 +57,7 @@ describe('Kontext Greedy', function() {
 		expect('foo' in model).toBe(false);
 		expect('bar' in model).toBe(false);
 		expect('baz' in model).toBe(true);
-		expect(model.baz).toBe(null);
+		expect(model.baz).toBe('');
 
 		done();
 	});
@@ -72,7 +72,7 @@ describe('Kontext Greedy', function() {
 		expect('foo' in model).toBe(false);
 		expect('bar' in model).toBe(false);
 		expect('baz' in model).toBe(true);
-		expect(model.baz).toBe(null);
+		expect(model.baz).toBe('');
 
 		done();
 	});

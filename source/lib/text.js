@@ -90,7 +90,6 @@ function Text(pattern) {  //  eslint-disable-line no-unused-vars
 	text.placeholders = function(element, callback) {
 		if (element) {
 			placeholders(element).forEach(function(data) {
-				data.node.nodeValue = '';
 				callback.apply(null, [data.node, data.key, data.initial]);
 			});
 		}

@@ -37,7 +37,8 @@ describe('Text', function() {
 	function verify(list, keys, initial) {
 		list.forEach(function(item, index) {
 			expect(item.text.nodeType).toBe(3);
-			expect(item.text.data).toBe('');
+			expect(item.text.data[0]).toBe('{');
+			expect(item.text.data[item.text.data.length - 1]).toBe('}');
 			expect(item.key).toBe(keys[index]);
 			expect(item.initial).toBe(initial instanceof Array ? initial[index]: undefined);
 		});
@@ -112,9 +113,11 @@ describe('Text', function() {
 
 		nodeList.forEach(function(item, index) {
 			expect(item.text.nodeType).toBe(3);
-			expect(item.text.data).toBe('');
 			expect(item.key).toBe(keys[index]);
 			expect(item.initial).toBe(undefined);
 		});
+
+		expect(nodeList[0].text.data).toBe('<%foo%>');
+		expect(nodeList[1].text.data).toBe('<%bar%>');
 	});
 });
