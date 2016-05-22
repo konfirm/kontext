@@ -470,7 +470,7 @@ describe('Kontext Extension Each', function() {
 			var expectation;
 
 			if (key === 'list') {
-				expectation = model.list.filter(model.even).filter(window.skipFirst)
+				expectation = model.list.filter(model.even).filter(window.skipFirst);
 				expect(element.childNodes.length).toBe(expectation.length);
 
 				if (mod[key].length < 5) {
