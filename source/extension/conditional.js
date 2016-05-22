@@ -48,10 +48,7 @@
 			//  create the anchor node, consisting of an empty text node
 			anchor = element.parentNode.insertBefore(document.createTextNode(''), element);
 
-			//  if there are no childNodes, we don't need to bind the model to them
-			if (element.firstChild) {
-				kontext.bind(model, element.childNodes);
-			}
+			kontext.bind(model, element.childNodes);
 		}
 
 		//  let all model updates flow through the update function
