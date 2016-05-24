@@ -402,13 +402,19 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 
 		//  elemMatch, does the field contain any value matching all conditions
 		//  usage:  {field: {$elemMatch: {<condition>, ...}}}
+		//     or:  {field: {$elemMatch: {field: {<condition>}, ...}}}
 		//  NOTE:  this does not limit the array in any way
 		$elemMatch: function(object, key, value) {
 			var a = scope(object, key),
 				verdict;
 
 			each(a, function(val) {
-				verdict = matches(val, value, object);
+				if (isType(val, 'object')) {
+					verdict = evaluate(value, val);
+				}
+				else {
+					verdict = matches(val, value, object);
+				}
 
 				return !verdict;
 			});

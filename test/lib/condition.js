@@ -16,6 +16,12 @@ describe('Condition', function() {
 			i: 3,
 			j: true,
 			k: false,
+			l: [
+				{m: 'n'},
+				{m: 'o'},
+				{m: 'p'},
+				{m: 'q'}
+			],
 			r: '/^[0-9\.-]+$/i'
 		};
 
@@ -183,12 +189,21 @@ describe('Condition', function() {
 		expect(condition.evaluate({g: {$all: ['a', 7]}}, model)).toBe(true);
 	});
 
-	it('$elemMatch', function() {
+	it('$elemMatch (direct value)', function() {
 		expect(condition.evaluate({f: {$elemMatch: {$gte: 2, $lt: 4}}}, model)).toBe(true);
 		expect(condition.evaluate({f: {$elemMatch: {$gt: 7, $lt: 10}}}, model)).toBe(false);
-		expect(condition.evaluate({g: {$elemMatch: {$gte: 3, $lt: 6}}}, model)).toBe(true);
-		expect(condition.evaluate({g: {$elemMatch: {$gte: 6, $lt: 10}}}, model)).toBe(true);
-		expect(condition.evaluate({g: {$elemMatch: {$gt: 7, $lt: 10}}}, model)).toBe(false);
+		expect(condition.evaluate({f: {$elemMatch: {$gte: 3, $lt: 6}}}, model)).toBe(true);
+		expect(condition.evaluate({f: {$elemMatch: {$gte: 6, $lt: 10}}}, model)).toBe(true);
+		expect(condition.evaluate({f: {$elemMatch: {$gt: 7, $lt: 10}}}, model)).toBe(false);
+
+		expect(condition.evaluate({g: {$elemMatch: {$eq: 'a'}}}, model)).toBe(true);
+		expect(condition.evaluate({g: {$elemMatch: {$eq: 'b'}}}, model)).toBe(true);
+		expect(condition.evaluate({g: {$elemMatch: {$eq: 'c'}}}, model)).toBe(false);
+	});
+
+	it('$elemMatch (object value)', function() {
+		expect(condition.evaluate({l: {$elemMatch: {m: {$eq: 'n'}}}}, model)).toBe(true);
+		expect(condition.evaluate({l: {$elemMatch: {m: {$eq: 'r'}}}}, model)).toBe(false);
 	});
 
 	it('$size', function() {

@@ -1,6 +1,6 @@
 /*global Emission: true, Observer: true, Settings: true*/
 /*
- *       __    Kontext (version 2.0.0-beta - 2016-05-22)
+ *       __    Kontext (version 2.0.0-beta - 2016-05-24)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,8 +15,8 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Sun May 22 2016 21:18:01 GMT+0200 (CEST)
-	 *    time: 5.16ms
+	 *    date: Tue May 24 2016 17:19:14 GMT+0200 (CEST)
+	 *    time: 3.34ms
 	 *    size: 32.01KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [984.54µs, 3.72KB]
+	//END INCLUDE: lib/settings [807.55µs, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [423.10µs, 2.88KB]
+	//END INCLUDE: lib/emission [313.89µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [390.81µs, 1.99KB]
+	//END INCLUDE: lib/observer [343.68µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -1666,13 +1666,19 @@ kontext.extension('attribute', function(element, model, config) {
 
 			//  elemMatch, does the field contain any value matching all conditions
 			//  usage:  {field: {$elemMatch: {<condition>, ...}}}
+			//     or:  {field: {$elemMatch: {field: {<condition>}, ...}}}
 			//  NOTE:  this does not limit the array in any way
 			$elemMatch: function(object, key, value) {
 				var a = scope(object, key),
 					verdict;
 
 				each(a, function(val) {
-					verdict = matches(val, value, object);
+					if (isType(val, 'object')) {
+						verdict = evaluate(value, val);
+					}
+					else {
+						verdict = matches(val, value, object);
+					}
 
 					return !verdict;
 				});
@@ -1708,7 +1714,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [519.38µs, 11.27KB]
+	//END INCLUDE: ../lib/condition [517.71µs, 11.43KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2692,7 +2698,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [461.01µs, 5.12KB]
+	//END INCLUDE: ../lib/template [516.24µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2848,8 +2854,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Sun May 22 2016 21:18:01 GMT+0200 (CEST)
-	 *    time: 3.01ms
+	 *    date: Tue May 24 2016 17:19:14 GMT+0200 (CEST)
+	 *    time: 2.19ms
 	 *    size: 13.28KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -3095,7 +3101,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: tokenizer [484.48µs, 4.89KB]
+		//END INCLUDE: tokenizer [532.79µs, 4.89KB]
 		/**
 		 *  JSON Formatter
 		 *  @name     JSONFormatter
@@ -3309,7 +3315,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [1.51ms, 9.71KB]
+		//END INCLUDE: json-formatter [1.31ms, 9.71KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3399,7 +3405,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [2.79ms, 12.37KB]
+	//END INCLUDE: ../lib/attribute [2.06ms, 12.37KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3418,8 +3424,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Sun May 22 2016 21:18:01 GMT+0200 (CEST)
-	 *    time: 421.84µs
+	 *    date: Tue May 24 2016 17:19:14 GMT+0200 (CEST)
+	 *    time: 386.41µs
 	 *    size: 2.83KB
 	 *  ---------------------------------------------------------------------
 	 *   included 4 files
@@ -3532,7 +3538,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [328.37µs, 2.20KB]
+	//END INCLUDE: ../lib/text [309.32µs, 2.20KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {

@@ -9,6 +9,10 @@ describe('Kontext Extension Conditional', function() {
 		var model = {
 				num: 0,
 				arr: [2, 4],
+				objarr: [
+					{hello: 'universe'},
+					{hello: 'planet'}
+				],
 				str: 'hello',
 				path: {
 					to: {
@@ -36,7 +40,7 @@ describe('Kontext Extension Conditional', function() {
 
 				model.on('update', function() {
 					if (ready) {
-						return console.log('MODEL.UPDATE after ready');
+						return console.log('MODEL.UPDATE after ready', name, cond);
 					}
 
 					if (first) {
@@ -51,6 +55,9 @@ describe('Kontext Extension Conditional', function() {
 						}
 					}
 					else {
+						if (element.parentNode !== main) {
+							console.log(JSON.stringify(model, null, 2), element, main, cond);
+						}
 						expect(element.parentNode).toBe(main);
 						ready = true;
 						done();
@@ -194,10 +201,16 @@ describe('Kontext Extension Conditional', function() {
 				model.arr.push(3);
 			});
 
-			elaborate('$elemMatch', '{arr: {$elemMatch: {$gte: 2, $lt: 4}}}', function(model) {
+			elaborate('$elemMatch (direct values)', '{arr: {$elemMatch: {$gte: 2, $lt: 4}}}', function(model) {
 				model.arr.shift();
 			}, function(model) {
 				model.arr.push(3);
+			});
+
+			elaborate('$elemMatch (object values)', '{objarr: {$elemMatch: {hello: {$eq: world}}}}', function(model) {
+				model.objarr.shift();
+			}, function(model) {
+				model.objarr.push({hello: 'world'});
 			});
 
 			elaborate('$size', '{arr: {$size: 4}}', function(model) {

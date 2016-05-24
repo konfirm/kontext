@@ -73,8 +73,8 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 - Addressed [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4)
 
 ### Statistics
-- Full size: 92.8K (+27.8K), gzipped: 23.8K (+6.9K)
-- Minified size: 20.9K (+5.8K), gzipped: 7.6K (+2K)
+- Full size: 93K (+28K), gzipped: 23.9K (+7K)
+- Minified size: 20.9K (+5.9K), gzipped: 7.6K (+2K)
 
 
 ## 1.5.0
