@@ -1,6 +1,6 @@
 /*global Emission: true, Observer: true, Settings: true*/
 /*
- *       __    Kontext (version 2.0.0-beta - 2016-05-24)
+ *       __    Kontext (version 2.0.0-beta - 2016-05-26)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,8 +15,8 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue May 24 2016 17:19:14 GMT+0200 (CEST)
-	 *    time: 3.34ms
+	 *    date: Thu May 26 2016 08:26:26 GMT+0200 (CEST)
+	 *    time: 3.68ms
 	 *    size: 32.01KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [807.55µs, 3.72KB]
+	//END INCLUDE: lib/settings [787.01µs, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [313.89µs, 2.88KB]
+	//END INCLUDE: lib/emission [392.44µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [343.68µs, 1.99KB]
+	//END INCLUDE: lib/observer [488.77µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -1444,6 +1444,27 @@ kontext.extension('attribute', function(element, model, config) {
 		}
 
 		/**
+		 *  Traverse a list and determine a verdict based on a comparison function, optionally negated
+		 *  @name    listVerdict
+		 *  @access  internal
+		 *  @param   Array     list
+		 *  @param   function  compare
+		 *  @param   bool      negate   [optional, default undefined - no negation]
+		 *  @return  mixed     verdict  [probably a boolean]
+		 */
+		function listVerdict(list, compare, negate) {
+			var verdict;
+
+			each([].concat(list), function(item) {
+				verdict = compare(item);
+
+				return negate ? !verdict : verdict;
+			});
+
+			return verdict;
+		}
+
+		/**
 		 *  Match each property config against the model
 		 *  @name    matches
 		 *  @access  internal
@@ -1453,15 +1474,9 @@ kontext.extension('attribute', function(element, model, config) {
 		 *  @return  bool    matches
 		 */
 		function matches(property, config, model) {
-			var verdict = null;
-
-			each(Object.keys(config), function(key) {
-				verdict = operation(key, model, property, config[key]);
-
-				return verdict;
+			return listVerdict(Object.keys(config), function(key) {
+				return operation(key, model, property, config[key]);
 			});
-
-			return verdict;
 		}
 
 		/**
@@ -1473,21 +1488,11 @@ kontext.extension('attribute', function(element, model, config) {
 		 *  @return  bool    matches
 		 */
 		function evaluate(config, model) {
-			var normalized = shorthand(config),
-				verdict = false;
+			var cfg = shorthand(config);
 
-			each(Object.keys(normalized), function(key) {
-				if (starter(key)) {
-					verdict = operation(key, model, normalized[key]);
-				}
-				else {
-					verdict = matches(key, normalized[key], model);
-				}
-
-				return verdict;
-			});
-
-			return verdict;
+			return listVerdict(Object.keys(cfg), function(key) {
+				return starter(key) ? operation(key, model, cfg[key]) : matches(key, cfg[key], model);
+			}) || false;
 		}
 
 		//  Register operators
@@ -1549,15 +1554,9 @@ kontext.extension('attribute', function(element, model, config) {
 			//  usage:  {$or: [<condition>, ...]}
 			//  note:   {$or: <condition>} is allowed (though the syntax is more elaborate than necessary)
 			$or: function(object, list) {
-				var verdict;
-
-				each([].concat(list), function(config) {
-					verdict = evaluate(config, object);
-
-					return !verdict;
-				});
-
-				return verdict;
+				return listVerdict(list, function(config) {
+					return evaluate(config, object);
+				}, true);
 			},
 
 			//  and, do all conditions match
@@ -1565,15 +1564,9 @@ kontext.extension('attribute', function(element, model, config) {
 			//  short:  [<condition>, ...]
 			//  note:   {$and: <condition>} is allowed (though the syntax is more elaborate than necessary)
 			$and: function(object, list) {
-				var verdict;
-
-				each([].concat(list), function(config) {
-					verdict = evaluate(config, object);
-
-					return verdict;
+				return listVerdict(list, function(config) {
+					return evaluate(config, object);
 				});
-
-				return verdict;
 			},
 
 			//  not, do none of the conditions match
@@ -1651,17 +1644,11 @@ kontext.extension('attribute', function(element, model, config) {
 			$all: function(object, key, value) {
 				var a = scope(object, key).map(function(v) {
 						return scope(object, v);
-					}),
+					});
 
-					verdict;
-
-				each(resolve(object, value, T_ARRAY), function(find) {
-					verdict = operation('$in', object, find, a);
-
-					return verdict;
+				return listVerdict(resolve(object, value, T_ARRAY), function(find) {
+					return operation('$in', object, find, a);
 				});
-
-				return verdict;
 			},
 
 			//  elemMatch, does the field contain any value matching all conditions
@@ -1669,21 +1656,9 @@ kontext.extension('attribute', function(element, model, config) {
 			//     or:  {field: {$elemMatch: {field: {<condition>}, ...}}}
 			//  NOTE:  this does not limit the array in any way
 			$elemMatch: function(object, key, value) {
-				var a = scope(object, key),
-					verdict;
-
-				each(a, function(val) {
-					if (isType(val, 'object')) {
-						verdict = evaluate(value, val);
-					}
-					else {
-						verdict = matches(val, value, object);
-					}
-
-					return !verdict;
-				});
-
-				return verdict;
+				return listVerdict(scope(object, key), function(item) {
+					return isType(item, T_OBJECT) ? evaluate(value, item) : matches(item, value, object);
+				}, true);
 			},
 
 			//  size, is the field an array of specified size
@@ -1714,7 +1689,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [517.71µs, 11.43KB]
+	//END INCLUDE: ../lib/condition [7.48ms, 11.56KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2698,7 +2673,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [516.24µs, 5.12KB]
+	//END INCLUDE: ../lib/template [686.76µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2854,8 +2829,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue May 24 2016 17:19:14 GMT+0200 (CEST)
-	 *    time: 2.19ms
+	 *    date: Thu May 26 2016 08:26:26 GMT+0200 (CEST)
+	 *    time: 2.30ms
 	 *    size: 13.28KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -3101,7 +3076,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: tokenizer [532.79µs, 4.89KB]
+		//END INCLUDE: tokenizer [527.03µs, 4.89KB]
 		/**
 		 *  JSON Formatter
 		 *  @name     JSONFormatter
@@ -3315,7 +3290,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [1.31ms, 9.71KB]
+		//END INCLUDE: json-formatter [1.38ms, 9.71KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3405,7 +3380,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [2.06ms, 12.37KB]
+	//END INCLUDE: ../lib/attribute [2.07ms, 12.37KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3424,8 +3399,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue May 24 2016 17:19:14 GMT+0200 (CEST)
-	 *    time: 386.41µs
+	 *    date: Thu May 26 2016 08:26:26 GMT+0200 (CEST)
+	 *    time: 545.15µs
 	 *    size: 2.83KB
 	 *  ---------------------------------------------------------------------
 	 *   included 4 files
@@ -3538,7 +3513,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [309.32µs, 2.20KB]
+	//END INCLUDE: ../lib/text [456.71µs, 2.20KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {

@@ -180,6 +180,27 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 	}
 
 	/**
+	 *  Traverse a list and determine a verdict based on a comparison function, optionally negated
+	 *  @name    listVerdict
+	 *  @access  internal
+	 *  @param   Array     list
+	 *  @param   function  compare
+	 *  @param   bool      negate   [optional, default undefined - no negation]
+	 *  @return  mixed     verdict  [probably a boolean]
+	 */
+	function listVerdict(list, compare, negate) {
+		var verdict;
+
+		each([].concat(list), function(item) {
+			verdict = compare(item);
+
+			return negate ? !verdict : verdict;
+		});
+
+		return verdict;
+	}
+
+	/**
 	 *  Match each property config against the model
 	 *  @name    matches
 	 *  @access  internal
@@ -189,15 +210,9 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 	 *  @return  bool    matches
 	 */
 	function matches(property, config, model) {
-		var verdict = null;
-
-		each(Object.keys(config), function(key) {
-			verdict = operation(key, model, property, config[key]);
-
-			return verdict;
+		return listVerdict(Object.keys(config), function(key) {
+			return operation(key, model, property, config[key]);
 		});
-
-		return verdict;
 	}
 
 	/**
@@ -209,21 +224,11 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 	 *  @return  bool    matches
 	 */
 	function evaluate(config, model) {
-		var normalized = shorthand(config),
-			verdict = false;
+		var cfg = shorthand(config);
 
-		each(Object.keys(normalized), function(key) {
-			if (starter(key)) {
-				verdict = operation(key, model, normalized[key]);
-			}
-			else {
-				verdict = matches(key, normalized[key], model);
-			}
-
-			return verdict;
-		});
-
-		return verdict;
+		return listVerdict(Object.keys(cfg), function(key) {
+			return starter(key) ? operation(key, model, cfg[key]) : matches(key, cfg[key], model);
+		}) || false;
 	}
 
 	//  Register operators
@@ -285,15 +290,9 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 		//  usage:  {$or: [<condition>, ...]}
 		//  note:   {$or: <condition>} is allowed (though the syntax is more elaborate than necessary)
 		$or: function(object, list) {
-			var verdict;
-
-			each([].concat(list), function(config) {
-				verdict = evaluate(config, object);
-
-				return !verdict;
-			});
-
-			return verdict;
+			return listVerdict(list, function(config) {
+				return evaluate(config, object);
+			}, true);
 		},
 
 		//  and, do all conditions match
@@ -301,15 +300,9 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 		//  short:  [<condition>, ...]
 		//  note:   {$and: <condition>} is allowed (though the syntax is more elaborate than necessary)
 		$and: function(object, list) {
-			var verdict;
-
-			each([].concat(list), function(config) {
-				verdict = evaluate(config, object);
-
-				return verdict;
+			return listVerdict(list, function(config) {
+				return evaluate(config, object);
 			});
-
-			return verdict;
 		},
 
 		//  not, do none of the conditions match
@@ -387,17 +380,11 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 		$all: function(object, key, value) {
 			var a = scope(object, key).map(function(v) {
 					return scope(object, v);
-				}),
+				});
 
-				verdict;
-
-			each(resolve(object, value, T_ARRAY), function(find) {
-				verdict = operation('$in', object, find, a);
-
-				return verdict;
+			return listVerdict(resolve(object, value, T_ARRAY), function(find) {
+				return operation('$in', object, find, a);
 			});
-
-			return verdict;
 		},
 
 		//  elemMatch, does the field contain any value matching all conditions
@@ -405,21 +392,9 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 		//     or:  {field: {$elemMatch: {field: {<condition>}, ...}}}
 		//  NOTE:  this does not limit the array in any way
 		$elemMatch: function(object, key, value) {
-			var a = scope(object, key),
-				verdict;
-
-			each(a, function(val) {
-				if (isType(val, 'object')) {
-					verdict = evaluate(value, val);
-				}
-				else {
-					verdict = matches(val, value, object);
-				}
-
-				return !verdict;
-			});
-
-			return verdict;
+			return listVerdict(scope(object, key), function(item) {
+				return isType(item, T_OBJECT) ? evaluate(value, item) : matches(item, value, object);
+			}, true);
 		},
 
 		//  size, is the field an array of specified size
