@@ -112,7 +112,8 @@ function JSONFormatter() {
 		return list
 			.reduce(function(result, item, index, all) {
 				var next = index + 1 < all.length ? all[index + 1] : null,
-					output = item.type === 'text' ? quote(item.data.trim(), next && next.type === 'key') : item.token;
+					force = ('force' in item && item.force) || (next && next.type === 'key'),
+					output = item.type === 'text' ? quote(item.data.trim(), force) : item.token;
 
 				if (item.type === 'space') {
 					output = '';
@@ -146,6 +147,7 @@ function JSONFormatter() {
 
 						item = {
 							type: 'text',
+							force: noquote.test(data[1]),
 							data: data[0] === data[2] ? data[1] : data.join('')
 						};
 					}

@@ -35,7 +35,11 @@ describe('JSONFormatter', function() {
 		series('parses proper JSON syntax', [
 			{data: 'null', expect: null},
 			{data: 'true', expect: true},
+			{data: '\'true\'', expect: 'true'},
+			{data: '"true"', expect: 'true'},
 			{data: 'false', expect: false},
+			// {data: '\'false\'', expect: 'false'},
+			{data: '"false"', expect: 'false'},
 			{data: 'hello', expect: 'hello'},
 			{data: '123', expect: 123},
 			{data: '123.45', expect: 123.45},

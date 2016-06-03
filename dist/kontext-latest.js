@@ -1,6 +1,6 @@
 /*global Emission: true, Observer: true, Settings: true*/
 /*
- *       __    Kontext (version 2.0.0-beta - 2016-05-26)
+ *       __    Kontext (version 2.0.0-beta - 2016-06-03)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
  *   \  / /    Released under the GPL-2.0 license
@@ -15,8 +15,8 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Thu May 26 2016 08:26:26 GMT+0200 (CEST)
-	 *    time: 3.68ms
+	 *    date: Fri Jun 03 2016 10:05:48 GMT+0200 (CEST)
+	 *    time: 3.62ms
 	 *    size: 32.01KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [787.01µs, 3.72KB]
+	//END INCLUDE: lib/settings [839.42µs, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [392.44µs, 2.88KB]
+	//END INCLUDE: lib/emission [441.30µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [488.77µs, 1.99KB]
+	//END INCLUDE: lib/observer [393.99µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -1689,7 +1689,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [7.48ms, 11.56KB]
+	//END INCLUDE: ../lib/condition [7.64ms, 11.56KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2673,7 +2673,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [686.76µs, 5.12KB]
+	//END INCLUDE: ../lib/template [13.90ms, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2829,16 +2829,16 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Thu May 26 2016 08:26:26 GMT+0200 (CEST)
-	 *    time: 2.30ms
-	 *    size: 13.28KB
+	 *    date: Fri Jun 03 2016 10:05:48 GMT+0200 (CEST)
+	 *    time: 2.42ms
+	 *    size: 13.37KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
-	 *    +12.91KB source/provider/../lib/attribute
-	 *    +10.16KB source/provider/../lib/json-formatter
+	 *    +13.01KB source/provider/../lib/attribute
+	 *    +10.25KB source/provider/../lib/json-formatter
 	 *     +4.96KB source/provider/../lib/tokenizer
 	 *  ---------------------------------------------------------------------
-	 *   total: 41.30KB
+	 *   total: 41.59KB
 	 */
 
 	//  load dependencies
@@ -3076,7 +3076,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: tokenizer [527.03µs, 4.89KB]
+		//END INCLUDE: tokenizer [506.67µs, 4.89KB]
 		/**
 		 *  JSON Formatter
 		 *  @name     JSONFormatter
@@ -3184,7 +3184,8 @@ kontext.extension('html', function(element, model, key) {
 				return list
 					.reduce(function(result, item, index, all) {
 						var next = index + 1 < all.length ? all[index + 1] : null,
-							output = item.type === 'text' ? quote(item.data.trim(), next && next.type === 'key') : item.token;
+							force = ('force' in item && item.force) || (next && next.type === 'key'),
+							output = item.type === 'text' ? quote(item.data.trim(), force) : item.token;
 
 						if (item.type === 'space') {
 							output = '';
@@ -3218,6 +3219,7 @@ kontext.extension('html', function(element, model, key) {
 
 								item = {
 									type: 'text',
+									force: noquote.test(data[1]),
 									data: data[0] === data[2] ? data[1] : data.join('')
 								};
 							}
@@ -3290,7 +3292,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [1.38ms, 9.71KB]
+		//END INCLUDE: json-formatter [1.35ms, 9.80KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3380,7 +3382,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [2.07ms, 12.37KB]
+	//END INCLUDE: ../lib/attribute [2.29ms, 12.46KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3399,17 +3401,17 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Thu May 26 2016 08:26:26 GMT+0200 (CEST)
-	 *    time: 545.15µs
+	 *    date: Fri Jun 03 2016 10:05:48 GMT+0200 (CEST)
+	 *    time: 790.80µs
 	 *    size: 2.83KB
 	 *  ---------------------------------------------------------------------
 	 *   included 4 files
-	 *    +12.91KB source/provider/../lib/attribute
-	 *    +10.16KB source/provider/../lib/json-formatter
+	 *    +13.01KB source/provider/../lib/attribute
+	 *    +10.25KB source/provider/../lib/json-formatter
 	 *     +4.96KB source/provider/../lib/tokenizer
 	 *     +2.36KB source/provider/../lib/text
 	 *  ---------------------------------------------------------------------
-	 *   total: 33.21KB
+	 *   total: 33.40KB
 	 */
 
 	//  load dependencies
@@ -3513,7 +3515,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [456.71µs, 2.20KB]
+	//END INCLUDE: ../lib/text [470.59µs, 2.20KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {
