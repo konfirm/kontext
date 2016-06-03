@@ -15,8 +15,8 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Jun 03 2016 10:05:48 GMT+0200 (CEST)
-	 *    time: 3.62ms
+	 *    date: Fri Jun 03 2016 12:35:33 GMT+0200 (CEST)
+	 *    time: 3.98ms
 	 *    size: 32.01KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [839.42µs, 3.72KB]
+	//END INCLUDE: lib/settings [847.22µs, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [441.30µs, 2.88KB]
+	//END INCLUDE: lib/emission [465.06µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [393.99µs, 1.99KB]
+	//END INCLUDE: lib/observer [401.83µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -1689,7 +1689,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [7.64ms, 11.56KB]
+	//END INCLUDE: ../lib/condition [8.84ms, 11.56KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -1718,6 +1718,12 @@ kontext.extension('attribute', function(element, model, config) {
 				}
 			}
 			else if (element.parentNode) {
+				//  ensure the anchor to be right before the element
+				//  this prevents the element from being persisted within any 'temporary' element,
+				//  such as the document-fragment used by the `each`-extension
+				if (element.previousSibling !== anchor) {
+					element.parentNode.insertBefore(anchor, element);
+				}
 				element.parentNode.removeChild(element);
 			}
 		}
@@ -2673,7 +2679,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [13.90ms, 5.12KB]
+	//END INCLUDE: ../lib/template [683.41µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2829,8 +2835,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Jun 03 2016 10:05:48 GMT+0200 (CEST)
-	 *    time: 2.42ms
+	 *    date: Fri Jun 03 2016 12:35:33 GMT+0200 (CEST)
+	 *    time: 2.28ms
 	 *    size: 13.37KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
@@ -3076,7 +3082,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: tokenizer [506.67µs, 4.89KB]
+		//END INCLUDE: tokenizer [494.55µs, 4.89KB]
 		/**
 		 *  JSON Formatter
 		 *  @name     JSONFormatter
@@ -3292,7 +3298,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [1.35ms, 9.80KB]
+		//END INCLUDE: json-formatter [1.44ms, 9.80KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3382,7 +3388,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [2.29ms, 12.46KB]
+	//END INCLUDE: ../lib/attribute [2.15ms, 12.46KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3401,8 +3407,8 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Jun 03 2016 10:05:48 GMT+0200 (CEST)
-	 *    time: 790.80µs
+	 *    date: Fri Jun 03 2016 12:35:33 GMT+0200 (CEST)
+	 *    time: 704.67µs
 	 *    size: 2.83KB
 	 *  ---------------------------------------------------------------------
 	 *   included 4 files
@@ -3515,7 +3521,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [470.59µs, 2.20KB]
+	//END INCLUDE: ../lib/text [378.79µs, 2.20KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {

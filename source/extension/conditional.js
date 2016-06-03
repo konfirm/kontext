@@ -37,6 +37,12 @@
 				}
 			}
 			else if (element.parentNode) {
+				//  ensure the anchor to be right before the element
+				//  this prevents the element from being persisted within any 'temporary' element,
+				//  such as the document-fragment used by the `each`-extension
+				if (element.previousSibling !== anchor) {
+					element.parentNode.insertBefore(anchor, element);
+				}
 				element.parentNode.removeChild(element);
 			}
 		}
