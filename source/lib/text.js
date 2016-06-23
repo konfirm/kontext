@@ -23,13 +23,33 @@ function Text(pattern) {  //  eslint-disable-line no-unused-vars
 			result.push(element);
 		}
 		else {
-			walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+			walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+				acceptNode: filter(/^(script|style)$/i)
+			}, false);
+
 			while ((node = walker.nextNode())) {
 				result.push(node);
 			}
 		}
 
 		return result;
+	}
+
+	/**
+	 *  Create a filter for the TreeWalker based on a regular expression
+	 *  @name    filter
+	 *  @access  internal
+	 *  @param   RegExp  pattern
+	 *  @return  NodeFilter FILTER_ACCEPT | FILTER_SKIP
+	 */
+	function filter(pattern) {
+		return function(node) {
+			if (pattern.test(node.parentNode.nodeName)) {
+				return NodeFilter.FILTER_SKIP;
+			}
+
+			return NodeFilter.FILTER_ACCEPT;
+		};
 	}
 
 	/**
