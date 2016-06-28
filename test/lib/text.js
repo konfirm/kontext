@@ -77,25 +77,22 @@ describe('Text', function() {
 
 		it('not in SCRIPT or STYLE nodes', function() {
 			var fixture = document.querySelector('.fixture'),
-				nodeList = [];
-
-			expect(typeof fixture).toBe('object');
-			expect(fixture.nodeType).toBe(1);
+				nodeList = [
+					document.createElement('style'),
+					document.createElement('script')
+				];
 
 			fixture
-				.appendChild(document.createElement('style'))
+				.appendChild(nodeList[0])
 				.appendChild(document.createTextNode('.a{color:inherit}'));
 
 			fixture
-				.appendChild(document.createElement('script'))
+				.appendChild(nodeList[1])
 				.appendChild(document.createTextNode('var a = {script:1}'));
 
 			new Text(textSettings.pattern).placeholders(fixture, function(text, key, initial) {
-				nodeList.push({text: text, key: key, initial: initial});
+				expect(nodeList.indexOf(text.parentNode)).toBe(-1);
 			});
-
-			expect(nodeList.length).toBe(3);
-			verify(nodeList, ['title', 'foo', 'bar']);
 		});
 	});
 

@@ -13,6 +13,7 @@
 - Changing nested settings can now be shortened using a 'path' (this also applies to object properties)
 - Variable scoping now always searches for the longest possible match
 - The internal JSONFormatter used to interpret the attribute values as JSON has been replaced by a more robust/flexible version
+- Fixed issue where inline `<script>` and/or `<style>` would be interpreted as Text containing placeholders
 
 ### Breaking changes
 As the Kontext versions adhere to the [semantic versioning](http://semver.org) principles, the major version updates whenever something in the (public) API changes which could/would break if it is being used.
@@ -73,8 +74,8 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 - Addressed [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4)
 
 ### Statistics
-- Full size: 93.5K (+28.5K), gzipped: 24.1K (+7.2K)
-- Minified size: 21K (+6K), gzipped: 7.6K (+2K)
+- Full size: 93.9K (+28.9K), gzipped: 24.2K (+7.3K)
+- Minified size: 21.1K (+6.1K), gzipped: 7.6K (+2.1K)
 
 
 ## 1.5.0
