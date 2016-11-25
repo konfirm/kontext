@@ -1,4 +1,4 @@
-/*global spyOn: true, kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
+/* global spyOn: true, kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true */
 describe('Kontext Providers', function() {
 	'use strict';
 

@@ -1,4 +1,4 @@
-/*global kontext: true, Text: true*/
+/* global kontext: true, Text: true */
 /**
  *  Text node provider
  *  @name     Text

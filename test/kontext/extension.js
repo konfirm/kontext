@@ -1,4 +1,4 @@
-/*global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true, spyOn: true*/
+/* global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true, spyOn: true */
 describe('Kontext Extension', function() {
 	'use strict';
 

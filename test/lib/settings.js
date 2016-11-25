@@ -1,4 +1,4 @@
-/*global Settings: true, describe: true, it: true, expect: true*/
+/* global Settings: true, describe: true, it: true, expect: true */
 describe('Settings', function() {
 	'use strict';
 

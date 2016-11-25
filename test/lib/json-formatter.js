@@ -1,4 +1,4 @@
-/*global JSONFormatter: true, describe: true, it: true, expect:true*/
+/* global JSONFormatter: true, describe: true, it: true, expect:true */
 describe('JSONFormatter', function() {
 	'use strict';
 

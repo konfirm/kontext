@@ -1,4 +1,4 @@
-/*global Template: true, describe: true, it: true, expect: true*/
+/* global Template: true, describe: true, it: true, expect: true */
 describe('Template', function() {
 	'use strict';
 

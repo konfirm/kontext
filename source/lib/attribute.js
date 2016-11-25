@@ -1,4 +1,4 @@
-/*global JSONFormatter: true*/
+/* global JSONFormatter: true */
 'use strict';
 
 /**
@@ -29,7 +29,7 @@ function Attribute() {  //  eslint-disable-line no-unused-vars
 					result.push(element);
 				}
 
-				/*falls through*/
+				/* falls through */
 			case 9:   //  DOMDocument (DOMElement if fallen through)
 			case 11:  //  DocumentFragment
 				list = element.querySelectorAll('[' + attr + ']');

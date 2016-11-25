@@ -1,4 +1,4 @@
-/*global Attribute: true, describe: true, it: true, expect: true, beforeEach: true, afterEach: true*/
+/* global Attribute: true, describe: true, it: true, expect: true, beforeEach: true, afterEach: true */
 describe('Attribute', function() {
 	'use strict';
 

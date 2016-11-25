@@ -1,4 +1,4 @@
-/*global kontext: true*/
+/* global kontext: true */
 /**
  *  Manage attributes/values with Kontext
  *  @name     Attribute

@@ -1,4 +1,4 @@
-/*global kontext: true, Attribute: true*/
+/* global kontext: true, Attribute: true */
 /**
  *  Attribute node provider
  *  @name     Attribute

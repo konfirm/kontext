@@ -1,4 +1,4 @@
-/*global kontext: true*/
+/* global kontext: true */
 /**
  *  Manage events from data-kontext attributes
  *  @name     Event

@@ -1,4 +1,4 @@
-/*global beforeEach: true, afterEach: true*/
+/* global beforeEach: true, afterEach: true */
 /**
  *  Traverse any array-like structure and call a function on each item
  *  @name    each

@@ -1,4 +1,4 @@
-/*global Emission: true, Observer: true, Settings: true*/
+/* global Emission: true, Observer: true, Settings: true */
 /*
  *       __    Kontext (version $DEV$ - $DATE$)
  *      /\_\

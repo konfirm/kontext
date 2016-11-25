@@ -1,4 +1,4 @@
-/*global Observer, describe, it, expect*/
+/* global Observer, describe, it, expect */
 describe('Observer', function() {
 	'use strict';
 

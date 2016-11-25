@@ -1,4 +1,4 @@
-/*global kontext: true, describe: true, it: true, expect: true, beforeEach: true, afterEach: true*/
+/* global kontext: true, describe: true, it: true, expect: true, beforeEach: true, afterEach: true */
 describe('Kontext Provider Attribute', function() {
 	'use strict';
 

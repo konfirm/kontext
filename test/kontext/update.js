@@ -1,4 +1,4 @@
-/*global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
+/* global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true */
 describe('Kontext Updates', function() {
 	'use strict';
 

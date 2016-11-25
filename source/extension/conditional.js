@@ -1,4 +1,4 @@
-/*global kontext: true, Condition: true*/
+/* global kontext: true, Condition: true */
 /**
  *  Add conditional display of element based on MongoDB query syntax
  *  @name	  Conditional

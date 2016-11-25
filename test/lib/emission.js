@@ -1,4 +1,4 @@
-/*global Emission: true, describe: true, beforeEach: true, it: true, expect: true*/
+/* global Emission: true, describe: true, beforeEach: true, it: true, expect: true */
 
 describe('Emission', function() {
 	'use strict';

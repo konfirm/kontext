@@ -1,4 +1,4 @@
-/*global kontext: true*/
+/* global kontext: true */
 /**
  *  Work with array from data-kontext attributes
  *  @name     Each

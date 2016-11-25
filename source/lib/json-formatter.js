@@ -1,4 +1,4 @@
-/*global Tokenizer: true*/
+/* global Tokenizer: true */
 'use strict';
 
 //@buildinfo

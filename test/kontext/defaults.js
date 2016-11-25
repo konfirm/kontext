@@ -1,4 +1,4 @@
-/*global kontext: true, describe: true, it: true, expect: true*/
+/* global kontext: true, describe: true, it: true, expect: true */
 describe('Kontext Defaults', function() {
 	'use strict';
 

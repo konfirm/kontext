@@ -1,4 +1,4 @@
-/*global kontext:  true, Text: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
+/* global kontext:  true, Text: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true */
 describe('Text', function() {
 	'use strict';
 

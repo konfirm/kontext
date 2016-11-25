@@ -1,4 +1,4 @@
-/*global Condition: true, describe: true, it: true, expect: true*/
+/* global Condition: true, describe: true, it: true, expect: true */
 describe('Condition', function() {
 	'use strict';
 

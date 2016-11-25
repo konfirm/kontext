@@ -1,4 +1,4 @@
-/*global setup: true, each: true, kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
+/* global setup: true, each: true, kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true */
 describe('Kontext Bind', function() {
 	'use strict';
 
