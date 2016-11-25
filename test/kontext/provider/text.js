@@ -11,40 +11,93 @@ describe('Kontext Provider Text', function() {
 		expect(provider.settings.pattern instanceof RegExp).toBe(true);
 	});
 
-	it('finds all placeholders', function() {
-		var main = document.createElement('main'),
-			collect = [];
+	describe('placeholders', function() {
+		var main = setup();
 
-		main.appendChild(document.createTextNode('hello {greet}'));
-		main.appendChild(document.createElement('div'))
-			.appendChild(document.createTextNode('a {foo:fool} walks into a {bar:trap}.'));
-		main.appendChild(document.createTextNode('goodbye {target}!'));
+		it('finds in DOMText', function() {
+			var text = document.createTextNode('hello {world}');
 
-		provider.handler(provider.settings, main, function(target, options) {
-			expect(target.nodeType).toBe(3);
+			provider.handler(provider.settings, text, function(target, options) {
+				expect(target.nodeType).toBe(3);
 
-			expect('text' in options).toBe(true);
-			expect(typeof options.text).toBe('object');
-			expect('target' in options.text).toBe(true);
-			expect('initial' in options.text).toBe(true);
+				expect('text' in options).toBe(true);
+				expect(typeof options.text).toBe('object');
+				expect('target' in options.text).toBe(true);
+				expect('initial' in options.text).toBe(true);
 
-			if (options.text.target === 'foo') {
-				expect(options.text.initial).toBe('fool');
-			}
-			else if (options.text.target === 'bar') {
-				expect(options.text.initial).toBe('trap');
-			}
-			else {
-				expect(options.text.initial).toBe(undefined);
-			}
-
-			collect.push(options.text.target);
+				expect(options.text.target).toBe('world');
+			});
 		});
 
-		expect(collect.length).toBe(4);
-		expect(collect.indexOf('greet') >= 0).toBe(true);
-		expect(collect.indexOf('foo') >= 0).toBe(true);
-		expect(collect.indexOf('bar') >= 0).toBe(true);
-		expect(collect.indexOf('target') >= 0).toBe(true);
+		it('finds in single DOMElement', function() {
+			main.node.appendChild(document.createTextNode('hello {world}'));
+
+			provider.handler(provider.settings, main.node, function(target, options) {
+				expect(target.nodeType).toBe(3);
+
+				expect('text' in options).toBe(true);
+				expect(typeof options.text).toBe('object');
+				expect('target' in options.text).toBe(true);
+				expect('initial' in options.text).toBe(true);
+
+				expect(options.text.target).toBe('world');
+			});
+		});
+
+		it('finds in DOM structure', function() {
+			var verify = ['world', 'foo', 'bar'];
+
+			main.node
+				.appendChild(document.createElement('h1'))
+				.appendChild(document.createTextNode('hello {world}'));
+
+			main.node
+				.appendChild(document.createElement('script'))
+				.appendChild(document.createTextNode('var foo = {skip:1}'));
+
+			main.node
+				.appendChild(document.createElement('p'))
+				.appendChild(document.createTextNode('no placeholders'));
+
+			main.node
+				.appendChild(document.createElement('p'))
+				.appendChild(document.createTextNode('a {foo:fool} walks into a {bar:trap}'));
+
+			provider.handler(provider.settings, main.node, function(target, options) {
+				expect(target.nodeType).toBe(3);
+
+				expect('text' in options).toBe(true);
+				expect(typeof options.text).toBe('object');
+				expect('target' in options.text).toBe(true);
+				expect('initial' in options.text).toBe(true);
+
+				expect(verify.indexOf(options.text.target) >= 0).toBe(true);
+
+				if (options.text.target === 'foo') {
+					expect(options.text.initial).toBe('fool');
+				}
+				else if (options.text.target === 'bar') {
+					expect(options.text.initial).toBe('trap');
+				}
+			});
+		});
+
+		it('does not trip over non-DOMNodes', function() {
+			var hit = 0;
+
+			provider.handler(provider.settings, null, function(target, options) {
+				++hit;
+			});
+
+			provider.handler(provider.settings, 'nope', function(target, options) {
+				++hit;
+			});
+
+			provider.handler(provider.settings, true, function(target, options) {
+				++hit;
+			});
+
+			expect(hit).toBe(0);
+		});
 	});
 });

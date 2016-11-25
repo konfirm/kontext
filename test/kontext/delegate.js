@@ -2,6 +2,8 @@
 describe('Kontext Delegate', function() {
 	'use strict';
 
+	var scope = setup();
+
 	it('automatically creates delegates', function() {
 		var model = kontext.bind({
 				foo: 'bar'
@@ -48,7 +50,9 @@ describe('Kontext Delegate', function() {
 			}
 		});
 
-		model.delegateFoo('baz');
+		scope.delay(function() {
+			model.delegateFoo('baz')
+		});
 	});
 
 	it('allows adding elements to explicit delegates, and these are synced with the current value', function(done) {
@@ -72,14 +76,14 @@ describe('Kontext Delegate', function() {
 			expect(o).toBe('bar');
 			expect(n).toBe('qux');
 
-			setTimeout(function() {
+			scope.delay(function() {
 				expect(element.innerText).toBe('hello qux.qux');
 
 				done();
 			}, 20);
 		});
 
-		setTimeout(function() {
+		scope.delay(function() {
 			expect(element.innerText).toBe('hello bar.bar');
 
 			model.delegateFoo('qux');

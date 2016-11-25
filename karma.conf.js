@@ -22,15 +22,14 @@ module.exports = function(config) {
 		'build/extension/**/!(*min|*map).js',
 		'source/lib/**/*.js',
 
-		//  test all extensions
+		//  test helper
+		'test/helpers/setup.js',
+
+		//  actual tests
+		'test/lib/*.js',
 		'test/kontext/provider/*.js',
 		'test/kontext/extension/*.js',
-
-		//  test kontext itself
 		'test/kontext/*.js',
-
-		//  test the (included eventually) library components
-		'test/lib/*.js',
 
 		//  files to be served from the internal webserver
 		{

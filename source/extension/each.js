@@ -223,7 +223,12 @@ kontext.extension('each', function(element, model, config, options) {
 		redrawFunction(collection.reduce(function(result, value, index) {
 			var item = fetch(value, delegate);
 
-			item.model.$index = index;
+			//  update the index, slightly delayed
+			//  this "works around" an issue Kontext has when testing against PhantomJS 2+ which does not
+			//  occur in earlier versions (1.9.*)
+			setTimeout(function() {
+				item.model.$index = index;
+			}, 0);
 
 			return result.concat(item.nodes);
 		}, []));

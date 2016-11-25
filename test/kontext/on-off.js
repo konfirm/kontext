@@ -2,25 +2,10 @@
 describe('Kontext On-Off', function() {
 	'use strict';
 
+	var scope = setup();
+
 	beforeEach(function(done) {
-		var content = '<p>A {onoffFoo:fool} walks into a {onoffBar:trap}</p>',
-			wrapper = document.body.insertBefore(document.createElement('div'), document.body.firstChild);
-
-		wrapper.setAttribute('class', 'fixture');
-		wrapper.innerHTML = content;
-
-		document.body.insertBefore(wrapper, document.body.firstChild);
-
-		done();
-	});
-
-	afterEach(function(done) {
-		var list = document.querySelectorAll('.fixture'),
-			i;
-
-		for (i = 0; i < list.length; ++i) {
-			list[i].parentNode.removeChild(list[i]);
-		}
+		scope.append('<p>A {onoffFoo:fool} walks into a {onoffBar:trap}</p>');
 
 		done();
 	});
@@ -64,15 +49,19 @@ describe('Kontext On-Off', function() {
 				mod.off('update');
 				mod.onoffFoo = 'nope';
 
-				setTimeout(function() {
+				scope.delay(function() {
 					expect(notes).toBe(2);
+
 					done();
 				}, 100);
 			}
 		});
 
-		model.onoffFoo = 'baz';
+		scope.delay(function() {
+			model.onoffFoo = 'baz';
+		});
 	});
+
 
 	it('recursively triggers for submodels', function(done) {
 		var model = kontext.bind({
@@ -107,6 +96,8 @@ describe('Kontext On-Off', function() {
 			expect(k).toBe('baz');
 		});
 
-		model.foo.bar.baz = 'changed';
+		scope.delay(function() {
+			model.foo.bar.baz = 'changed';
+		});
 	});
 });

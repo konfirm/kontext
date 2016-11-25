@@ -96,6 +96,8 @@ describe('Kontext Extension Conditional', function() {
 		});
 	}
 
+	var scope = setup();
+
 	it('implements public evaluation method', function() {
 		var condition = kontext.extension('conditional');
 
@@ -272,7 +274,9 @@ describe('Kontext Extension Conditional', function() {
 					}, 20);
 				});
 
-				model.num = 1;
+				scope.delay(function() {
+					model.num = 1;
+				});
 			});
 		});
 	});

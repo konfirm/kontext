@@ -64,4 +64,35 @@ describe('Settings', function() {
 		expect(override.foo).toBe('fool');
 		expect(override.bar).toBe(settings.public('bar'));
 	});
+
+	describe('get/set keys through accessors', function() {
+		var test = [
+				'test.a', 'test.a.b', 'test.a.b.c'
+			];
+
+		['public', '_'].forEach(function(name) {
+			var unpredictable = Math.round(Math.random() * 1000).toString(36);
+
+			test.forEach(function(key) {
+				it(name + ' ' + key + ' (setting up unpredictable)', function() {
+					expect(settings[name](key)).toBe(undefined);
+					expect(settings[name](key, unpredictable)).toBe(unpredictable);
+					expect(settings[name](key)).toBe(unpredictable);
+				});
+			});
+
+			test.forEach(function(key, i, all) {
+				if (i < all.length - 1) {
+					it(name + ' ' + key + ' is an object', function() {
+						expect(typeof settings[name](key)).toBe('object');
+					});
+				}
+				else {
+					it(name + ' ' + key + ' is the unpredictable value', function() {
+						expect(settings[name](key)).toBe(unpredictable);
+					});
+				}
+			});
+		});
+	});
 });

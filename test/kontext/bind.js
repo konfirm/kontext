@@ -2,64 +2,38 @@
 describe('Kontext Bind', function() {
 	'use strict';
 
-	beforeEach(function(done) {
-		var content = '<p>{foo:fool}, {bar} and {baz}</p>',
-			wrapper = document.body.insertBefore(document.createElement('div'), document.body.firstChild);
+	var scope = setup();
 
-		wrapper.setAttribute('class', 'fixture');
-		wrapper.innerHTML = content;
-
-		document.body.insertBefore(wrapper, document.body.firstChild);
-
-		done();
-	});
-
-	afterEach(function(done) {
-		var list = document.querySelectorAll('.fixture'),
-			i;
-
-		for (i = 0; i < list.length; ++i) {
-			list[i].parentNode.removeChild(list[i]);
-		}
-
-		done();
-	});
-
-	it('binds a model multiple times, never meddles with prepared models', function() {
+	it('binds a model multiple times, without side-effects', function() {
 		var model = {baz: null},
-			a, b, c, d;
+			a, b;
 
-		a = kontext.bind(model, document.body);
-		b = kontext.bind(model, document.body);
-		c = kontext.bind(a);
-		d = kontext.bind(b);
+		a = kontext.bind(model, scope.node);
+		b = kontext.bind(model, scope.node);
 
-		expect(a).toBe(b);
-		expect(b).toBe(c);
-		expect(c).toBe(d);
-		expect(d).toBe(a);
+		expect(a === b).toBe(true);
 
-		expect(kontext.bindings(document.body).length).toBe(1);
-		expect(kontext.bindings(document.body)[0]).toBe(a);
-		expect(kontext.bindings(document.body)[0]).toBe(b);
-		expect(kontext.bindings()[0]).toBe(c);
-		expect(kontext.bindings()[0]).toBe(d);
+		expect(kontext.bindings(scope.node).length).toBe(1);
+
+		expect(kontext.bindings(scope.node)[0]).toBe(a);
+		expect(kontext.bindings(scope.node)[0]).toBe(b);
 	});
 
-	it('allows for argument-less binds', function() {
-		var text = document.body.appendChild(document.createTextNode('{blue:out of the}')),
-			model;
+	it('binds without any arguments', function() {
+		var model;
 
- 		model = kontext.bind();
+		scope.append('out of the {color:blue}');
 
-		expect(typeof model.on).toBe('function');
-		expect(typeof model.off).toBe('function');
-		expect(typeof model.define).toBe('function');
-		expect(typeof model.delegation).toBe('function');
-		expect('blue' in model).toBe(true);
-		expect(model.blue).toBe('out of the');
+		model = kontext.bind();
 
-		document.body.removeChild(text);
+		expect(typeof model).toBe('object');
+
+		each(['on', 'off', 'define', 'delegation'], function(name) {
+			expect(typeof model[name]).toBe('function');
+		})
+
+		expect('color' in model).toBe(true);
+		expect(model.color).toBe('blue');
 	});
 
 	it('binds arrays', function(done) {
@@ -67,39 +41,43 @@ describe('Kontext Bind', function() {
 				list: [
 					{hello: 'world'}
 				]
-			}, document.body),
-			count = 0;
+			}, scope.node);
 
-		model.on('update', function(mod, key) {
-			++count;
+		model.on('update', function(mdl, key) {
+			expect(key).toBe('list');
 
-			expect(model.list.length).toBe(2);
-			expect(model.list[1].hello).toBe(count === 2 ? 'planet' : 'universe');
+			expect(mdl[key][0].hello).toBe('world');
+			expect(mdl[key][1].hello).toBe('planet');
 
-			if (count === 1) {
-				model.list[1].hello = 'planet';
+			if (mdl[key].length === 2) {
+				mdl[key].push({hello: 'universe'});
 			}
 			else {
+				expect(mdl[key][2].hello).toBe('universe');
+
 				done();
 			}
 		});
 
-		model.list.push({hello: 'universe'});
+		model.list.push({hello: 'planet'});
 	});
 
-	// not sure why one would do this, but it is an option so we test it
 	it('binds to DOMText nodes', function(done) {
-		var container = document.createElement('div'),
-			textNode = container.appendChild(document.createTextNode('A {foo} walks into a {bar}')),
-			model = kontext.bind({foo: 'fool', bar: 'trap'}, textNode);
+		var text = document.createTextNode('A {foo} walks into a {bar}'),
+			model;
 
-		model.on('update', function() {
-			expect(container.innerText).toBe('A clown walks into a trap');
+		scope.append(text);
+		model = kontext.bind({foo: 'fool', bar: 'trap'}, text);
+
+		model.on('update', function(mdl, key, prior, current) {
+			expect(scope.node.innerText).toBe('A clown walks into a trap');
 
 			done();
 		});
 
-		model.foo = 'clown';
+		scope.delay(function() {
+			model.foo = 'clown';
+		});
 	});
 
 	describe('binds to elements matching a string selector', function() {

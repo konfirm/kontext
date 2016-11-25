@@ -2,23 +2,10 @@
 describe('Kontext Extension Each', function() {
 	'use strict';
 
-	var element;
+	var scope = setup();
 
 	beforeEach(function(done) {
-		element = document.createElement('div');
-		element.appendChild(document.createElement('strong')).appendChild(document.createTextNode('{a} and {b}'));
-
-		done();
-	});
-
-	afterEach(function(done) {
-		if (element) {
-			if (element.parentNode) {
-				element.parentNode.removeChild(element);
-			}
-
-			element = null;
-		}
+		scope.append('<strong>{a} and {b}</strong>');
 
 		done();
 	});
@@ -27,12 +14,12 @@ describe('Kontext Extension Each', function() {
 		it('object items', function(done) {
 			var model;
 
-			element.setAttribute('data-kontext', 'each: list');
-			model = kontext.bind({list: []}, element);
+			scope.node.setAttribute('data-kontext', 'each: list');
+			model = kontext.bind({list: []}, scope.node);
 
 			model.on('update', function(mod, key, value) {
 				if (key === 'list') {
-					expect(element.childNodes.length).toBe(mod[key].length);
+					expect(scope.node.childNodes.length).toBe(mod[key].length);
 
 					if (mod[key].length < 5) {
 						mod[key].push({
@@ -46,11 +33,13 @@ describe('Kontext Extension Each', function() {
 				}
 			});
 
-			expect(element.childNodes.length).toBe(0);
+			expect(scope.node.childNodes.length).toBe(0);
 
-			model.list.push({
-				a: 'initial',
-				b: 'initial'
+			scope.delay(function() {
+				model.list.push({
+					a: 'initial',
+					b: 'initial'
+				});
 			});
 		});
 
@@ -72,7 +61,7 @@ describe('Kontext Extension Each', function() {
 				//  - first, the template rending is async
 				//  - second, both the $index and $parent properties are updated for each render, which is
 				//            also async (so, the first async update triggers the second async update)
-				setTimeout(function() {
+				scope.delay(function() {
 					expect(main.childNodes.length).toBe(2);
 
 					//  we use the mechanics of javascript which converts an array to string as if
@@ -103,7 +92,7 @@ describe('Kontext Extension Each', function() {
 				expect(model.list[0].$parent).toBe(model.list);
 				expect(model.list[0].$model).toBe(model);
 
-				setTimeout(function() {
+				scope.delay(function() {
 					expect(main.childNodes.length).toBe(2);
 
 					expect(main.childNodes[0].innerText).toBe('0 - a - Model');
@@ -147,7 +136,9 @@ describe('Kontext Extension Each', function() {
 
 			expect(node.childNodes.length).toBe(0);
 
-			model.list.push('initial');
+			scope.delay(function() {
+				model.list.push('initial');
+			});
 		});
 
 		it('string items as {text: $item}', function(done) {
@@ -191,8 +182,8 @@ describe('Kontext Extension Each', function() {
 		var parent = document.createElement('div'),
 			model, end;
 
-		element.setAttribute('data-kontext', 'each: {target:list, self:true}');
-		parent.appendChild(element);
+		scope.node.setAttribute('data-kontext', 'each: {target:list, self:true}');
+		parent.appendChild(scope.node);
 
 		model = kontext.bind({list: []}, parent);
 
@@ -236,7 +227,7 @@ describe('Kontext Extension Each', function() {
 		expect(parent.childNodes.length).toBe(2);
 		expect(parent.firstChild.nodeType).toBe(3);
 		expect(parent.firstChild.nextSibling.nodeType).toBe(3);
-		expect(element.parentNode).toBe(null);
+		expect(scope.node.parentNode).toBe(null);
 
 		model.list.push({
 			a: 'initial',
@@ -248,12 +239,12 @@ describe('Kontext Extension Each', function() {
 		var parent = document.createElement('div'),
 			model;
 
-		while (element.firstChild) {
-			element.removeChild(element.firstChild);
+		while (scope.node.firstChild) {
+			scope.node.removeChild(scope.node.firstChild);
 		}
 
-		element.setAttribute('data-kontext', 'text: $item, each: {target:list, self:true}');
-		parent.appendChild(element);
+		scope.node.setAttribute('data-kontext', 'text: $item, each: {target:list, self:true}');
+		parent.appendChild(scope.node);
 
 		model = kontext.bind({list: []}, parent);
 
@@ -261,7 +252,7 @@ describe('Kontext Extension Each', function() {
 			if (key === 'list') {
 				if (model.list.length === 1) {
 					expect(model.list[0]).toBe('world');
-					expect(parent.innerHTML).toBe('<div data-kontext="text: $item">world</div>');
+					expect(parent.innerHTML).toBe('<main data-kontext="text: $item">world</main>');
 
 					model.list.unshift('hello');
 				}
@@ -273,7 +264,7 @@ describe('Kontext Extension Each', function() {
 					//  we must give the `each` extension some time to redraw the contents as this is
 					//  done using a combination of requestAnimationFrame and setTimeout
 					setTimeout(function() {
-						expect(parent.innerHTML).toBe('<div data-kontext="text: $item">hello</div><div data-kontext="text: $item">world</div>');
+						expect(parent.innerHTML).toBe('<main data-kontext="text: $item">hello</main><main data-kontext="text: $item">world</main>');
 
 						done();
 					}, 100);
@@ -291,14 +282,14 @@ describe('Kontext Extension Each', function() {
 			each = kontext.extension('each'),
 			model;
 
-		while (element.firstChild) {
-			element.removeChild(element.firstChild);
+		while (scope.node.firstChild) {
+			scope.node.removeChild(scope.node.firstChild);
 		}
 
 		kontext.extension('bar', each);
 
-		element.setAttribute('data-foo', 'text: $item, bar: {target:list, self:true}');
-		parent.appendChild(element);
+		scope.node.setAttribute('data-foo', 'text: $item, bar: {target:list, self:true}');
+		parent.appendChild(scope.node);
 
 		model = kontext.bind({list: []}, parent, {'provider.attribute.settings.attribute': 'data-foo'});
 
@@ -306,7 +297,7 @@ describe('Kontext Extension Each', function() {
 			if (key === 'list') {
 				if (model.list.length === 1) {
 					expect(model.list[0]).toBe('world');
-					expect(parent.innerHTML).toBe('<div data-foo="text: $item">world</div>');
+					expect(parent.innerHTML).toBe('<main data-foo="text: $item">world</main>');
 
 					model.list.unshift('hello');
 				}
@@ -318,7 +309,7 @@ describe('Kontext Extension Each', function() {
 					//  we must give the `each` extension some time to redraw the contents as this is
 					//  done using a combination of requestAnimationFrame and setTimeout
 					setTimeout(function() {
-						expect(parent.innerHTML).toBe('<div data-foo="text: $item">hello</div><div data-foo="text: $item">world</div>');
+						expect(parent.innerHTML).toBe('<main data-foo="text: $item">hello</main><main data-foo="text: $item">world</main>');
 
 						done();
 					}, 100);
@@ -335,12 +326,12 @@ describe('Kontext Extension Each', function() {
 		var nest, model, list;
 
 		//  clean up the element, as we want a different structure
-		while (element.lastChild) {
-			element.removeChild(element.lastChild);
+		while (scope.node.lastChild) {
+			scope.node.removeChild(scope.node.lastChild);
 		}
 
-		element.setAttribute('data-kontext', 'each: list');
-		nest = element.appendChild(document.createElement('div'));
+		scope.node.setAttribute('data-kontext', 'each: list');
+		nest = scope.node.appendChild(document.createElement('div'));
 		nest.appendChild(document.createElement('h3')).setAttribute('data-kontext', 'text: name');
 
 		nest = nest.appendChild(document.createElement('div'));
@@ -350,14 +341,14 @@ describe('Kontext Extension Each', function() {
 		model = kontext.bind({list: [
 			{name: 'a', child: [{name: 'a.1'}, {name: 'a.2'}]},
 			{name: 'b', child: [{name: 'b.1'}, {name: 'b.2'}]}
-		]}, element);
+		]}, scope.node);
 
-		list = element.querySelectorAll('h3');
+		list = scope.node.querySelectorAll('h3');
 		expect(list.length).toBe(2);
 		expect(list[0].firstChild.nodeValue).toBe('a');
 		expect(list[1].firstChild.nodeValue).toBe('b');
 
-		list = element.querySelectorAll('span[data-kontext]');
+		list = scope.node.querySelectorAll('span[data-kontext]');
 		expect(list.length).toBe(4);
 		expect(list[0].firstChild.nodeValue).toBe('a.1');
 		expect(list[1].firstChild.nodeValue).toBe('a.2');
@@ -368,11 +359,11 @@ describe('Kontext Extension Each', function() {
 			var child;
 
 			if (key === 'list') {
-				child = element.querySelectorAll('h3');
+				child = scope.node.querySelectorAll('h3');
 				expect(child.length).toBe(3);
 				expect(child[2].firstChild.nodeValue).toBe('c');
 
-				child = element.querySelectorAll('span[data-kontext]');
+				child = scope.node.querySelectorAll('span[data-kontext]');
 				expect(child.length).toBe(5);
 				expect(child[4].firstChild.nodeValue).toBe('check');
 
@@ -386,12 +377,12 @@ describe('Kontext Extension Each', function() {
 	it('works with settings in objects', function(done) {
 		var model;
 
-		element.setAttribute('data-kontext', 'each: {target: list}');
-		model = kontext.bind({list: []}, element);
+		scope.node.setAttribute('data-kontext', 'each: {target: list}');
+		model = kontext.bind({list: []}, scope.node);
 
 		model.on('update', function(mod, key) {
 			if (key === 'list') {
-				expect(element.childNodes.length).toBe(mod[key].length);
+				expect(scope.node.childNodes.length).toBe(mod[key].length);
 
 				if (mod[key].length < 5) {
 					mod[key].push({
@@ -405,7 +396,7 @@ describe('Kontext Extension Each', function() {
 			}
 		});
 
-		expect(element.childNodes.length).toBe(0);
+		expect(scope.node.childNodes.length).toBe(0);
 
 		model.list.push({
 			a: 'initial',
@@ -416,20 +407,20 @@ describe('Kontext Extension Each', function() {
 	it('filters using a single model method', function(done) {
 		var model;
 
-		element.setAttribute('data-kontext', 'each: {target: list, filter: even}');
+		scope.node.setAttribute('data-kontext', 'each: {target: list, filter: even}');
 		model = kontext.bind({
 			list: [],
 			even: function(m, i) {
 				return i % 2 === 0;
 			}
-		}, element);
+		}, scope.node);
 
 		model.on('update', function(mod, key) {
 			var expectation;
 
 			if (key === 'list') {
 				expectation = model.list.filter(model.even);
-				expect(element.childNodes.length).toBe(expectation.length);
+				expect(scope.node.childNodes.length).toBe(expectation.length);
 
 				if (mod[key].length < 5) {
 					mod[key].push({
@@ -443,7 +434,7 @@ describe('Kontext Extension Each', function() {
 			}
 		});
 
-		expect(element.childNodes.length).toBe(0);
+		expect(scope.node.childNodes.length).toBe(0);
 
 		model.list.push({
 			a: 'initial',
@@ -458,20 +449,20 @@ describe('Kontext Extension Each', function() {
 			return i > 0;
 		};
 
-		element.setAttribute('data-kontext', 'each: {target: list, filter: [even, skipFirst]}');
+		scope.node.setAttribute('data-kontext', 'each: {target: list, filter: [even, skipFirst]}');
 		model = kontext.bind({
 			list: [],
 			even: function(m, i) {
 				return i % 2 === 0;
 			}
-		}, element);
+		}, scope.node);
 
 		model.on('update', function(mod, key) {
 			var expectation;
 
 			if (key === 'list') {
 				expectation = model.list.filter(model.even).filter(window.skipFirst);
-				expect(element.childNodes.length).toBe(expectation.length);
+				expect(scope.node.childNodes.length).toBe(expectation.length);
 
 				if (mod[key].length < 5) {
 					mod[key].push({
@@ -485,7 +476,7 @@ describe('Kontext Extension Each', function() {
 			}
 		});
 
-		expect(element.childNodes.length).toBe(0);
+		expect(scope.node.childNodes.length).toBe(0);
 
 		model.list.push({
 			a: 'initial',
@@ -496,50 +487,50 @@ describe('Kontext Extension Each', function() {
 	it('removes elements which are no longer needed', function(done) {
 		var model;
 
-		element.setAttribute('data-kontext', 'each: list');
-		element.removeChild(element.firstChild);
-		element.appendChild(document.createElement('div')).appendChild(document.createTextNode('{$item}'));
+		scope.node.setAttribute('data-kontext', 'each: list');
+		scope.node.removeChild(scope.node.firstChild);
+		scope.node.appendChild(document.createElement('div')).appendChild(document.createTextNode('{$item}'));
 
 		model = kontext.bind({
 			list: ['a', 'b', 'c']
-		}, element);
+		}, scope.node);
 
 		model.list.splice(1, 1);
 
 		setTimeout(function() {
-			expect(element.childNodes.length).toBe(model.list.length);
-			expect(element.childNodes[0].firstChild.data).toBe('a');
-			expect(element.childNodes[1].firstChild.data).toBe('c');
+			expect(scope.node.childNodes.length).toBe(model.list.length);
+			expect(scope.node.childNodes[0].firstChild.data).toBe('a');
+			expect(scope.node.childNodes[1].firstChild.data).toBe('c');
 
 			done();
 		}, 100);
 	});
 
 	it('throws errors if there is no target', function(done) {
-		element.setAttribute('data-kontext', 'each: {}');
+		scope.node.setAttribute('data-kontext', 'each: {}');
 
 		expect(function() {
-			kontext.bind({list: []}, element);
+			kontext.bind({list: []}, scope.node);
 		}).toThrow(new Error('Missing target for "each"'));
 
 		done();
 	});
 
 	it('throws errors if a filter method/function does not exist', function(done) {
-		element.setAttribute('data-kontext', 'each: {target: list, filter: nope}');
+		scope.node.setAttribute('data-kontext', 'each: {target: list, filter: nope}');
 
 		expect(function() {
-			kontext.bind({list: []}, element);
+			kontext.bind({list: []}, scope.node);
 		}).toThrow(new Error('nope is not a filter function'));
 
 		done();
 	});
 
 	it('throws errors if a map method/function does not exist', function(done) {
-		element.setAttribute('data-kontext', 'each: {target: list, map: nope}');
+		scope.node.setAttribute('data-kontext', 'each: {target: list, map: nope}');
 
 		expect(function() {
-			kontext.bind({list: []}, element);
+			kontext.bind({list: []}, scope.node);
 		}).toThrow(new Error('nope is not a map function'));
 
 		done();
@@ -547,20 +538,20 @@ describe('Kontext Extension Each', function() {
 
 	describe('does not trip over non-existant target', function() {
 		it('object config', function(done) {
-			element.setAttribute('data-kontext', 'each: {target: nope}');
+			scope.node.setAttribute('data-kontext', 'each: {target: nope}');
 
 			expect(function() {
-				kontext.bind({}, element);
+				kontext.bind({}, scope.node);
 			}).not.toThrow(Error);
 
 			done();
 		});
 
 		it('string config', function(done) {
-			element.setAttribute('data-kontext', 'each: nope');
+			scope.node.setAttribute('data-kontext', 'each: nope');
 
 			expect(function() {
-				kontext.bind({}, element);
+				kontext.bind({}, scope.node);
 			}).not.toThrow(Error);
 
 			done();
