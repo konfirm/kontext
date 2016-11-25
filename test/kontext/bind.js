@@ -1,4 +1,4 @@
-/*global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
+/*global setup: true, each: true, kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
 describe('Kontext Bind', function() {
 	'use strict';
 
@@ -30,7 +30,7 @@ describe('Kontext Bind', function() {
 
 		each(['on', 'off', 'define', 'delegation'], function(name) {
 			expect(typeof model[name]).toBe('function');
-		})
+		});
 
 		expect('color' in model).toBe(true);
 		expect(model.color).toBe('blue');
@@ -38,10 +38,10 @@ describe('Kontext Bind', function() {
 
 	it('binds arrays', function(done) {
 		var model = kontext.bind({
-				list: [
-					{hello: 'world'}
-				]
-			}, scope.node);
+			list: [
+				{hello: 'world'}
+			]
+		}, scope.node);
 
 		model.on('update', function(mdl, key) {
 			expect(key).toBe('list');
@@ -69,7 +69,7 @@ describe('Kontext Bind', function() {
 		scope.append(text);
 		model = kontext.bind({foo: 'fool', bar: 'trap'}, text);
 
-		model.on('update', function(mdl, key, prior, current) {
+		model.on('update', function() {
 			expect(scope.node.innerText).toBe('A clown walks into a trap');
 
 			done();

@@ -1,4 +1,4 @@
-/*global kontext: true, describe: true, it: true, expect: true*/
+/*global setup: true, kontext: true, describe: true, it: true, expect: true*/
 describe('Kontext Delegate', function() {
 	'use strict';
 

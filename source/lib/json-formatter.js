@@ -1,3 +1,4 @@
+/*global Tokenizer: true*/
 'use strict';
 
 //@buildinfo
@@ -10,7 +11,7 @@
  *  @name     JSONFormatter
  *  @package  Kontext
  */
-function JSONFormatter() {
+function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 	var json = this,
 		noquote = /^(?:true|false|null|-?[0-9]+(?:\.[0-9]+)?)$/i,
 		tokenizer = new Tokenizer({
@@ -119,6 +120,7 @@ function JSONFormatter() {
 					output = '';
 				}
 				else if ('nest' in item) {
+					//  eslint-disable-next-line no-use-before-define
 					output = output.concat(prepare(item.nest)).concat(item.end.token);
 				}
 

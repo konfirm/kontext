@@ -1,9 +1,25 @@
+/*global beforeEach: true, afterEach: true*/
+/**
+ *  Traverse any array-like structure and call a function on each item
+ *  @name    each
+ *  @access  public
+ *  @param   Array-ish list
+ *  @param   function  callback
+ *  @return  void
+ */
 function each(list, fn) {
 	for (var i = 0; i < list.length; ++i) {
 		fn(list[i], i, list);
 	}
 }
 
+/**
+ *  Remove a node from its parent, if it has one
+ *  @name    remove
+ *  @access  public
+ *  @param   DOMNode  node
+ *  @return  DOMNode  node
+ */
 function remove(node) {
 	if (node.parentNode) {
 		node.parentNode.removeChild(node);
@@ -12,7 +28,15 @@ function remove(node) {
 	return node;
 }
 
-function setup() {
+/**
+ *  Determine the state of the document.body and clean up after the test is done
+ *  provides access to the created node, a convenience `append` function to append
+ *  new contents (string or DOMNode) and a delay function
+ *  @name    setup
+ *  @access  public
+ *  @return  Object  scope
+ */
+function setup() {  //  eslint-disable-line no-unused-vars
 	var state = [],
 		scope = {
 			node: null,

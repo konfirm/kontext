@@ -565,7 +565,7 @@
 			});
 
 			//  iterate over every item in the list and ensure it is a model on its own
-			list.forEach(function(item, index) {
+			list.forEach(function(item) {
 				if (typeof item === 'object' && !prepared(item)) {
 					prepare(item, config.model, config.key)
 						.on('update', function(model, key, value) {
@@ -630,9 +630,9 @@
 		function expandNodeList(list) {
 			return !list.length ? [document.body] : list
 				.reduce(function(all, current) {
-					var list = current instanceof Array ? expandNodeList(current) : (typeof current === 'string' ? document.querySelectorAll(current) : current);
+					var nodes = current instanceof Array ? expandNodeList(current) : (typeof current === 'string' ? document.querySelectorAll(current) : current);
 
-					return list ? all.concat(list.nodeName ? [list] : castToArray(list)) : all;
+					return nodes ? all.concat(nodes.nodeName ? [nodes] : castToArray(nodes)) : all;
 				}, [])
 				.filter(function(node, index, all) {
 					return node && all.indexOf(node) === index;

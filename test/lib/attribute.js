@@ -1,4 +1,4 @@
-/*global Attribute: true, describe: true, it: true, expect: true*/
+/*global Attribute: true, describe: true, it: true, expect: true, beforeEach: true, afterEach: true*/
 describe('Attribute', function() {
 	'use strict';
 
@@ -77,6 +77,9 @@ describe('Attribute', function() {
 			done();
 		});
 
+		/**
+		 *  Simple test runner
+		 */
 		function runner(node, conclusion) {
 			var collect = [];
 

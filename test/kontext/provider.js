@@ -1,4 +1,4 @@
-/*global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
+/*global spyOn: true, kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
 describe('Kontext Providers', function() {
 	'use strict';
 
@@ -209,6 +209,9 @@ describe('Kontext Providers', function() {
 		var wait = 20,
 			main, model;
 
+		/**
+		 *  crude 'custom' provider.
+		 */
 		function custom(settings, element, callback) {
 			var list = element.querySelectorAll('kontext-custom'),
 				i;

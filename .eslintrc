@@ -21,7 +21,10 @@
     ],
     "brace-style": [
         "error",
-        "stroustrup"
+        "stroustrup",
+        {
+          "allowSingleLine": false
+        }
     ],
     "eqeqeq": 2,
     "guard-for-in": 0,

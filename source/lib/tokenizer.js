@@ -5,7 +5,7 @@
  *  @name     Tokenizer
  *  @package  Kontext
  */
-function Tokenizer(tokens) {
+function Tokenizer(tokens) {  //  eslint-disable-line no-unused-vars
 	var tokenizer = this,
 		keys = Object.keys(tokens);
 
@@ -150,6 +150,7 @@ function Tokenizer(tokens) {
 				break;
 			}
 			else if (!greedy && match) {
+				//  eslint-disable-next-line no-use-before-define
 				index = processMatch(text, index, match, result);
 			}
 			else {

@@ -36,6 +36,9 @@ describe('Kontext Provider Attribute', function() {
 			done();
 		});
 
+		/**
+		 *  Simple test runner
+		 */
 		function runner(node, conclusion) {
 			var collect = [];
 
@@ -129,23 +132,23 @@ describe('Kontext Provider Attribute', function() {
 
 	describe('provides json for various markup notations', function() {
 		var list = [
-				//  caution with escaped characters
-				{data: 'foo: "bar\'baz"', expect: {foo: 'bar\'baz'}},
-				{data: 'foo: "bar\\"baz"', expect: {foo: 'bar"baz'}},
-				{data: 'foo"bar', expect: 'foo"bar'},
+			//  caution with escaped characters
+			{data: 'foo: "bar\'baz"', expect: {foo: 'bar\'baz'}},
+			{data: 'foo: "bar\\"baz"', expect: {foo: 'bar"baz'}},
+			{data: 'foo"bar', expect: 'foo"bar'},
 
-				//  true json notation
-				{data: '{"foo": "bar"}', expect: {foo: 'bar'}},
-				{data: '["foo", "bar", 1.2]', expect: ['foo', 'bar', 1.2]},
-				{data: '[{foo: bar}, 1.2]', expect: [{foo: 'bar'}, 1.2]},
-				{data: '"foo: bar"', expect: 'foo: bar'},
+			//  true json notation
+			{data: '{"foo": "bar"}', expect: {foo: 'bar'}},
+			{data: '["foo", "bar", 1.2]', expect: ['foo', 'bar', 1.2]},
+			{data: '[{foo: bar}, 1.2]', expect: [{foo: 'bar'}, 1.2]},
+			{data: '"foo: bar"', expect: 'foo: bar'},
 
-				//  lazy json notation
-				{data: '1, 2, 3.4, -5.7, foo, 8', expect: [1, 2, 3.4, -5.7, 'foo', 8]},
-				{data: 'foo:bar,baz:qux', expect: {foo: 'bar', baz: 'qux'}},
-				{data: '1', expect: 1},
-				{data: '1,2', expect: [1,2]}
-			];
+			//  lazy json notation
+			{data: '1, 2, 3.4, -5.7, foo, 8', expect: [1, 2, 3.4, -5.7, 'foo', 8]},
+			{data: 'foo:bar,baz:qux', expect: {foo: 'bar', baz: 'qux'}},
+			{data: '1', expect: 1},
+			{data: '1,2', expect: [1,2]}
+		];
 
 		list.forEach(function(item) {
 			it('handles data-kontext="' + item.data + '"', function() {
@@ -215,6 +218,9 @@ describe('Kontext Provider Attribute', function() {
 			done();
 		});
 
+		/**
+		 *  Simple test runner
+		 */
 		function runner(node, conclusion) {
 			var collect = [];
 

@@ -9,6 +9,23 @@ function Text(pattern) {  //  eslint-disable-line no-unused-vars
 	var text = this;
 
 	/**
+	 *  Create a filter for the TreeWalker based on a regular expression
+	 *  @name    filter
+	 *  @access  internal
+	 *  @param   RegExp  pattern
+	 *  @return  NodeFilter FILTER_ACCEPT | FILTER_SKIP
+	 */
+	function filter(rx) {
+		return function(node) {
+			if (rx.test(node.parentNode.nodeName)) {
+				return NodeFilter.FILTER_SKIP;
+			}
+
+			return NodeFilter.FILTER_ACCEPT;
+		};
+	}
+
+	/**
 	 *  Obtain all textNodes residing within given element
 	 *  @name    textNodes
 	 *  @access  internal
@@ -33,23 +50,6 @@ function Text(pattern) {  //  eslint-disable-line no-unused-vars
 		}
 
 		return result;
-	}
-
-	/**
-	 *  Create a filter for the TreeWalker based on a regular expression
-	 *  @name    filter
-	 *  @access  internal
-	 *  @param   RegExp  pattern
-	 *  @return  NodeFilter FILTER_ACCEPT | FILTER_SKIP
-	 */
-	function filter(pattern) {
-		return function(node) {
-			if (pattern.test(node.parentNode.nodeName)) {
-				return NodeFilter.FILTER_SKIP;
-			}
-
-			return NodeFilter.FILTER_ACCEPT;
-		};
 	}
 
 	/**

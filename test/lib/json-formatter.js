@@ -2,6 +2,9 @@
 describe('JSONFormatter', function() {
 	'use strict';
 
+	/**
+	 *  Execute a series of tests
+	 */
 	function series(description, list, debug) {
 		describe(description, function() {
 			var json = new JSONFormatter();
@@ -38,6 +41,7 @@ describe('JSONFormatter', function() {
 			{data: '\'true\'', expect: 'true'},
 			{data: '"true"', expect: 'true'},
 			{data: 'false', expect: false},
+
 			// {data: '\'false\'', expect: 'false'},
 			{data: '"false"', expect: 'false'},
 			{data: 'hello', expect: 'hello'},
@@ -64,20 +68,20 @@ describe('JSONFormatter', function() {
 			{data: 'foo: bar, baz: true', expect: {foo: 'bar', baz: true}},
 			{data: '1, 2, 3', expect: [1, 2, 3]},
 			{data: '1, 2,', expect: [1, 2]},
-			{data: 'hello: world,', expect: {hello: 'world'}},
+			{data: 'hello: world,', expect: {hello: 'world'}}
 		]);
 
 		series('respects quoted values', [
 			{data: '"hello:world"', expect: 'hello:world'},
 			{data: '"hello,world"', expect: 'hello,world'},
 			{data: '"hello,\'world"', expect: 'hello,\'world'},
-			{data: '"hello,\'world\'"', expect: 'hello,\'world\''},
+			{data: '"hello,\'world\'"', expect: 'hello,\'world\''}
 		]);
 
 		series('trims keys and values', [
 			{data: '     hello     ', expect: 'hello'},
 			{data: '     hello     :     world     ', expect: {hello: 'world'}},
-			{data: '\t\t\thello:\n\t\tworld', expect: {hello: 'world'}},
+			{data: '\t\t\thello:\n\t\tworld', expect: {hello: 'world'}}
 		]);
 
 		series('allows keywords and numbers to be used as object keys', [
@@ -85,7 +89,7 @@ describe('JSONFormatter', function() {
 			{data: 'false:false', expect: {false: false}},
 			{data: 'null:null', expect: {null: null}},
 			{data: '123:456', expect: {123: 456}},
-			{data: 'true: true, false: false', expect: {true: true,false: false}},
+			{data: 'true: true, false: false', expect: {true: true,false: false}}
 		]);
 
 		series('escaped nested quotation marks', [
@@ -95,13 +99,13 @@ describe('JSONFormatter', function() {
 		series('removes comments from input', [
 			{data: 'hello/*world*/', expect: 'hello'},
 			{data: '/*hello*/world', expect: 'world'},
-			{data: 'a:b,c:d,/*e:f,*/g:h', expect: {a:'b', c: 'd', g: 'h'}},
+			{data: 'a:b,c:d,/*e:f,*/g:h', expect: {a: 'b', c: 'd', g: 'h'}}
 		]);
 
 		series('allows for dashes in keys and values', [
 			{data: 'foo-bar', expect: 'foo-bar'},
 			{data: 'foo-bar: sample-value', expect: {'foo-bar': 'sample-value'}},
-			{data: '"[foo-bar=sample-value]"', expect: '[foo-bar=sample-value]'},
+			{data: '"[foo-bar=sample-value]"', expect: '[foo-bar=sample-value]'}
 		]);
 
 		series('extension use cases', [

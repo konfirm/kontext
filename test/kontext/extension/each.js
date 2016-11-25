@@ -1,4 +1,4 @@
-/*global kontext: true, describe: true, it: true, beforeEach: true, afterEach: true, expect: true*/
+/*global setup: true, kontext: true, describe: true, it: true, beforeEach: true, expect: true*/
 describe('Kontext Extension Each', function() {
 	'use strict';
 
@@ -17,7 +17,7 @@ describe('Kontext Extension Each', function() {
 			scope.node.setAttribute('data-kontext', 'each: list');
 			model = kontext.bind({list: []}, scope.node);
 
-			model.on('update', function(mod, key, value) {
+			model.on('update', function(mod, key) {
 				if (key === 'list') {
 					expect(scope.node.childNodes.length).toBe(mod[key].length);
 
@@ -187,6 +187,7 @@ describe('Kontext Extension Each', function() {
 
 		model = kontext.bind({list: []}, parent);
 
+		// eslint-disable-next-line complexity
 		model.on('update', function(mod, key) {
 			var length = parent.childNodes.length,
 				i, v;

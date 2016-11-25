@@ -379,8 +379,8 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 		//  TODO:  verify if {field: {<condition>, ...}} works the same as $all
 		$all: function(object, key, value) {
 			var a = scope(object, key).map(function(v) {
-					return scope(object, v);
-				});
+				return scope(object, v);
+			});
 
 			return listVerdict(resolve(object, value, T_ARRAY), function(find) {
 				return operation('$in', object, find, a);

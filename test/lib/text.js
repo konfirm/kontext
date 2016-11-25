@@ -34,13 +34,16 @@ describe('Text', function() {
 		clean(done);
 	});
 
+	/**
+	 *  verify the keys in the list
+	 */
 	function verify(list, keys, initial) {
 		list.forEach(function(item, index) {
 			expect(item.text.nodeType).toBe(3);
 			expect(item.text.data[0]).toBe('{');
 			expect(item.text.data[item.text.data.length - 1]).toBe('}');
 			expect(item.key).toBe(keys[index]);
-			expect(item.initial).toBe(initial instanceof Array ? initial[index]: undefined);
+			expect(item.initial).toBe(initial instanceof Array ? initial[index] : undefined);
 		});
 	}
 
@@ -90,7 +93,7 @@ describe('Text', function() {
 				.appendChild(nodeList[1])
 				.appendChild(document.createTextNode('var a = {script:1}'));
 
-			new Text(textSettings.pattern).placeholders(fixture, function(text, key, initial) {
+			new Text(textSettings.pattern).placeholders(fixture, function(text) {
 				expect(nodeList.indexOf(text.parentNode)).toBe(-1);
 			});
 		});

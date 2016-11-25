@@ -1,4 +1,4 @@
-/*global kontext: true, describe: true, it: true, expect: true*/
+/*global setup: true, kontext: true, describe: true, it: true, expect: true*/
 describe('Kontext Provider Text', function() {
 	'use strict';
 
@@ -12,7 +12,7 @@ describe('Kontext Provider Text', function() {
 	});
 
 	describe('placeholders', function() {
-		var main = setup();
+		var scope = setup();
 
 		it('finds in DOMText', function() {
 			var text = document.createTextNode('hello {world}');
@@ -30,9 +30,9 @@ describe('Kontext Provider Text', function() {
 		});
 
 		it('finds in single DOMElement', function() {
-			main.node.appendChild(document.createTextNode('hello {world}'));
+			scope.node.appendChild(document.createTextNode('hello {world}'));
 
-			provider.handler(provider.settings, main.node, function(target, options) {
+			provider.handler(provider.settings, scope.node, function(target, options) {
 				expect(target.nodeType).toBe(3);
 
 				expect('text' in options).toBe(true);
@@ -47,23 +47,23 @@ describe('Kontext Provider Text', function() {
 		it('finds in DOM structure', function() {
 			var verify = ['world', 'foo', 'bar'];
 
-			main.node
+			scope.node
 				.appendChild(document.createElement('h1'))
 				.appendChild(document.createTextNode('hello {world}'));
 
-			main.node
+			scope.node
 				.appendChild(document.createElement('script'))
 				.appendChild(document.createTextNode('var foo = {skip:1}'));
 
-			main.node
+			scope.node
 				.appendChild(document.createElement('p'))
 				.appendChild(document.createTextNode('no placeholders'));
 
-			main.node
+			scope.node
 				.appendChild(document.createElement('p'))
 				.appendChild(document.createTextNode('a {foo:fool} walks into a {bar:trap}'));
 
-			provider.handler(provider.settings, main.node, function(target, options) {
+			provider.handler(provider.settings, scope.node, function(target, options) {
 				expect(target.nodeType).toBe(3);
 
 				expect('text' in options).toBe(true);
@@ -85,15 +85,15 @@ describe('Kontext Provider Text', function() {
 		it('does not trip over non-DOMNodes', function() {
 			var hit = 0;
 
-			provider.handler(provider.settings, null, function(target, options) {
+			provider.handler(provider.settings, null, function() {
 				++hit;
 			});
 
-			provider.handler(provider.settings, 'nope', function(target, options) {
+			provider.handler(provider.settings, 'nope', function() {
 				++hit;
 			});
 
-			provider.handler(provider.settings, true, function(target, options) {
+			provider.handler(provider.settings, true, function() {
 				++hit;
 			});
 

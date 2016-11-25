@@ -1,4 +1,4 @@
-/*global kontext: true, describe: true, afterEach: true, beforeEach: true, it: true, expect: true*/
+/*global setup: true, kontext: true, describe: true, beforeEach: true, it: true, expect: true*/
 describe('Kontext On-Off', function() {
 	'use strict';
 

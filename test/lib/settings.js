@@ -67,8 +67,8 @@ describe('Settings', function() {
 
 	describe('get/set keys through accessors', function() {
 		var test = [
-				'test.a', 'test.a.b', 'test.a.b.c'
-			];
+			'test.a', 'test.a.b', 'test.a.b.c'
+		];
 
 		['public', '_'].forEach(function(name) {
 			var unpredictable = Math.round(Math.random() * 1000).toString(36);
