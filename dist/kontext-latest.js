@@ -15,16 +15,16 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Nov 25 2016 21:37:43 GMT+0100 (CET)
-	 *    time: 3.53ms
-	 *    size: 32.17KB
+	 *    date: Fri Nov 25 2016 22:29:10 GMT+0100 (CET)
+	 *    time: 4.19ms
+	 *    size: 32.13KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
 	 *     +3.93KB source/lib/settings
-	 *     +3.09KB source/lib/emission
-	 *     +2.16KB source/lib/observer
+	 *     +3.06KB source/lib/emission
+	 *     +2.15KB source/lib/observer
 	 *  ---------------------------------------------------------------------
-	 *   total: 41.35KB
+	 *   total: 41.26KB
 	 */
 
 	//  load dependencies
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [1.12ms, 3.72KB]
+	//END INCLUDE: lib/settings [1.35ms, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -286,21 +286,21 @@
 							emission.remove(type, config.handle);
 						}
 
-						//  if-included istanbul ignore next
+						/* istanbul ignore next */
 						return config.invoke >= 0 ? config.handle : false;
 					})
 					.filter(function(callback) {
 						return typeof callback === 'function';
 					});
 
-			//  if-included istanbul ignore next
+			/* istanbul ignore next */
 			if (arguments.length < 3 && typeof arguments[arguments.length - 1] === 'function') {
 				done = arg;
 				arg = [];
 			}
 
 			//  pass on the list of handles to be triggered
-			//  if-included istanbul ignore next
+			/* istanbul ignore next */
 			trigger(list, [].concat(arg), function() {
 				if (done) {
 					done();
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [435.96µs, 2.90KB]
+	//END INCLUDE: lib/emission [509.59µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -327,7 +327,7 @@
 		function init() {
 			var mutationObserver = global.MutationObserver || global.webkitMutationObserver || false;
 
-			// if-included istanbul ignore next
+			/* istanbul ignore next */
 			if (mutationObserver) {
 				mutation = {
 					observer: mutationObserver,
@@ -387,7 +387,7 @@
 		 *  @return  void
 		 */
 		observer.monitor = function(text, delegation) {
-			// if-included istanbul ignore next
+			/* istanbul ignore next */
 			if (mutation) {
 				new mutation.observer(function(mutations) {  //  eslint-disable-line new-cap
 					mutations.forEach(function(mutated) {
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [387.01µs, 2.00KB]
+	//END INCLUDE: lib/observer [473.60µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -1689,7 +1689,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [11.94ms, 11.57KB]
+	//END INCLUDE: ../lib/condition [10.85ms, 11.57KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2684,7 +2684,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [1.31ms, 5.12KB]
+	//END INCLUDE: ../lib/template [965.11µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2766,10 +2766,11 @@ kontext.extension('html', function(element, model, key) {
 	 *  @access  internal
 	 *  @param   Object  search
 	 *  @param   string  key
-	 *  @return  mixed   value  [undefined if not found]
+	 *  @param   mixed   otherwise  [optional, default undefined]
+	 *  @return  mixed   value      [othwerwise if not found]
 	 */
-	function objectKey(object, key) {
-		return object && typeof object === 'object' && key in object ? object[key] : undefined;
+	function objectKey(object, key, otherwise) {
+		return object && typeof object === 'object' && key in object ? object[key] : otherwise;
 	}
 
 	/**
@@ -2810,17 +2811,19 @@ kontext.extension('html', function(element, model, key) {
 	kontext.extension('text', function(element, model, config, options) {
 		'use strict';
 
-		var key = objectKey(config, 'target') || config,
+		var key = objectKey(config, 'target', config),
 			initial = objectKey(config, 'initial'),
 			delegate = key ? model.delegation(key) : null;
 
-		if (options.settings.greedy && !delegate) {
+		//  if no delegate has been found there is no key,
+		//  if the settings allow for greedyness we need to add define the key
+		if (!delegate && options.settings.greedy) {
 			delegate = model.define(key, initial || '');
 		}
 
 		//  if a delegate is found, ensure a DOMText node
 		if (delegate) {
-			if (!delegate() && initial !== undefined) {
+			if (!delegate() && initial) {
 				delegate(initial);
 			}
 
@@ -2840,16 +2843,16 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Nov 25 2016 21:37:43 GMT+0100 (CET)
-	 *    time: 2.48ms
-	 *    size: 13.61KB
+	 *    date: Fri Nov 25 2016 22:29:10 GMT+0100 (CET)
+	 *    time: 2.90ms
+	 *    size: 13.60KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
-	 *    +13.24KB source/provider/../lib/attribute
-	 *    +10.48KB source/provider/../lib/json-formatter
+	 *    +13.23KB source/provider/../lib/attribute
+	 *    +10.47KB source/provider/../lib/json-formatter
 	 *     +5.05KB source/provider/../lib/tokenizer
 	 *  ---------------------------------------------------------------------
-	 *   total: 42.38KB
+	 *   total: 42.35KB
 	 */
 
 	//  load dependencies
@@ -3089,7 +3092,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: tokenizer [563.96µs, 4.98KB]
+		//END INCLUDE: tokenizer [750.79µs, 4.98KB]
 		/**
 		 *  JSON Formatter
 		 *  @name     JSONFormatter
@@ -3281,7 +3284,7 @@ kontext.extension('html', function(element, model, key) {
 			 *  @return  string  JSON-formatted
 			 */
 			json.prepare = function(input) {
-				//  if-included istanbul ignore next
+				/* istanbul ignore next */
 				if (typeof input !== 'string') {
 					return '';
 				}
@@ -3306,7 +3309,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [1.50ms, 10.02KB]
+		//END INCLUDE: json-formatter [1.74ms, 10.01KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3396,7 +3399,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [2.36ms, 12.70KB]
+	//END INCLUDE: ../lib/attribute [2.73ms, 12.69KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3415,17 +3418,17 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Nov 25 2016 21:37:43 GMT+0100 (CET)
-	 *    time: 6.38ms
+	 *    date: Fri Nov 25 2016 22:29:10 GMT+0100 (CET)
+	 *    time: 6.19ms
 	 *    size: 3.31KB
 	 *  ---------------------------------------------------------------------
 	 *   included 4 files
-	 *    +13.24KB source/provider/../lib/attribute
-	 *    +10.48KB source/provider/../lib/json-formatter
+	 *    +13.23KB source/provider/../lib/attribute
+	 *    +10.47KB source/provider/../lib/json-formatter
 	 *     +5.05KB source/provider/../lib/tokenizer
 	 *     +2.83KB source/provider/../lib/text
 	 *  ---------------------------------------------------------------------
-	 *   total: 34.91KB
+	 *   total: 34.89KB
 	 */
 
 	//  load dependencies
@@ -3549,7 +3552,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [765.81µs, 2.66KB]
+	//END INCLUDE: ../lib/text [6.00ms, 2.66KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {

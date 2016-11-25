@@ -17,17 +17,33 @@ authors:
 clean:
 	@rm -rf ./build/* || mkdir -p ./build;
 
-#  build Kontext and all extensions
+#  build only kontext itself
+kontext-only:
+	@devour kontext;
+
+#  build only the kontext extensions
+kontext-extensions:
+	@devour kontext:extensions;
+
+#  build only the kontext providers
+kontext-providers:
+	@devour kontext:providers;
+
+#  build Kontext and all extensions/providers
 kontext:
-	@devour kontext kontext:extensions;
+	@devour kontext kontext:extensions kontext:providers;
 
 #  run the automated tests using npm (once)
 npm-test:
 	@npm test;
 
+#  do some linting (in case of editing without a built-in one)
+lint:
+	@eslint -c .eslintrc {test,source}
+
 #  create a fresh distribution in the dist folder
 distribution:
-	@make clean authors kontext npm-test && \
+	@make clean authors lint npm-test && \
 		mkdir -p dist && \
 		cat build/kontext.js `ls -1 build/{provider,extension}/*.js | grep -v min` > \
 		dist/kontext-$(VERSION).js && \
@@ -35,3 +51,11 @@ distribution:
 		cat build/kontext.min.js build/{provider,extension}/*.min.js > \
 		dist/kontext-$(VERSION).min.js && \
 		cp dist/kontext-$(VERSION).min.js dist/kontext-latest.min.js;
+
+distribution-size-report:
+	@make distribution && \
+		echo "Build sizes:" && \
+		ls -l build/{kontext,extension/*,provider/*}.js | grep -v ".min." && \
+		echo "Distribution sizes:" && \
+		ls -l dist | grep latest && \
+		gzip dist/*latest*js && ls -l dist | grep latest && gunzip dist/*latest*gz;

@@ -13,10 +13,11 @@
 	 *  @access  internal
 	 *  @param   Object  search
 	 *  @param   string  key
-	 *  @return  mixed   value  [undefined if not found]
+	 *  @param   mixed   otherwise  [optional, default undefined]
+	 *  @return  mixed   value      [othwerwise if not found]
 	 */
-	function objectKey(object, key) {
-		return object && typeof object === 'object' && key in object ? object[key] : undefined;
+	function objectKey(object, key, otherwise) {
+		return object && typeof object === 'object' && key in object ? object[key] : otherwise;
 	}
 
 	/**
@@ -57,17 +58,19 @@
 	kontext.extension('text', function(element, model, config, options) {
 		'use strict';
 
-		var key = objectKey(config, 'target') || config,
+		var key = objectKey(config, 'target', config),
 			initial = objectKey(config, 'initial'),
 			delegate = key ? model.delegation(key) : null;
 
-		if (options.settings.greedy && !delegate) {
+		//  if no delegate has been found there is no key,
+		//  if the settings allow for greedyness we need to add define the key
+		if (!delegate && options.settings.greedy) {
 			delegate = model.define(key, initial || '');
 		}
 
 		//  if a delegate is found, ensure a DOMText node
 		if (delegate) {
-			if (!delegate() && initial !== undefined) {
+			if (!delegate() && initial) {
 				delegate(initial);
 			}
 

@@ -19,7 +19,7 @@ function Embed(devour, build) {
 			//  cleanup
 			clean: {
 				'//  strict mode (already enabled)': /(['"])use strict\1;?/g,
-				'/* $1 */': /\/\/if-included (.*)/g
+				'/* $1 */': /\/\/\s*if-included (.*)/g
 			},
 
 			// convenience
