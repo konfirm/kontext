@@ -1,4 +1,4 @@
-/*global Emission: true, Observer: true, Settings: true*/
+/* global Emission: true, Observer: true, Settings: true */
 /*
  *       __    Kontext (version 2.0.0-beta - 2016-11-25)
  *      /\_\
@@ -15,16 +15,16 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Nov 25 2016 19:19:56 GMT+0100 (CET)
-	 *    time: 3.23ms
-	 *    size: 32.13KB
+	 *    date: Fri Nov 25 2016 21:37:43 GMT+0100 (CET)
+	 *    time: 3.53ms
+	 *    size: 32.17KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
 	 *     +3.93KB source/lib/settings
-	 *     +3.06KB source/lib/emission
-	 *     +2.15KB source/lib/observer
+	 *     +3.09KB source/lib/emission
+	 *     +2.16KB source/lib/observer
 	 *  ---------------------------------------------------------------------
-	 *   total: 41.26KB
+	 *   total: 41.35KB
 	 */
 
 	//  load dependencies
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [903.41µs, 3.72KB]
+	//END INCLUDE: lib/settings [1.12ms, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -286,21 +286,21 @@
 							emission.remove(type, config.handle);
 						}
 
-						/* istanbul ignore next */
+						//  if-included istanbul ignore next
 						return config.invoke >= 0 ? config.handle : false;
 					})
 					.filter(function(callback) {
 						return typeof callback === 'function';
 					});
 
-			/* istanbul ignore next */
+			//  if-included istanbul ignore next
 			if (arguments.length < 3 && typeof arguments[arguments.length - 1] === 'function') {
 				done = arg;
 				arg = [];
 			}
 
 			//  pass on the list of handles to be triggered
-			/* istanbul ignore next */
+			//  if-included istanbul ignore next
 			trigger(list, [].concat(arg), function() {
 				if (done) {
 					done();
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [425.29µs, 2.88KB]
+	//END INCLUDE: lib/emission [435.96µs, 2.90KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -327,7 +327,7 @@
 		function init() {
 			var mutationObserver = global.MutationObserver || global.webkitMutationObserver || false;
 
-			/* istanbul ignore next */
+			// if-included istanbul ignore next
 			if (mutationObserver) {
 				mutation = {
 					observer: mutationObserver,
@@ -387,7 +387,7 @@
 		 *  @return  void
 		 */
 		observer.monitor = function(text, delegation) {
-			/* istanbul ignore next */
+			// if-included istanbul ignore next
 			if (mutation) {
 				new mutation.observer(function(mutations) {  //  eslint-disable-line new-cap
 					mutations.forEach(function(mutated) {
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [366.50µs, 1.99KB]
+	//END INCLUDE: lib/observer [387.01µs, 2.00KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -953,7 +953,7 @@
 			});
 
 			//  iterate over every item in the list and ensure it is a model on its own
-			list.forEach(function(item, index) {
+			list.forEach(function(item) {
 				if (typeof item === 'object' && !prepared(item)) {
 					prepare(item, config.model, config.key)
 						.on('update', function(model, key, value) {
@@ -1018,9 +1018,9 @@
 		function expandNodeList(list) {
 			return !list.length ? [document.body] : list
 				.reduce(function(all, current) {
-					var list = current instanceof Array ? expandNodeList(current) : (typeof current === 'string' ? document.querySelectorAll(current) : current);
+					var nodes = current instanceof Array ? expandNodeList(current) : (typeof current === 'string' ? document.querySelectorAll(current) : current);
 
-					return list ? all.concat(list.nodeName ? [list] : castToArray(list)) : all;
+					return nodes ? all.concat(nodes.nodeName ? [nodes] : castToArray(nodes)) : all;
 				}, [])
 				.filter(function(node, index, all) {
 					return node && all.indexOf(node) === index;
@@ -1216,7 +1216,7 @@
 	global.kontext = global.kontext || new Kontext();
 
 })(window);
-/*global kontext: true*/
+/* global kontext: true */
 /**
  *  Manage attributes/values with Kontext
  *  @name     Attribute
@@ -1251,7 +1251,7 @@ kontext.extension('attribute', function(element, model, config) {
 			}
 		});
 });
-/*global kontext: true, Condition: true*/
+/* global kontext: true, Condition: true */
 /**
  *  Add conditional display of element based on MongoDB query syntax
  *  @name	  Conditional
@@ -1625,16 +1625,16 @@ kontext.extension('attribute', function(element, model, config) {
 			},
 
 			//  NOT IMPLEMENTED
-			//$text: function(a, b) {},
-			//$where: function(a, b) {},
+			// $text: function(a, b) {},
+			// $where: function(a, b) {},
 
 			//  Geospatial
 
 			//  NOT IMPLEMENTED
-			//$geoWithin: function() {},
-			//$geoIntersects: function() {},
-			//$near: function() {},
-			//$nearSphere: function() {},
+			// $geoWithin: function() {},
+			// $geoIntersects: function() {},
+			// $near: function() {},
+			// $nearSphere: function() {},
 
 			//  Array
 
@@ -1643,8 +1643,8 @@ kontext.extension('attribute', function(element, model, config) {
 			//  TODO:  verify if {field: {<condition>, ...}} works the same as $all
 			$all: function(object, key, value) {
 				var a = scope(object, key).map(function(v) {
-						return scope(object, v);
-					});
+					return scope(object, v);
+				});
 
 				return listVerdict(resolve(object, value, T_ARRAY), function(find) {
 					return operation('$in', object, find, a);
@@ -1670,10 +1670,10 @@ kontext.extension('attribute', function(element, model, config) {
 			//  Bitwise
 
 			//  NOT IMPLEMENTED
-			//$bitsAllSet: function() {},
-			//$bitsAnySet: function() {},
-			//$bitsAllClear: function() {},
-			//$bitsAnyClear: function() {}
+			// $bitsAllSet: function() {},
+			// $bitsAnySet: function() {},
+			// $bitsAllClear: function() {},
+			// $bitsAnyClear: function() {}
 		};
 
 		/**
@@ -1689,7 +1689,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [12.23ms, 11.56KB]
+	//END INCLUDE: ../lib/condition [11.94ms, 11.57KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -1759,7 +1759,7 @@ kontext.extension('attribute', function(element, model, config) {
 	kontext.extension('conditional', extension);
 
 })(kontext);
-/*global kontext: true*/
+/* global kontext: true */
 (function(kontext) {
 	'use strict';
 
@@ -1805,7 +1805,7 @@ kontext.extension('attribute', function(element, model, config) {
 	});
 
 })(kontext);
-/*global kontext: true*/
+/* global kontext: true */
 /**
  *  Work with array from data-kontext attributes
  *  @name     Each
@@ -2135,7 +2135,7 @@ kontext.extension('each', function(element, model, config, options) {
 
 	init();
 });
-/*global kontext: true*/
+/* global kontext: true */
 /**
  *  Manage events from data-kontext attributes
  *  @name     Event
@@ -2206,7 +2206,7 @@ kontext.extension('event', function(element, model, config) {
 			configure(key, config[key]);
 		});
 });
-/*global kontext: true*/
+/* global kontext: true */
 /**
  *  Manage html from data-kontext attributes
  *  @name	  HTML
@@ -2225,7 +2225,7 @@ kontext.extension('html', function(element, model, key) {
 		})();
 	}
 });
-/*global kontext: true*/
+/* global kontext: true */
 (function(kontext) {
 	'use strict';
 
@@ -2467,7 +2467,7 @@ kontext.extension('html', function(element, model, key) {
 		});
 	});
 })(kontext);
-/*global kontext: true, Template: true*/
+/* global kontext: true, Template: true */
 (function(kontext) {
 	'use strict';
 
@@ -2684,7 +2684,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [998.96µs, 5.12KB]
+	//END INCLUDE: ../lib/template [1.31ms, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2751,7 +2751,7 @@ kontext.extension('html', function(element, model, key) {
 	});
 
 })(kontext);
-/*global kontext: true*/
+/* global kontext: true */
 /**
  *  Manage text from data-kontext attributes
  *  @name     Text
@@ -2829,7 +2829,7 @@ kontext.extension('html', function(element, model, key) {
 		}
 	});
 })(kontext);
-/*global kontext: true, Attribute: true*/
+/* global kontext: true, Attribute: true */
 /**
  *  Attribute node provider
  *  @name     Attribute
@@ -2840,22 +2840,22 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Nov 25 2016 19:19:56 GMT+0100 (CET)
-	 *    time: 2.22ms
-	 *    size: 13.37KB
+	 *    date: Fri Nov 25 2016 21:37:43 GMT+0100 (CET)
+	 *    time: 2.48ms
+	 *    size: 13.61KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
-	 *    +13.01KB source/provider/../lib/attribute
-	 *    +10.25KB source/provider/../lib/json-formatter
-	 *     +4.96KB source/provider/../lib/tokenizer
+	 *    +13.24KB source/provider/../lib/attribute
+	 *    +10.48KB source/provider/../lib/json-formatter
+	 *     +5.05KB source/provider/../lib/tokenizer
 	 *  ---------------------------------------------------------------------
-	 *   total: 41.59KB
+	 *   total: 42.38KB
 	 */
 
 	//  load dependencies
 
 	//BEGIN INCLUDE: ../lib/attribute
-	/*global JSONFormatter: true*/
+	/* global JSONFormatter: true */
 	//  strict mode (already enabled)
 
 	/**
@@ -2868,9 +2868,10 @@ kontext.extension('html', function(element, model, key) {
 
 
 		//BEGIN INCLUDE: json-formatter
+		/* global Tokenizer: true */
 		//  strict mode (already enabled)
 
-		//@buildinfo
+		// @buildinfo
 
 		//  load dependencies
 
@@ -2882,7 +2883,7 @@ kontext.extension('html', function(element, model, key) {
 		 *  @name     Tokenizer
 		 *  @package  Kontext
 		 */
-		function Tokenizer(tokens) {
+		function Tokenizer(tokens) {  //  eslint-disable-line no-unused-vars
 			var tokenizer = this,
 				keys = Object.keys(tokens);
 
@@ -3027,6 +3028,7 @@ kontext.extension('html', function(element, model, key) {
 						break;
 					}
 					else if (!greedy && match) {
+						//  eslint-disable-next-line no-use-before-define
 						index = processMatch(text, index, match, result);
 					}
 					else {
@@ -3087,13 +3089,13 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: tokenizer [532.39µs, 4.89KB]
+		//END INCLUDE: tokenizer [563.96µs, 4.98KB]
 		/**
 		 *  JSON Formatter
 		 *  @name     JSONFormatter
 		 *  @package  Kontext
 		 */
-		function JSONFormatter() {
+		function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 			var json = this,
 				noquote = /^(?:true|false|null|-?[0-9]+(?:\.[0-9]+)?)$/i,
 				tokenizer = new Tokenizer({
@@ -3202,6 +3204,7 @@ kontext.extension('html', function(element, model, key) {
 							output = '';
 						}
 						else if ('nest' in item) {
+							//  eslint-disable-next-line no-use-before-define
 							output = output.concat(prepare(item.nest)).concat(item.end.token);
 						}
 
@@ -3278,7 +3281,7 @@ kontext.extension('html', function(element, model, key) {
 			 *  @return  string  JSON-formatted
 			 */
 			json.prepare = function(input) {
-				/* istanbul ignore next */
+				//  if-included istanbul ignore next
 				if (typeof input !== 'string') {
 					return '';
 				}
@@ -3303,7 +3306,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [1.32ms, 9.80KB]
+		//END INCLUDE: json-formatter [1.50ms, 10.02KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3322,7 +3325,7 @@ kontext.extension('html', function(element, model, key) {
 						result.push(element);
 					}
 
-					/*falls through*/
+					/* falls through */
 				case 9:   //  DOMDocument (DOMElement if fallen through)
 				case 11:  //  DocumentFragment
 					list = element.querySelectorAll('[' + attr + ']');
@@ -3393,7 +3396,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [2.11ms, 12.46KB]
+	//END INCLUDE: ../lib/attribute [2.36ms, 12.70KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3401,7 +3404,7 @@ kontext.extension('html', function(element, model, key) {
 	});
 
 })(kontext);
-/*global kontext: true, Text: true*/
+/* global kontext: true, Text: true */
 /**
  *  Text node provider
  *  @name     Text
@@ -3412,17 +3415,17 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Fri Nov 25 2016 19:19:56 GMT+0100 (CET)
-	 *    time: 6.26ms
-	 *    size: 3.32KB
+	 *    date: Fri Nov 25 2016 21:37:43 GMT+0100 (CET)
+	 *    time: 6.38ms
+	 *    size: 3.31KB
 	 *  ---------------------------------------------------------------------
 	 *   included 4 files
-	 *    +13.01KB source/provider/../lib/attribute
-	 *    +10.25KB source/provider/../lib/json-formatter
-	 *     +4.96KB source/provider/../lib/tokenizer
-	 *     +2.84KB source/provider/../lib/text
+	 *    +13.24KB source/provider/../lib/attribute
+	 *    +10.48KB source/provider/../lib/json-formatter
+	 *     +5.05KB source/provider/../lib/tokenizer
+	 *     +2.83KB source/provider/../lib/text
 	 *  ---------------------------------------------------------------------
-	 *   total: 34.37KB
+	 *   total: 34.91KB
 	 */
 
 	//  load dependencies
@@ -3437,6 +3440,23 @@ kontext.extension('html', function(element, model, key) {
 	 */
 	function Text(pattern) {  //  eslint-disable-line no-unused-vars
 		var text = this;
+
+		/**
+		 *  Create a filter for the TreeWalker based on a regular expression
+		 *  @name    filter
+		 *  @access  internal
+		 *  @param   RegExp  pattern
+		 *  @return  NodeFilter FILTER_ACCEPT | FILTER_SKIP
+		 */
+		function filter(rx) {
+			return function(node) {
+				if (rx.test(node.parentNode.nodeName)) {
+					return NodeFilter.FILTER_SKIP;
+				}
+
+				return NodeFilter.FILTER_ACCEPT;
+			};
+		}
 
 		/**
 		 *  Obtain all textNodes residing within given element
@@ -3463,23 +3483,6 @@ kontext.extension('html', function(element, model, key) {
 			}
 
 			return result;
-		}
-
-		/**
-		 *  Create a filter for the TreeWalker based on a regular expression
-		 *  @name    filter
-		 *  @access  internal
-		 *  @param   RegExp  pattern
-		 *  @return  NodeFilter FILTER_ACCEPT | FILTER_SKIP
-		 */
-		function filter(pattern) {
-			return function(node) {
-				if (pattern.test(node.parentNode.nodeName)) {
-					return NodeFilter.FILTER_SKIP;
-				}
-
-				return NodeFilter.FILTER_ACCEPT;
-			};
 		}
 
 		/**
@@ -3546,7 +3549,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [6.07ms, 2.67KB]
+	//END INCLUDE: ../lib/text [765.81µs, 2.66KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {

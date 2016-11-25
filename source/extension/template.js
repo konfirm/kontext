@@ -2,7 +2,7 @@
 (function(kontext) {
 	'use strict';
 
-	//@include ../lib/template
+	// @include ../lib/template
 
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();

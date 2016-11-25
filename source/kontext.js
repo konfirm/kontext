@@ -11,12 +11,12 @@
 ;(function(global) {
 	'use strict';
 
-	//@buildinfo
+	// @buildinfo
 
 	//  load dependencies
-	//@include lib/settings
-	//@include lib/emission
-	//@include lib/observer
+	// @include lib/settings
+	// @include lib/emission
+	// @include lib/observer
 
 	/**
 	 *  Kontext module

@@ -361,16 +361,16 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 		},
 
 		//  NOT IMPLEMENTED
-		//$text: function(a, b) {},
-		//$where: function(a, b) {},
+		// $text: function(a, b) {},
+		// $where: function(a, b) {},
 
 		//  Geospatial
 
 		//  NOT IMPLEMENTED
-		//$geoWithin: function() {},
-		//$geoIntersects: function() {},
-		//$near: function() {},
-		//$nearSphere: function() {},
+		// $geoWithin: function() {},
+		// $geoIntersects: function() {},
+		// $near: function() {},
+		// $nearSphere: function() {},
 
 		//  Array
 
@@ -406,10 +406,10 @@ function Condition() {  //  eslint-disable-line no-unused-vars
 		//  Bitwise
 
 		//  NOT IMPLEMENTED
-		//$bitsAllSet: function() {},
-		//$bitsAnySet: function() {},
-		//$bitsAllClear: function() {},
-		//$bitsAnyClear: function() {}
+		// $bitsAllSet: function() {},
+		// $bitsAnySet: function() {},
+		// $bitsAllClear: function() {},
+		// $bitsAnyClear: function() {}
 	};
 
 	/**

@@ -99,21 +99,21 @@ function Emission() {  //  eslint-disable-line no-unused-vars
 						emission.remove(type, config.handle);
 					}
 
-					//if-included istanbul ignore next
+					//  if-included istanbul ignore next
 					return config.invoke >= 0 ? config.handle : false;
 				})
 				.filter(function(callback) {
 					return typeof callback === 'function';
 				});
 
-		//if-included istanbul ignore next
+		//  if-included istanbul ignore next
 		if (arguments.length < 3 && typeof arguments[arguments.length - 1] === 'function') {
 			done = arg;
 			arg = [];
 		}
 
 		//  pass on the list of handles to be triggered
-		//if-included istanbul ignore next
+		//  if-included istanbul ignore next
 		trigger(list, [].concat(arg), function() {
 			if (done) {
 				done();

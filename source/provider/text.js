@@ -6,10 +6,10 @@
  */
 (function(kontext) {
 
-	//@buildinfo
+	// @buildinfo
 
 	//  load dependencies
-	//@include ../lib/text
+	// @include ../lib/text
 
 	kontext.provider('text', function(settings, element, callback) {
 

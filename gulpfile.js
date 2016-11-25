@@ -31,43 +31,34 @@ var Wanted = require('wanted'),
 				new Devour(config)
 
 					//  add the kontext task, monitoring and building the public facing javascripts
-					.task('kontext',
-						[
-							'!source/*/**/*.js',
-							'source/kontext.js',
-							'source/@(extension|provider)/**/*.js'
-						],
-						[
-							'!source/@(extension|provider)/**/*.js',
-							'source/**/*.js'
-						]
-					)
+					.task('kontext', [
+						'!source/*/**/*.js',
+						'source/kontext.js',
+						'source/@(extension|provider)/**/*.js'
+					], [
+						'!source/@(extension|provider)/**/*.js',
+						'source/**/*.js'
+					])
 
 					//  compile extensions whenever they change
-					.task('kontext:extensions',
-						[
-							'./source/@(extension)/**/*.js'
-						],
-						[
-							'source/**/*.js'
-						]
-					)
+					.task('kontext:extensions', [
+						'./source/@(extension)/**/*.js'
+					], [
+						'source/**/*.js'
+					])
 
 					//  compile providers whenever they change
-					.task('kontext:providers',
-						[
-							'./source/@(provider)/**/*.js'
-						],
-						[
-							'source/**/*.js'
-						]
-					)
+					.task('kontext:providers', [
+						'./source/@(provider)/**/*.js'
+					], [
+						'source/**/*.js'
+					])
 
 					//  ... start devouring
 					.start()
 				;
 			});
 		})
-		.check({scope:'devDependencies'})
+		.check({scope: 'devDependencies'})
 	;
 })(new Wanted());

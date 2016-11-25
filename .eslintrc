@@ -6,7 +6,9 @@
   "globals": {},
   "rules": {
     "spaced-comment": [
-      "error", "always"
+      "error",
+      "always",
+      {"exceptions": ["@", "i"]}
     ],
     "curly": [
       2,

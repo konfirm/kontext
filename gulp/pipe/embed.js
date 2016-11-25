@@ -6,10 +6,10 @@ function Embed(devour, build) {
 		through = require('through2'),
 		pattern = {
 			//  declarative
-			include: /([\t ]*)\/\/@(include|register):?\s*([a-z0-9_\-\.\/]+)\n/g,
+			include: /([\t ]*)\/\/\s*@(include|register):?\s*([a-z0-9_\-\.\/]+)\n/g,
 			depend: /@depend:?\s(.*)/g,
-			modules: /([\t ]*)\/\/@modules/,
-			info: /([\t ]*)\/\/@buildinfo/,
+			modules: /([\t ]*)\/\/\s*@modules/,
+			info: /([\t ]*)\/\/\s*@buildinfo/,
 
 			//  sanitation
 			header: /^;?\(function\([^\)]*\)\s*\{(?:\s*\/\/.*)?\s*(['"])use strict\1;?\n+/,

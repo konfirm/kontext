@@ -51,7 +51,7 @@ describe('Kontext Delegate', function() {
 		});
 
 		scope.delay(function() {
-			model.delegateFoo('baz')
+			model.delegateFoo('baz');
 		});
 	});
 

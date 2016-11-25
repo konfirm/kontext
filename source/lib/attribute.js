@@ -9,7 +9,7 @@
 function Attribute() {  //  eslint-disable-line no-unused-vars
 	var attribute = this;
 
-	//@include json-formatter
+	// @include json-formatter
 
 	/**
 	 *  Obtain all nodes containing the data attribute residing within given element

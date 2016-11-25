@@ -1,10 +1,10 @@
 /* global Tokenizer: true */
 'use strict';
 
-//@buildinfo
+// @buildinfo
 
 //  load dependencies
-//@include tokenizer
+// @include tokenizer
 
 /**
  *  JSON Formatter
@@ -197,7 +197,7 @@ function JSONFormatter() {  //  eslint-disable-line no-unused-vars
 	 *  @return  string  JSON-formatted
 	 */
 	json.prepare = function(input) {
-		//if-included istanbul ignore next
+		//  if-included istanbul ignore next
 		if (typeof input !== 'string') {
 			return '';
 		}

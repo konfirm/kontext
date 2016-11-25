@@ -14,7 +14,7 @@ function Observer() {  //  eslint-disable-line no-unused-vars
 	function init() {
 		var mutationObserver = global.MutationObserver || global.webkitMutationObserver || false;
 
-		//if-included istanbul ignore next
+		// if-included istanbul ignore next
 		if (mutationObserver) {
 			mutation = {
 				observer: mutationObserver,
@@ -74,7 +74,7 @@ function Observer() {  //  eslint-disable-line no-unused-vars
 	 *  @return  void
 	 */
 	observer.monitor = function(text, delegation) {
-		//if-included istanbul ignore next
+		// if-included istanbul ignore next
 		if (mutation) {
 			new mutation.observer(function(mutations) {  //  eslint-disable-line new-cap
 				mutations.forEach(function(mutated) {
