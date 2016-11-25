@@ -1,6 +1,7 @@
 # Release notes
 
 ## _CURRENT MASTER_ (represented by `kontext-latest(.min).js` in the dist folder!)
+- _BREAKING_: **LICENSE HAS CHANGED**, as of Kontext 2.0.0 the entire library will be using the MIT license.
 - _BREAKING_: Fourth argument to extension invocation is now an options object, not kontext itself
 - _BREAKING_: When re-dispatching (bubbling) an `update`-emission now refers fully to the actual change
 - Added `conditional`-extension (don't worry, abbreviations still work)
@@ -19,6 +20,9 @@
 As the Kontext versions adhere to the [semantic versioning](http://semver.org) principles, the major version updates whenever something in the (public) API changes which could/would break if it is being used.
 
 The impact of these breaking changes is considered to be very minimal and fixing should take no more than fifteen minutes (_if_ anyone is affected at all).
+
+#### License change
+Not a semantic breaking change, though the major version bump is an appropriate reason to move from the GPLv2 license to the more liberal MIT license. The primary reasoning behind this is that there should be no discussion about Kontext can or cannot be used in projects. The GPLv2 license claims that any derivative work should be licensed as GPLv2 aswel, according to some this includes the codebase in which it ends up. The use of Kontext should not introduce this kind of discussion (regardless of whether or not the argument is valid), hence the switch to the MIT license.
 
 #### Variable scoping
 The mechanics behind resolving the variable scope have been altered (slightly), instead of traversing each segment within a (scoped) key (left to right), it now searches for the longest match first (right to left). This behavior allows for models containing properties such as `{"seemingly.nested.key": "value"}` (as created dynamically if the `greedy` setting is `true`, which is the default).

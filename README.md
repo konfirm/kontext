@@ -2,7 +2,6 @@
 Simple and extensible two-way binding library.
 [![Build Status](https://travis-ci.org/konfirm/kontext.svg?branch=v1.0.0)](https://travis-ci.org/konfirm/kontext)[![Coverage Status](https://coveralls.io/repos/konfirm/kontext/badge.svg?branch=master&service=github)](https://coveralls.io/github/konfirm/kontext?branch=master)[![Codacy Badge](https://api.codacy.com/project/badge/grade/f3d42467d2ee4f1f895e26d63d0587ea)](https://www.codacy.com/app/rogier/kontext)
 
-
 ## Why yet-another-two-way-binding-library?
 I could humorously say something like "because I can", which actually is among the true reasons on why I started this project. The primary reason to look into two-way binding - or to be more precise, the configuration of it - was to figure out if it is absolutely required to be using `eval` and/or `new Function` contraptions.
 These are very powerful features of the javascript language, too powerful. In fact these features are actively abused by malicious people to circumvent security precautions in the browser. Luckily there are now countermeasures in modern webbrowsers to disable (or at least discourage) these features, for example CSP ([Content-Security-Policy](https://developer.mozilla.org/en-US/docs/Web/Security/CSP/Introducing_Content_Security_Policy)) headers.
@@ -281,7 +280,7 @@ Set up a condition which determines whether or not to display (and handle) the e
 Example use
 
 ```html
-<div data-kontext="conditional: {$eq: {foo: 'bar'}}">
+<div data-kontext="conditional: {foo: {$eq: 'bar'}}">
 	This does not show up if `foo` does not match 'bar'
 </div>
 ```
@@ -347,4 +346,4 @@ MongoDB has several convenient conditions, which are not implemented by the `con
 
 
 ## License
-GPLv2 © [Konfirm](//kon.fm/site)
+MIT © [Konfirm](//kon.fm/site)

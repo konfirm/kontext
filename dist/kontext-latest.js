@@ -1,9 +1,9 @@
 /*global Emission: true, Observer: true, Settings: true*/
 /*
- *       __    Kontext (version 2.0.0-beta - 2016-06-28)
+ *       __    Kontext (version 2.0.0-beta - 2016-11-25)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
- *   \  / /    Released under the GPL-2.0 license
+ *   \  / /    Released under the MIT license
  *    \/_/     More information: http://konfirm.net/kontext
  *
  *  Contributors:
@@ -15,16 +15,16 @@
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue Jun 28 2016 13:56:55 GMT+0200 (CEST)
-	 *    time: 3.89ms
-	 *    size: 32.01KB
+	 *    date: Fri Nov 25 2016 19:19:56 GMT+0100 (CET)
+	 *    time: 3.23ms
+	 *    size: 32.13KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
 	 *     +3.93KB source/lib/settings
 	 *     +3.06KB source/lib/emission
 	 *     +2.15KB source/lib/observer
 	 *  ---------------------------------------------------------------------
-	 *   total: 41.14KB
+	 *   total: 41.26KB
 	 */
 
 	//  load dependencies
@@ -183,7 +183,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/settings [956.74µs, 3.72KB]
+	//END INCLUDE: lib/settings [903.41µs, 3.72KB]
 	//BEGIN INCLUDE: lib/emission
 	//  strict mode (already enabled)
 
@@ -309,7 +309,7 @@
 		};
 	}
 
-	//END INCLUDE: lib/emission [335.55µs, 2.88KB]
+	//END INCLUDE: lib/emission [425.29µs, 2.88KB]
 	//BEGIN INCLUDE: lib/observer
 	//  strict mode (already enabled)
 
@@ -405,7 +405,7 @@
 		init();
 	}
 
-	//END INCLUDE: lib/observer [417.99µs, 1.99KB]
+	//END INCLUDE: lib/observer [366.50µs, 1.99KB]
 	/**
 	 *  Kontext module
 	 *  @name     Kontext
@@ -457,9 +457,7 @@
 		function init() {
 			/* istanbul ignore next */
 			if (!compatible()) {
-				return setTimeout(function() {
-					emission.trigger('ready', ['Unsupported browser']);
-				}, 0);
+				return emission.trigger('ready', ['Unsupported browser']);
 			}
 
 			//  internal settings
@@ -1138,6 +1136,8 @@
 		 *  @return  function  delegate
 		 */
 		kontext.delegate = function(initial) {
+			//  the internal delegate function allows for more arguments than we are willing to expose
+			//  hence we ensure only the supported arguments to be provided.
 			return delegate(initial);
 		};
 
@@ -1689,7 +1689,7 @@ kontext.extension('attribute', function(element, model, config) {
 		};
 	}
 
-	//END INCLUDE: ../lib/condition [9.37ms, 11.56KB]
+	//END INCLUDE: ../lib/condition [12.23ms, 11.56KB]
 	//  construct the Condiction module once, as it does not contain state, it can be re-used
 	var condition = new Condition();
 
@@ -2030,7 +2030,12 @@ kontext.extension('each', function(element, model, config, options) {
 		redrawFunction(collection.reduce(function(result, value, index) {
 			var item = fetch(value, delegate);
 
-			item.model.$index = index;
+			//  update the index, slightly delayed
+			//  this "works around" an issue Kontext has when testing against PhantomJS 2+ which does not
+			//  occur in earlier versions (1.9.*)
+			setTimeout(function() {
+				item.model.$index = index;
+			}, 0);
 
 			return result.concat(item.nodes);
 		}, []));
@@ -2679,7 +2684,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/template [684.72µs, 5.12KB]
+	//END INCLUDE: ../lib/template [998.96µs, 5.12KB]
 	//  construct the Template module once, as it does not contain state, it can be re-used
 	var template = new Template();
 
@@ -2835,16 +2840,16 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue Jun 28 2016 13:56:55 GMT+0200 (CEST)
-	 *    time: 3.85ms
+	 *    date: Fri Nov 25 2016 19:19:56 GMT+0100 (CET)
+	 *    time: 2.22ms
 	 *    size: 13.37KB
 	 *  ---------------------------------------------------------------------
 	 *   included 3 files
-	 *    +13.00KB source/provider/../lib/attribute
+	 *    +13.01KB source/provider/../lib/attribute
 	 *    +10.25KB source/provider/../lib/json-formatter
 	 *     +4.96KB source/provider/../lib/tokenizer
 	 *  ---------------------------------------------------------------------
-	 *   total: 41.58KB
+	 *   total: 41.59KB
 	 */
 
 	//  load dependencies
@@ -3082,7 +3087,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: tokenizer [1.13ms, 4.89KB]
+		//END INCLUDE: tokenizer [532.39µs, 4.89KB]
 		/**
 		 *  JSON Formatter
 		 *  @name     JSONFormatter
@@ -3298,7 +3303,7 @@ kontext.extension('html', function(element, model, key) {
 			};
 		}
 
-		//END INCLUDE: json-formatter [2.54ms, 9.80KB]
+		//END INCLUDE: json-formatter [1.32ms, 9.80KB]
 		/**
 		 *  Obtain all nodes containing the data attribute residing within given element
 		 *  @name    attributes
@@ -3388,7 +3393,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/attribute [3.71ms, 12.46KB]
+	//END INCLUDE: ../lib/attribute [2.11ms, 12.46KB]
 	kontext.provider('attribute', function(settings, element, callback) {
 		new Attribute().find(settings.attribute, element, callback);
 	}, {
@@ -3407,17 +3412,17 @@ kontext.extension('html', function(element, model, key) {
 	/*
 	 *  BUILD INFO
 	 *  ---------------------------------------------------------------------
-	 *    date: Tue Jun 28 2016 13:56:55 GMT+0200 (CEST)
-	 *    time: 1.09ms
-	 *    size: 3.28KB
+	 *    date: Fri Nov 25 2016 19:19:56 GMT+0100 (CET)
+	 *    time: 6.26ms
+	 *    size: 3.32KB
 	 *  ---------------------------------------------------------------------
 	 *   included 4 files
-	 *    +13.00KB source/provider/../lib/attribute
+	 *    +13.01KB source/provider/../lib/attribute
 	 *    +10.25KB source/provider/../lib/json-formatter
 	 *     +4.96KB source/provider/../lib/tokenizer
-	 *     +2.80KB source/provider/../lib/text
+	 *     +2.84KB source/provider/../lib/text
 	 *  ---------------------------------------------------------------------
-	 *   total: 34.29KB
+	 *   total: 34.37KB
 	 */
 
 	//  load dependencies
@@ -3525,7 +3530,7 @@ kontext.extension('html', function(element, model, key) {
 		}
 
 		/**
-		 *  Obtain all placeholder DOMText nodes withing given element and apply the callback to it
+		 *  Obtain all placeholder DOMText nodes within given element and apply the callback to it
 		 *  @name    placeholders
 		 *  @access  public
 		 *  @param   DOMNode   element
@@ -3533,7 +3538,7 @@ kontext.extension('html', function(element, model, key) {
 		 *  @return  void
 		 */
 		text.placeholders = function(element, callback) {
-			if (element) {
+			if (element && typeof element.nodeType === 'number') {
 				placeholders(element).forEach(function(data) {
 					callback.apply(null, [data.node, data.key, data.initial]);
 				});
@@ -3541,7 +3546,7 @@ kontext.extension('html', function(element, model, key) {
 		};
 	}
 
-	//END INCLUDE: ../lib/text [742.08µs, 2.63KB]
+	//END INCLUDE: ../lib/text [6.07ms, 2.67KB]
 	kontext.provider('text', function(settings, element, callback) {
 
 		new Text(settings.pattern).placeholders(element, function(node, key, initial) {

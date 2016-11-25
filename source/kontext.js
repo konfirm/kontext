@@ -3,7 +3,7 @@
  *       __    Kontext (version $DEV$ - $DATE$)
  *      /\_\
  *   /\/ / /   Copyright 2015-2016, Konfirm (Rogier Spieker <rogier+kontext@konfirm.eu>)
- *   \  / /    Released under the GPL-2.0 license
+ *   \  / /    Released under the MIT license
  *    \/_/     More information: http://konfirm.net/kontext
  *
  *  $CONTRIBUTORS$
