@@ -5,6 +5,9 @@
   },
   "globals": {},
   "rules": {
+    "spaced-comment": [
+      "error", "always"
+    ],
     "curly": [
       2,
       "all"
