@@ -69,9 +69,7 @@
 		function init() {
 			/* istanbul ignore next */
 			if (!compatible()) {
-				return setTimeout(function() {
-					emission.trigger('ready', ['Unsupported browser']);
-				}, 0);
+				return emission.trigger('ready', ['Unsupported browser']);
 			}
 
 			//  internal settings
@@ -750,6 +748,8 @@
 		 *  @return  function  delegate
 		 */
 		kontext.delegate = function(initial) {
+			//  the internal delegate function allows for more arguments than we are willing to expose
+			//  hence we ensure only the supported arguments to be provided.
 			return delegate(initial);
 		};
 

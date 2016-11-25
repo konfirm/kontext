@@ -100,7 +100,7 @@ function Text(pattern) {  //  eslint-disable-line no-unused-vars
 	}
 
 	/**
-	 *  Obtain all placeholder DOMText nodes withing given element and apply the callback to it
+	 *  Obtain all placeholder DOMText nodes within given element and apply the callback to it
 	 *  @name    placeholders
 	 *  @access  public
 	 *  @param   DOMNode   element
@@ -108,7 +108,7 @@ function Text(pattern) {  //  eslint-disable-line no-unused-vars
 	 *  @return  void
 	 */
 	text.placeholders = function(element, callback) {
-		if (element) {
+		if (element && typeof element.nodeType === 'number') {
 			placeholders(element).forEach(function(data) {
 				callback.apply(null, [data.node, data.key, data.initial]);
 			});
