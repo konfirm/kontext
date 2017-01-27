@@ -94,10 +94,11 @@ Previously the `data-kontext` attributes would trip over whitespace like newline
 - Fixed [issue #8: `update` events do not provide the correct previous value](https://github.com/konfirm/kontext/issues/8)
 - Fixed issue with the binding of children of conditional elements
 - Addressed [issue #4 - `each: {self: true}` does not resolve other extensions on itself](https://github.com/konfirm/kontext/issues/4)
+- Addressed [issue #11 - FOUC (Flash Of Unkontexted Content)](https://github.com/konfirm/kontext/issues/11)
 
 ### Statistics
-- Full size: 93.9K (+28.9K), gzipped: 24.2K (+7.3K)
-- Minified size: 21.1K (+6.1K), gzipped: 7.6K (+2.1K)
+- Full size: 95.9K (+30.9K), gzipped: 24.7K (+7.9K)
+- Minified size: 21.5K (+6.5K), gzipped: 7.8K (+2.2K)
 
 
 ## 1.5.0
