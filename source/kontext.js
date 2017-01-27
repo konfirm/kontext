@@ -679,7 +679,7 @@
 			if (match) {
 				nodeList
 					.filter(function(node) {
-						return node.nodeType === 1
+						return node.nodeType === 1;
 					})
 					.forEach(function(node) {
 						value = (node.getAttribute(attribute) || '')
