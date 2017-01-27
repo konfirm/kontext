@@ -658,6 +658,51 @@
 		}
 
 		/**
+		 *  Process any explicit (or default) aftermatch, replacing|adding|removing attribute value (portions)
+		 *  @name    afterBind
+		 *  @access  internal
+		 *  @param   mixed      options  [Object options or null]
+		 *  @param   Array-ish  list of nodes
+		 *  @return  void
+		 */
+		function afterBind(options, nodeList) {
+			var attribute, match, value;
+
+			options = options || {};
+
+			if (typeof options === 'function') {
+				return options();
+			}
+			attribute = options.attribute || 'class';
+			match     = (options.value || '-unbound-kontext').match(/^([+-])?(.+)$/);
+
+			if (match) {
+				nodeList
+					.filter(function(node) {
+						return node.nodeType === 1
+					})
+					.forEach(function(node) {
+						value = (node.getAttribute(attribute) || '')
+							.split(/\s+/)
+							.filter(function(part) {
+								return part && part !== match[2];
+							});
+
+						if (match[1] !== '-') {
+							value = match[1] ? value.concat(match[2]) : [match[2]];
+						}
+
+						if (value.length) {
+							node.setAttribute(attribute, value.join(' '));
+						}
+						else if (node.hasAttribute(attribute)) {
+							node.removeAttribute(attribute);
+						}
+					});
+			}
+		}
+
+		/**
 		 *  Get/set the default options
 		 *  @name    defaults
 		 *  @access  public
@@ -768,10 +813,11 @@
 				last = arg.length ? arg[arg.length - 1] : null,
 				pop = last && !(typeof last === 'string' || contains(last, ['nodeType', 'length'], 1)),
 				options = settings.combine(pop ? arg.pop() : false),
-				exclude = [];
+				exclude = [],
+				nodeList = expandNodeList(arg);
 
 			//  bind the model to each element provided
-			expandNodeList(arg).forEach(function(element) {
+			nodeList.forEach(function(element) {
 				//  register the bond, so we can retrieve it later on
 				bindings(element, model);
 
@@ -806,6 +852,8 @@
 					}
 				});
 			});
+
+			afterBind(options.after || null, nodeList);
 
 			return model;
 		};

@@ -15,6 +15,7 @@
 - Variable scoping now always searches for the longest possible match
 - The internal JSONFormatter used to interpret the attribute values as JSON has been replaced by a more robust/flexible version
 - Fixed issue where inline `<script>` and/or `<style>` would be interpreted as Text containing placeholders
+- Addressed [issue #11 - FOUC (Flash Of Unkontexted Content)](#FOUC)
 
 ### Breaking changes
 As the Kontext versions adhere to the [semantic versioning](http://semver.org) principles, the major version updates whenever something in the (public) API changes which could/would break if it is being used.
@@ -45,6 +46,23 @@ As the argument was rather redundant (`kontext` _must_ have been known in order 
 
 #### '$parent'-property in `each`-items (impact: low)
 The `$parent`-property previously referred to the delegate function, it now refers to the array itself. This will affect any model which resolved the underlying array using `$parent()`, the fix is simple - remove the braces.
+
+### FOUC
+In order to address [issue #11 - FOUC (Flash Of Unkontexted Content)](https://github.com/konfirm/kontext/issues/11) a simple workflow has been implemented.
+By default every `bind` will now remove a class "unbound-kontext" from the element(s) which are targetted (default `<body>`), there are various options to change this behavior by providing an `after` configuration object to the default settings (using `kontext.defaults('after', {...})`) or directly to the `kontext.bind` as last parameter.
+
+Release 2.0 will have a new default setting `after`:
+
+| name                 | value                                                           | purpose |
+|----------------------|-----------------------------------------------------------------|---------|
+| `after`              | `{attribute: "class", value: "-unbound-kontext"}` or `function` | Set, append, remove attribute values on every bound element
+
+The `after` setting is a powerful one, it can be configured to set/append/remove any attribute, and if even that is not yet enough, a function can be provided to take matters in your own hands.
+
+The syntax is simple; put a `-` in front of the value and it will be removed (if present) from the attribute value, similarly a `+` in front of it will append it and otherwise the attribute is simply set to the specified value.
+
+If `after` is configured to be a function, it will get invoked once per `bind` and without any arguments.
+
 
 ### `Each`-extension
 The `each`-extension has received a lot of attention this release, as there are several changes and fixes.

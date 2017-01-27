@@ -7,17 +7,8 @@ I could humorously say something like "because I can", which actually is among t
 These are very powerful features of the javascript language, too powerful. In fact these features are actively abused by malicious people to circumvent security precautions in the browser. Luckily there are now countermeasures in modern webbrowsers to disable (or at least discourage) these features, for example CSP ([Content-Security-Policy](https://developer.mozilla.org/en-US/docs/Web/Security/CSP/Introducing_Content_Security_Policy)) headers.
 Without going into much detail on CSP-headers on itself, most two-way binding libraries require you to send `script-src: 'unsafe-eval'`, which kind of defies the purpose of the CSP-headers.
 
-### Why does the competition use `eval`/`new Function`?
+### Why do other libraries use `eval`/`new Function`?
 As said, these features are very, very powerful. They are what makes it possible to have bindings like: `text: 'hello ' + myWorld`. In short, using these features helps implement powerful features that allow the users to write complex statements in HTML attributes.
-
-### Who is the competition?
-Honestly, Kontext does not really compete with the proven libraries below, as they have a plethora of use-cases, and friendly, active communities. They offer a far more feature-rich library.
-I know this does not seem to plead in favor of Kontext, I try to manage expectations early on.
-
-So, here's are couple of competitors:
-- [Knockout](http://knockoutjs.com)
-- [Ractive](http://www.ractivejs.org)
-
 
 ## Download
 You can download the latest version directly from the [dist folder](/dist) or from the [releases](https://github.com/konfirm/kontext/releases), which also contains previous releases.
@@ -44,7 +35,7 @@ Kontext searches for placeholders in the textual parts of your markup, this mean
 That should be either a familiar syntax, or at least comprehensible.
 
 ### Models
-With Kontext you cannot create an explicit model, it does suffice to simply provide an object and it will become the model. As we are in to a very basic example, the html above would work with the following binding:
+With Kontext you don't create an explicit model, it does suffice to simply provide an object and it will become the model. As we are in to a very basic example, the html above would work with the following binding:
 
 ```js
 kontext.bind({title: 'Hello', body: 'My first article'});
@@ -77,6 +68,16 @@ kontext.bind(model, document.querySelector('#example'));
 
 Either way, the model will remain more or less the same. Given the example above you can still change the title property using `model.title = 'Another title';`, doing so after the `bind` has taken place, this change will be reflected in the html.
 This behavior is achieved by re-defining the basic-type properties of the model and add getter/setter functions for them. This ensures the model to be working as you created it, while still being able to perform the binding.
+
+### Settings
+There are several default settings which can easily be overrided.
+
+| name                 | value                                            | purpose |
+|----------------------|--------------------------------------------------|---------|
+| greedy               | `true`                                           | Any placeholder encountered by the `Text` provider which does not match a property in the model will be added to the model, if a default value is provided in the placeholder, the model propery will have that value
+| abbreviateExtensions | `true`                                           | Allow for the extension names to be abbreviated (e.g. `data-kontext="attr: {..}"` instead of `attribute`)
+| provider.attribute*  | `"data-kontext"`                                 | The attribute in which the kontext configuration is stored. *only available if the `attribute`-provider is used (the default)
+
 
 ### Extensions
 As sometimes a placeholder does not suffice, you can also register extensions which are configured using the `data-kontext` attribute.
