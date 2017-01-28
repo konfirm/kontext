@@ -20,7 +20,7 @@ kontext.extension('attribute', function(element, model, config) {
 		element[(value ? 'set' : 'remove') + 'Attribute'](attribute, value);
 	}
 
-	//  traverse all configure attributes, resolve the variable scope within the model
+	//  traverse all configured attributes, resolve the variable scope within the model
 	//  and start listening for updates
 	Object.keys(config)
 		.forEach(function(attribute) {

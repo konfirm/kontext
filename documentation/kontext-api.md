@@ -43,8 +43,16 @@ Syntax: `Object settings = kontext.defaults(Object settings)`
 
 The default settings are:
 - `bool greedy`, default `true` - add any placeholder key to the model if it is not present
+- `bool abbreviateExtensions`, default `true` - allow for extension names to be abbreviated in the `data-kontext` (or confgured alternative) attribute
 - `string attribute`, default `'data-kontext'` - the html element attribute to process for Kontext extensions
 - `RegExp pattern`, default `/(\{(\$?[a-z0-9_-]+)(?::([^\}]+))?\})/i` (matches: `{key}` and `{key:value}`)
+
+_NOTE_: As of Kontext 2.0 the `string attribute` and `RegExp pattern` settings have been moved to reside in the appropriate provider settings, their values and mechanics remain unchanged.
+
+| version <= 1.5 | version 2.0 >                             |
+|----------------|-------------------------------------------|
+| `"attribute"`  | `"provider.attribute.settings.attribute"` |
+| `"pattern"`    | `"provider.text.settings.pattern"`        |
 
 Placeholder patterns consist of a single regular expression and are used for both detection and obtaining the key/value. While setting up an alternative expression does require some knowledge on regular expressions, the basic requirements for Kontext are rather simple, there need to be three so called groups:
 - The full placeholder: `{key:value}` from `{key:value}` using the default pattern. This needs to be the placeholder in its entirety, including the beginning and end markers
