@@ -7,6 +7,8 @@
  *            <span data-kontext="text: foo">replaced<strong> stuff</strong></span>
  */
 (function(kontext) {
+	'use strict';
+
 	/**
 	 *  Obtain the value of an object key, null if not found
 	 *  @name    objectKey
@@ -56,14 +58,12 @@
 
 	//  register the Text extension to kontext
 	kontext.extension('text', function(element, model, config, options) {
-		'use strict';
-
 		var key = objectKey(config, 'target', config),
 			initial = objectKey(config, 'initial'),
 			delegate = key ? model.delegation(key) : null;
 
 		//  if no delegate has been found there is no key,
-		//  if the settings allow for greedyness we need to add define the key
+		//  if the settings allow for greedyness the key is added to the model
 		if (!delegate && options.settings.greedy) {
 			delegate = model.define(key, initial || '');
 		}
