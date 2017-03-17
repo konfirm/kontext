@@ -17,7 +17,7 @@ kontext.extension('attribute', function(element, model, config) {
 	 *  @return  void
 	 */
 	function update(attribute, value) {
-		element[(value ? 'set' : 'remove') + 'Attribute'](attribute, value);
+		element[(value || value === 0 ? 'set' : 'remove') + 'Attribute'](attribute, value);
 	}
 
 	//  traverse all configured attributes, resolve the variable scope within the model
